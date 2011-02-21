@@ -1,0 +1,4 @@
+C:\Users\seuffert\Documents\develop\xbslink.2008\stunlib\bin\Release\stunlib.dll
+C:\Users\seuffert\Documents\develop\xbslink.2008\stunlib\bin\Release\LumiSoft.Net.xml
+C:\Users\seuffert\Documents\develop\xbslink.2008\stunlib\obj\Release\ResolveAssemblyReference.cache
+C:\Users\seuffert\Documents\develop\xbslink.2008\stunlib\obj\Release\stunlib.dll

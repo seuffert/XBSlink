@@ -1,0 +1,12 @@
+C:\Users\seuffert\Documents\develop\xbslink.2008\Net\Net\bin\Debug\LumiSoft.Net.xml
+C:\Users\seuffert\Documents\develop\xbslink.2008\Net\Net\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\seuffert\Documents\develop\xbslink.2008\Net\Net\bin\Debug\stunlib.dll
+C:\Users\seuffert\Documents\develop\xbslink.2008\Net\Net\bin\Debug\stunlib.pdb
+C:\Users\seuffert\Documents\develop\xbslink.2008\Net\Net\obj\Debug\stunlib.dll
+C:\Users\seuffert\Documents\develop\xbslink.2008\Net\Net\obj\Debug\stunlib.pdb
+C:\Users\seuffert\Documents\develop\xbslink.2008\stunlib\bin\Debug\stunlib.dll
+C:\Users\seuffert\Documents\develop\xbslink.2008\stunlib\bin\Debug\stunlib.pdb
+C:\Users\seuffert\Documents\develop\xbslink.2008\stunlib\bin\Debug\LumiSoft.Net.xml
+C:\Users\seuffert\Documents\develop\xbslink.2008\stunlib\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\seuffert\Documents\develop\xbslink.2008\stunlib\obj\Debug\stunlib.dll
+C:\Users\seuffert\Documents\develop\xbslink.2008\stunlib\obj\Debug\stunlib.pdb
