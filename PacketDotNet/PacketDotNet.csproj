@@ -1,0 +1,182 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{55ABBA4C-AAF9-4726-A592-0C92436CEC92}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>PacketDotNet</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <RootNamespace>PacketDotNet</RootNamespace>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <GenerateDocumentation>true</GenerateDocumentation>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <GenerateDocumentation>true</GenerateDocumentation>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>Libraries\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="ApplicationPacket.cs" />
+    <Compile Include="DataLinkPacket.cs" />
+    <Compile Include="EthernetPacket.cs" />
+    <Compile Include="EthernetPacketType.cs" />
+    <Compile Include="IpPacket.cs" />
+    <Compile Include="Packet.cs" />
+    <Compile Include="SessionPacket.cs" />
+    <Compile Include="TcpPacket.cs" />
+    <Compile Include="TransportProtocols.cs" />
+    <Compile Include="UdpPacket.cs" />
+    <Compile Include="EthernetFields.cs" />
+    <Compile Include="TransportPacket.cs" />
+    <Compile Include="IPProtocol.cs" />
+    <Compile Include="Utils\AnsiEscapeSequences.cs" />
+    <Compile Include="UdpFields.cs" />
+    <Compile Include="MiscUtil\IO\EndianBinaryReader.cs" />
+    <Compile Include="MiscUtil\IO\EndianBinaryWriter.cs" />
+    <Compile Include="MiscUtil\Conversion\BigEndianBitConverter.cs" />
+    <Compile Include="MiscUtil\Conversion\DoubleConverter.cs" />
+    <Compile Include="MiscUtil\Conversion\EndianBitConverter.cs" />
+    <Compile Include="MiscUtil\Conversion\Endianness.cs" />
+    <Compile Include="MiscUtil\Conversion\LittleEndianBitConverter.cs" />
+    <Compile Include="InternetPacket.cs" />
+    <Compile Include="IPv4Fields.cs" />
+    <Compile Include="IPv4Packet.cs" />
+    <Compile Include="IPv6Fields.cs" />
+    <Compile Include="IPv6Packet.cs" />
+    <Compile Include="IpPort.cs" />
+    <Compile Include="Utils\ChecksumUtils.cs" />
+    <Compile Include="TcpFields.cs" />
+    <Compile Include="ARPFields.cs" />
+    <Compile Include="ARPPacket.cs" />
+    <Compile Include="ICMPv6Fields.cs" />
+    <Compile Include="ICMPv6Packet.cs" />
+    <Compile Include="IGMPMessageType.cs" />
+    <Compile Include="IGMPv2Packet.cs" />
+    <Compile Include="InternetLinkLayerPacket.cs" />
+    <Compile Include="IGMPv2Fields.cs" />
+    <Compile Include="LinuxSLLPacket.cs" />
+    <Compile Include="LinuxSLLFields.cs" />
+    <Compile Include="LinuxSLLType.cs" />
+    <Compile Include="IPProtocolType.cs" />
+    <Compile Include="IpVersion.cs" />
+    <Compile Include="LinkLayers.cs" />
+    <Compile Include="Utils\HexPrinter.cs" />
+    <Compile Include="PosixTimeval.cs" />
+    <Compile Include="ILogInactive.cs" />
+    <Compile Include="Utils\RandomUtils.cs" />
+    <Compile Include="PayloadType.cs" />
+    <Compile Include="ICMPv6Types.cs" />
+    <Compile Include="RawPacket.cs" />
+    <Compile Include="ARPOperation.cs" />
+    <Compile Include="PPPoEPacket.cs" />
+    <Compile Include="PPPoEFields.cs" />
+    <Compile Include="PPPoECode.cs" />
+    <Compile Include="PPPPacket.cs" />
+    <Compile Include="PPPFields.cs" />
+    <Compile Include="PPPProtocol.cs" />
+    <Compile Include="ICMPv4TypeCodes.cs" />
+    <Compile Include="ICMPv4Fields.cs" />
+    <Compile Include="ICMPv4Packet.cs" />
+    <Compile Include="Utils\ByteArraySegment.cs" />
+    <Compile Include="PacketOrByteArraySegment.cs" />
+    <Compile Include="LLDPPacket.cs" />
+    <Compile Include="LLDP\TLVTypes.cs" />
+    <Compile Include="LLDP\ChassisSubTypes.cs" />
+    <Compile Include="LLDP\PortSubTypes.cs" />
+    <Compile Include="LLDP\CapabilityOptions.cs" />
+    <Compile Include="LLDP\TLV.cs" />
+    <Compile Include="LLDP\NetworkAddress.cs" />
+    <Compile Include="LLDP\InterfaceNumbering.cs" />
+    <Compile Include="LLDP\EndOfLLDPDU.cs" />
+    <Compile Include="LLDP\ChassisID.cs" />
+    <Compile Include="LLDP\PortID.cs" />
+    <Compile Include="LLDP\TimeToLive.cs" />
+    <Compile Include="LLDP\PortDescription.cs" />
+    <Compile Include="LLDP\SystemName.cs" />
+    <Compile Include="LLDP\SystemDescription.cs" />
+    <Compile Include="LLDP\SystemCapabilities.cs" />
+    <Compile Include="LLDP\ManagementAddress.cs" />
+    <Compile Include="LLDP\OrganizationSpecific.cs" />
+    <Compile Include="LLDP\TLVTypeLength.cs" />
+    <Compile Include="LLDP\AddressFamily.cs" />
+    <Compile Include="LLDP\StringTLV.cs" />
+    <Compile Include="LLDP\TLVCollection.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 %28x86 und x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties>
+        <Policies>
+          <TextStylePolicy FileWidth="120" RemoveTrailingWhitespace="True" inheritsSet="VisualStudio" inheritsScope="text/plain" />
+        </Policies>
+      </Properties>
+    </MonoDevelop>
+  </ProjectExtensions>
+</Project>
