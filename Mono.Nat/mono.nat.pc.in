@@ -1,0 +1,7 @@
+Name: Mono.Nat
+Description: Mono.Nat
+Version: @VERSION@
+
+Requires: 
+Libs: -r:@expanded_libdir@/@PACKAGE@/Mono.Nat.dll
+Libraries=@expanded_libdir@/@PACKAGE@/Mono.Nat.dll
