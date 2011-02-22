@@ -38,12 +38,12 @@ namespace SharpPcap
             get { return packet; }
         }
 
-        private PcapDevice device;
+        private ICaptureDevice device;
 
         /// <summary>
         /// Device this EventArgs was generated for
         /// </summary>
-        public PcapDevice Device
+        public ICaptureDevice Device
         {
             get { return device; }
         }
@@ -55,9 +55,9 @@ namespace SharpPcap
         /// A <see cref="PacketDotNet.RawPacket"/>
         /// </param>
         /// <param name="device">
-        /// A <see cref="PcapDevice"/>
+        /// A <see cref="ICaptureDevice"/>
         /// </param>
-        public CaptureEventArgs(PacketDotNet.RawPacket packet, PcapDevice device)
+        public CaptureEventArgs(PacketDotNet.RawPacket packet, ICaptureDevice device)
         {
             this.packet = packet;
             this.device = device;

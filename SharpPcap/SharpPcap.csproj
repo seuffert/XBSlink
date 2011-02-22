@@ -24,8 +24,6 @@
     </UpgradeBackupLocation>
     <OldToolsVersion>3.5</OldToolsVersion>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -49,8 +47,7 @@
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DocumentationFile>
-    </DocumentationFile>
+    <DocumentationFile>docs\Api\SharpPcap.xml</DocumentationFile>
     <DebugSymbols>true</DebugSymbols>
     <FileAlignment>4096</FileAlignment>
     <Optimize>false</Optimize>
@@ -68,9 +65,8 @@
     <BaseAddress>285212672</BaseAddress>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DocumentationFile>
-    </DocumentationFile>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>docs\Api\SharpPcap.xml</DocumentationFile>
     <FileAlignment>4096</FileAlignment>
     <Optimize>true</Optimize>
     <RegisterForComInterop>false</RegisterForComInterop>
@@ -90,25 +86,40 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.ico" />
+    <Compile Include="AirPcap\AirPcapAdapterBus.cs" />
+    <Compile Include="AirPcap\AirPcapAdapterId.cs" />
+    <Compile Include="AirPcap\AirPcapBands.cs" />
+    <Compile Include="AirPcap\AirPcapChannelInfo.cs" />
+    <Compile Include="AirPcap\AirPcapChannelInfoFlags.cs" />
+    <Compile Include="AirPcap\AirPcapDecryptionState.cs" />
+    <Compile Include="AirPcap\AirPcapDevice.cs" />
+    <Compile Include="AirPcap\AirPcapDeviceCapabilities.cs" />
+    <Compile Include="AirPcap\AirPcapDeviceDescription.cs" />
+    <Compile Include="AirPcap\AirPcapDeviceList.cs" />
+    <Compile Include="AirPcap\AirPcapDeviceTimestamp.cs" />
+    <Compile Include="AirPcap\AirPcapKey.cs" />
+    <Compile Include="AirPcap\AirPcapKeyType.cs" />
+    <Compile Include="AirPcap\AirPcapMacFlags.cs" />
+    <Compile Include="AirPcap\AirPcapMediumType.cs" />
+    <Compile Include="AirPcap\AirPcapPacketHeader.cs" />
+    <Compile Include="AirPcap\AirPcapSafeNativeMethods.cs" />
+    <Compile Include="AirPcap\AirPcapStatistics.cs" />
+    <Compile Include="AirPcap\AirPcapUnmanagedStructures.cs" />
+    <Compile Include="AirPcap\AirPcapValidationType.cs" />
+    <Compile Include="AirPcap\AirPcapVersion.cs" />
+    <Compile Include="AirPcap\Win32SafeNativeMethods.cs" />
     <Compile Include="AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="LivePcapDevice.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="CaptureDeviceList.cs" />
+    <Compile Include="OfflineCaptureDevice.cs" />
     <Compile Include="PcapException.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PcapHeader.cs">
+    <Compile Include="LibPcap\PcapHeader.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="OfflinePcapDevice.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="SendQueue.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="StatisticsModePacket.cs">
+    <Compile Include="LibPcap\OfflinePcapDevice.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Pcap.cs">
@@ -117,41 +128,56 @@
     <Compile Include="Version.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PcapUnmanagedStructures.cs" />
-    <Compile Include="SafeNativeMethods.cs" />
-    <Compile Include="PcapDeviceCaptureLoop.cs" />
-    <Compile Include="PcapAddress.cs" />
-    <Compile Include="Sockaddr.cs" />
-    <Compile Include="PcapInterface.cs" />
+    <Compile Include="LibPcap\PcapUnmanagedStructures.cs" />
+    <Compile Include="LibPcap\LibPcapSafeNativeMethods.cs" />
+    <Compile Include="LibPcap\PcapDeviceCaptureLoop.cs" />
+    <Compile Include="LibPcap\PcapAddress.cs" />
+    <Compile Include="LibPcap\Sockaddr.cs" />
+    <Compile Include="LibPcap\PcapInterface.cs" />
     <Compile Include="DeviceNotReadyException.cs" />
-    <Compile Include="PcapStatistics.cs" />
-    <Compile Include="StatisticsException.cs" />
+    <Compile Include="LibPcap\PcapStatistics.cs" />
     <Compile Include="WinPcapRequiredException.cs" />
     <Compile Include="NotSupportedOnOfflineDeviceException.cs" />
     <Compile Include="PacketArrivalEventHandler.cs" />
-    <Compile Include="StatisticsModeEventHandler.cs" />
     <Compile Include="CaptureStoppedEventHandler.cs" />
     <Compile Include="DeviceMode.cs" />
     <Compile Include="CaptureEventArgs.cs" />
-    <Compile Include="StatisticsModeEventArgs.cs" />
-    <Compile Include="SendQueueTransmitModes.cs" />
-    <Compile Include="CaptureMode.cs" />
-    <Compile Include="PcapDevice.cs" />
-    <Compile Include="LivePcapDeviceList.cs" />
+    <Compile Include="LibPcap\PcapDevice.cs" />
     <Compile Include="ARP.cs" />
     <Compile Include="CaptureStoppedEventStatus.cs" />
+    <Compile Include="InvalidOperationDuringBackgroundCaptureException.cs" />
+    <Compile Include="WinPcap\SafeNativeMethods.cs" />
+    <Compile Include="WinPcap\SendQueue.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="WinPcap\SendQueueTransmitModes.cs" />
+    <Compile Include="WinPcap\StatisticsModeEventArgs.cs" />
+    <Compile Include="WinPcap\StatisticsModeEventHandler.cs" />
+    <Compile Include="WinPcap\StatisticsModePacket.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="WinPcap\OpenFlags.cs" />
+    <Compile Include="ICaptureDevice.cs" />
+    <Compile Include="WinPcap\WinPcapDevice.cs" />
+    <Compile Include="StatisticsException.cs" />
+    <Compile Include="WinPcap\CaptureMode.cs" />
+    <Compile Include="WinPcap\UnmanagedStructures.cs" />
+    <Compile Include="WinPcap\RemoteAuthentication.cs" />
+    <Compile Include="WinPcap\AuthenticationTypes.cs" />
+    <Compile Include="AirPcap\AirPcapLinkTypes.cs" />
+    <Compile Include="ICaptureStatistics.cs" />
+    <Compile Include="WinPcap\WinPcapDeviceList.cs" />
+    <Compile Include="LibPcap\LibPcapLiveDevice.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LibPcap\LibPcapLiveDeviceList.cs" />
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadata Include="Service References\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\PacketDotNet\PacketDotNet.csproj">
-      <Project>{55ABBA4C-AAF9-4726-A592-0C92436CEC92}</Project>
-      <Name>PacketDotNet</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup />
-  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
       <Visible>False</Visible>
       <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
@@ -160,7 +186,7 @@
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
       <Visible>False</Visible>
       <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>true</Install>
+      <Install>false</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
       <Visible>False</Visible>
@@ -185,6 +211,11 @@
         </Policies>
       </Properties>
     </MonoDevelop>
-    <VisualStudio />
   </ProjectExtensions>
+  <ItemGroup>
+    <ProjectReference Include="..\PacketDotNet\PacketDotNet.csproj">
+      <Project>{55ABBA4C-AAF9-4726-A592-0C92436CEC92}</Project>
+      <Name>PacketDotNet</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
