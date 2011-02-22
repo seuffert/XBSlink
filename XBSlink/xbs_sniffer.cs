@@ -53,7 +53,7 @@ namespace XBSlink
 
     class xbs_sniffer
     {
-        private LivePcapDevice pdev = null;
+        private SharpPcap.LibPcap.LibPcapLiveDevice pdev = null;
         public int readTimeoutMilliseconds = 1000;
         public bool pdev_sniff_additional_broadcast = true;
         public bool pdev_filter_use_special_macs = true;
@@ -75,7 +75,7 @@ namespace XBSlink
 
         private xbs_node_list node_list = null;
 
-        public xbs_sniffer(LivePcapDevice dev, bool sniff_additional_broadcast, bool use_special_mac_filter, bool only_forward_special_macs)
+        public xbs_sniffer(SharpPcap.LibPcap.LibPcapLiveDevice dev, bool sniff_additional_broadcast, bool use_special_mac_filter, bool only_forward_special_macs)
         {
             this.pdev_sniff_additional_broadcast = sniff_additional_broadcast;
             this.pdev_filter_use_special_macs = use_special_mac_filter;
@@ -92,8 +92,8 @@ namespace XBSlink
             pdev.Open(DeviceMode.Promiscuous, readTimeoutMilliseconds);
             setPdevFilter();
 
-            if (System.Environment.OSVersion.Platform == PlatformID.Win32NT)
-                pdev.MinToCopy = 10;
+            if (System.Environment.OSVersion.Platform == PlatformID.Win32NT && pdev is SharpPcap.WinPcap.WinPcapDevice)
+                ((SharpPcap.WinPcap.WinPcapDevice)pdev).MinToCopy = 10;
 
             FormMain.addMessage(" - sniffer created on device " + pdev.Description);
 
@@ -330,7 +330,7 @@ namespace XBSlink
 #if DEBUG
                 FormMain.addMessage(" - pdev filter: " + f);
 #endif
-                pdev.SetFilter(f);
+                pdev.Filter = f;
             }
             catch (PcapException)
             {
