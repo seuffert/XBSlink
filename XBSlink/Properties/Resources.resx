@@ -112,10 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="about_xbslink" type="System.Resources.ResXFileRef, System.Windows.Forms">
@@ -151,5 +151,11 @@ Please send this info to xbslink@secudb.de, we might have the right bug spray ;)
 This problem occurs if the WinPCap library is not active. Please make sure WinPCap is loaded.
 
 Do you want XBSlink to try starting the WinPcap driver (NPF) ?</value>
+  </data>
+  <data name="message_no_capture_devices_unix" xml:space="preserve">
+    <value>XBSlink could not find any capture devices in your system.
+This problem occurs if the user has not enough rights to use the pcap library. Please try to run XBSlink as root ("sudo mono XBSlink.exe")
+
+For more information see &lt;http://www.secudb.de/~seuffert/xbslink/faq#question-2&gt;</value>
   </data>
 </root>

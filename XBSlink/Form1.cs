@@ -170,7 +170,10 @@ namespace XBSlink
                 comboBox_captureDevice.SelectedIndex = 0;
             else
             {
-                MessageBox.Show(Resources.message_no_capture_devices, "XBSlink error", MessageBoxButtons.OK ,MessageBoxIcon.Error);
+                if (System.Environment.OSVersion.Platform == PlatformID.Unix)
+                    MessageBox.Show(Resources.message_no_capture_devices_unix, "XBSlink error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                else
+                    MessageBox.Show(Resources.message_no_capture_devices, "XBSlink error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
             return true;
