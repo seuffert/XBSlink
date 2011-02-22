@@ -695,8 +695,11 @@ namespace XBSlink
             textBox_add_MAC.Text = (String)listBox_MAC_list.Items[listBox_MAC_list.SelectedIndex];
             listBox_MAC_list.Items.RemoveAt(listBox_MAC_list.SelectedIndex);
             setSnifferMacList();
-            if (! (listBox_MAC_list.Items.Count >= 0))
+            if (listBox_MAC_list.Items.Count < 1)
+            {
                 button_del_MAC.Enabled = false;
+                checkBox_mac_restriction.Checked = false;
+            }
         }
 
         private String getMacListString()
@@ -761,6 +764,7 @@ namespace XBSlink
                 sniffer.pdev_filter_use_special_macs = checkBox_enable_MAC_list.Checked;
                 sniffer.setPdevFilter();
             }
+            checkBox_mac_restriction.Checked = (listBox_MAC_list.Items.Count > 0) ? checkBox_mac_restriction.Checked : false;
             checkBox_mac_restriction.Enabled = checkBox_enable_MAC_list.Checked;
         }
 
@@ -1118,6 +1122,12 @@ namespace XBSlink
 
         private void checkBox_mac_restriction_CheckedChanged(object sender, EventArgs e)
         {
+            if (listBox_MAC_list.Items.Count < 1 && checkBox_mac_restriction.Checked)
+            {
+                MessageBox.Show("you need to enter at least one MAC address to enable this option.", "XBSlink info", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                checkBox_mac_restriction.Checked = false;
+            }
+
             if (sniffer != null)
             {
                 sniffer.pdev_filter_only_forward_special_macs = checkBox_mac_restriction.Checked;

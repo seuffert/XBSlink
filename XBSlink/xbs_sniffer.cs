@@ -325,7 +325,7 @@ namespace XBSlink
             try
             {
                 String f = (pdev_sniff_additional_broadcast ? pdev_filter_all_broadcast : pdev_filter) + filter_special_macs + filter_sniffed_macs;
-                if (pdev_filter_use_special_macs && pdev_filter_only_forward_special_macs)
+                if (pdev_filter_use_special_macs && pdev_filter_only_forward_special_macs && filter_special_macs.Length>0)
                     f = filter_special_macs;
 #if DEBUG
                 FormMain.addMessage(" - pdev filter: " + f);
