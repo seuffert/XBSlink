@@ -207,6 +207,11 @@ namespace XBSlink
 
         private void initWithRegistryValues()
         {
+            if (xbs_settings.getRegistryValue(xbs_settings.REG_SPECIAL_MAC_LIST) != null)
+                setMacListFromString(xbs_settings.getRegistryValue(xbs_settings.REG_SPECIAL_MAC_LIST));
+            if (xbs_settings.getRegistryValue(xbs_settings.REG_REMOTE_HOST_HISTORY) != null)
+                setRemoteHostHistoryFromString(xbs_settings.getRegistryValue(xbs_settings.REG_REMOTE_HOST_HISTORY));
+
             xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_CAPTURE_DEVICE_NAME, comboBox_captureDevice);
             xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_LOCAL_IP, comboBox_localIP);
             xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_LOCAL_PORT, textBox_local_Port);
@@ -226,11 +231,6 @@ namespace XBSlink
             xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_USE_CLOUDLIST_SERVER_TO_CHECK_INCOMING_PORT, checkBox_useCloudServerForPortCheck);
             xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_CHAT_NICKNAME, textBox_chatNickname);
             xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_CHECK4UPDATES, checkBox_checkForUpdates);
-
-            if (xbs_settings.getRegistryValue(xbs_settings.REG_SPECIAL_MAC_LIST) != null)
-                setMacListFromString(xbs_settings.getRegistryValue(xbs_settings.REG_SPECIAL_MAC_LIST));
-            if (xbs_settings.getRegistryValue(xbs_settings.REG_REMOTE_HOST_HISTORY) != null)
-                setRemoteHostHistoryFromString(xbs_settings.getRegistryValue(xbs_settings.REG_REMOTE_HOST_HISTORY));
 
             if (checkBox_enable_MAC_list.Checked)
                 checkBox_mac_restriction.Enabled = true;
