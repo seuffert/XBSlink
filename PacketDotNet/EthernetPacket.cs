@@ -18,14 +18,16 @@ along with PacketDotNet.  If not, see <http://www.gnu.org/licenses/>.
  *  Copyright 2009 Chris Morgan <chmorgan@gmail.com>
  */
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.NetworkInformation;
+using System.Text;
 using PacketDotNet.Utils;
 using MiscUtil.Conversion;
 
 namespace PacketDotNet
 {
     /// <summary>
-    /// See http://en.wikipedia.org/wiki/Ethernet#Ethernet_frame_types_and_the_EtherType_field 
+    /// See http://en.wikipedia.org/wiki/Ethernet#Ethernet_frame_types_and_the_EtherType_field
     /// </summary>
     public class EthernetPacket : InternetLinkLayerPacket
     {
@@ -34,9 +36,9 @@ namespace PacketDotNet
 #else
         // NOTE: No need to warn about lack of use, the compiler won't
         //       put any calls to 'log' here but we need 'log' to exist to compile
-#pragma warning disable 0169
+#pragma warning disable 0169, 0649
         private static readonly ILogInactive log;
-#pragma warning restore 0169
+#pragma warning restore 0169, 0649
 #endif
 
         /// <value>
@@ -68,6 +70,10 @@ namespace PacketDotNet
                 else if(value is LLDPPacket)
                 {
                     Type = EthernetPacketType.LLDP;
+                }
+                else if(value is PPPoEPacket)
+                {
+                    Type = EthernetPacketType.PointToPointProtocolOverEthernetSessionStage;
                 }
                 else // NOTE: new types should be inserted here
                 {
@@ -154,7 +160,6 @@ namespace PacketDotNet
         public EthernetPacket(PhysicalAddress SourceHwAddress,
                               PhysicalAddress DestinationHwAddress,
                               EthernetPacketType ethernetPacketType)
-            : base(new PosixTimeval())
         {
             log.Debug("");
 
@@ -171,39 +176,18 @@ namespace PacketDotNet
         }
 
         /// <summary>
-        /// Create an EthernetPacket from a byte array 
+        /// Constructor
         /// </summary>
-        /// <param name="Bytes">
-        /// A <see cref="System.Byte"/>
+        /// <param name="bas">
+        /// A <see cref="ByteArraySegment"/>
         /// </param>
-        /// <param name="Offset">
-        /// A <see cref="System.Int32"/>
-        /// </param>
-        public EthernetPacket(byte[] Bytes, int Offset) :
-            this(Bytes, Offset, new PosixTimeval())
-        {
-            log.Debug("");
-        }
-
-        /// <summary>
-        /// Create an EthernetPacket from a byte array and a Timeval 
-        /// </summary>
-        /// <param name="Bytes">
-        /// A <see cref="System.Byte"/>
-        /// </param>
-        /// <param name="Offset">
-        /// A <see cref="System.Int32"/>
-        /// </param>
-        /// <param name="Timeval">
-        /// A <see cref="PosixTimeval"/>
-        /// </param>
-        public EthernetPacket(byte[] Bytes, int Offset, PosixTimeval Timeval) :
-            base(Timeval)
+        public EthernetPacket(ByteArraySegment bas)
         {
             log.Debug("");
 
             // slice off the header portion
-            header = new ByteArraySegment(Bytes, Offset, EthernetFields.HeaderLength);
+            header = new ByteArraySegment(bas);
+            header.Length = EthernetFields.HeaderLength;
 
             // parse the encapsulated bytes
             payloadPacketOrData = ParseEncapsulatedBytes(header, Type, Timeval);
@@ -239,19 +223,19 @@ namespace PacketDotNet
             switch(Type)
             {
             case EthernetPacketType.IpV4:
-                payloadPacketOrData.ThePacket = new IPv4Packet(payload.Bytes, payload.Offset, Timeval);
+                payloadPacketOrData.ThePacket = new IPv4Packet(payload);
                 break;
             case EthernetPacketType.IpV6:
-                payloadPacketOrData.ThePacket = new IPv6Packet(payload.Bytes, payload.Offset, Timeval);
+                payloadPacketOrData.ThePacket = new IPv6Packet(payload);
                 break;
             case EthernetPacketType.Arp:
-                payloadPacketOrData.ThePacket = new ARPPacket(payload.Bytes, payload.Offset, Timeval);
+                payloadPacketOrData.ThePacket = new ARPPacket(payload);
                 break;
             case EthernetPacketType.LLDP:
-                payloadPacketOrData.ThePacket = new LLDPPacket(payload.Bytes, payload.Offset, Timeval);
+                payloadPacketOrData.ThePacket = new LLDPPacket(payload);
                 break;
             case EthernetPacketType.PointToPointProtocolOverEthernetSessionStage:
-                payloadPacketOrData.ThePacket = new PPPoEPacket(payload.Bytes, payload.Offset, Timeval);
+                payloadPacketOrData.ThePacket = new PPPoEPacket(payload);
                 break;
             default: // consider the sub-packet to be a byte array
                 payloadPacketOrData.TheByteArraySegment = payload;
@@ -259,6 +243,28 @@ namespace PacketDotNet
             }
 
             return payloadPacketOrData;
+        }
+
+        /// <summary>
+        /// Returns the EthernetPacket inside of the Packet p or null if
+        /// there is no encapsulated packet
+        /// </summary>
+        /// <param name="p">
+        /// A <see cref="Packet"/>
+        /// </param>
+        /// <returns>
+        /// A <see cref="EthernetPacket"/>
+        /// </returns>
+        public static EthernetPacket GetEncapsulated(Packet p)
+        {
+            log.Debug("");
+
+            if(p is EthernetPacket)
+            {
+                return (EthernetPacket)p;
+            }
+
+            return null;
         }
 
         /// <summary> Fetch ascii escape sequence of the color associated with this packet type.</summary>
@@ -270,46 +276,59 @@ namespace PacketDotNet
             }
         }
 
-        /// <summary> Convert this ethernet packet to a readable string.</summary>
-        public override System.String ToString()
+        /// <summary cref="Packet.ToString(StringOutputType)" />
+        public override string ToString(StringOutputType outputFormat)
         {
-            return ToColoredString(false);
-        }
+            var buffer = new StringBuilder();
+            string color = "";
+            string colorEscape = "";
 
-        /// <summary> Generate string with contents describing this ethernet packet.</summary>
-        /// <param name="colored">whether or not the string should contain ansi
-        /// color escape sequences.
-        /// </param>
-        public override System.String ToColoredString(bool colored)
-        {
-            System.Text.StringBuilder buffer = new System.Text.StringBuilder();
-            buffer.Append('[');
-            if (colored)
-                buffer.Append(Color);
-            buffer.Append("EthernetPacket");
-            if (colored)
-                buffer.Append(AnsiEscapeSequences.Reset);
-            buffer.Append(": ");
-            buffer.Append(SourceHwAddress + " -> " + DestinationHwAddress);
-            buffer.Append(" proto=" + Type.ToString() + " (0x" + System.Convert.ToString((ushort)Type, 16) + ")");
-            buffer.Append(" l=" + EthernetFields.HeaderLength); // + "," + data.length);
-            buffer.Append(']');
+            if(outputFormat == StringOutputType.Colored || outputFormat == StringOutputType.VerboseColored)
+            {
+                color = Color;
+                colorEscape = AnsiEscapeSequences.Reset;
+            }
+
+            if(outputFormat == StringOutputType.Normal || outputFormat == StringOutputType.Colored)
+            {
+                // build the output string
+                buffer.AppendFormat("{0}[EthernetPacket: SourceHwAddress={2}, DestinationHwAddress={3}, Type={4}]{1}",
+                    color,
+                    colorEscape,
+                    HexPrinter.PrintMACAddress(SourceHwAddress),
+                    HexPrinter.PrintMACAddress(DestinationHwAddress),
+                    Type.ToString());
+            }
+
+            if(outputFormat == StringOutputType.Verbose || outputFormat == StringOutputType.VerboseColored)
+            {
+                // collect the properties and their value
+                Dictionary<string,string> properties = new Dictionary<string,string>();
+                properties.Add("destination", HexPrinter.PrintMACAddress(DestinationHwAddress));
+                properties.Add("source", HexPrinter.PrintMACAddress(SourceHwAddress));
+                properties.Add("type", Type.ToString() + " (0x" + Type.ToString("x") + ")");
+
+                // calculate the padding needed to right-justify the property names
+                int padLength = Utils.RandomUtils.LongestStringLength(new List<string>(properties.Keys));
+
+                // build the output string
+                buffer.AppendLine("Eth:  ******* Ethernet - \"Ethernet\" - offset=? length=" + TotalPacketLength);
+                buffer.AppendLine("Eth:");
+                foreach(var property in properties)
+                {
+                    buffer.AppendLine("Eth: " + property.Key.PadLeft(padLength) + " = " + property.Value);
+                }
+                buffer.AppendLine("Eth:");
+            }
 
             // append the base output
-            buffer.Append(base.ToColoredString(colored));
+            buffer.Append(base.ToString(outputFormat));
 
             return buffer.ToString();
         }
 
-        /// <summary> Convert a more verbose string.</summary>
-        public override System.String ToColoredVerboseString(bool colored)
-        {
-            //TODO: just output the colored output for now
-            return ToColoredString(colored);
-        }
-
         /// <summary>
-        /// Generate a random EthernetPacket 
+        /// Generate a random EthernetPacket
         /// TODO: could improve this routine to set a random payload as well
         /// </summary>
         /// <returns>

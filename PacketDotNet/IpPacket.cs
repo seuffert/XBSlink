@@ -36,13 +36,13 @@ namespace PacketDotNet
 #else
         // NOTE: No need to warn about lack of use, the compiler won't
         //       put any calls to 'log' here but we need 'log' to exist to compile
-#pragma warning disable 0169
+#pragma warning disable 0169, 0649
         private static readonly ILogInactive log;
-#pragma warning restore 0169
+#pragma warning restore 0169, 0649
 #endif
 
         /// <summary>
-        /// The default time to live value for Ip packets being constructed 
+        /// The default time to live value for Ip packets being constructed
         /// </summary>
         protected int DefaultTimeToLive = 64;
 
@@ -74,6 +74,9 @@ namespace PacketDotNet
                 } else if(value is ICMPv4Packet)
                 {
                     NextHeader = IPProtocolType.ICMP;
+                } else if(value is IGMPv2Packet)
+                {
+                    NextHeader = IPProtocolType.IGMP;
                 } else // NOTE: new checks go here
                 {
                     NextHeader = IPProtocolType.NONE;
@@ -235,18 +238,15 @@ namespace PacketDotNet
         }
 
         /// <summary>
-        /// IpPacket constructor 
+        /// IpPacket constructor
         /// </summary>
-        /// <param name="Timeval">
-        /// A <see cref="PosixTimeval"/>
-        /// </param>
-        public IpPacket(PosixTimeval Timeval) : base(Timeval)
+        public IpPacket()
         {}
 
         /// <summary>
-        /// Called by IPv4 and IPv6 packets to parse their packet payload  
+        /// Called by IPv4 and IPv6 packets to parse their packet payload
         /// </summary>
-        /// <param name="Header">
+        /// <param name="payload">
         /// A <see cref="ByteArraySegment"/>
         /// </param>
         /// <param name="ProtocolType">
@@ -261,14 +261,11 @@ namespace PacketDotNet
         /// <returns>
         /// A <see cref="PacketOrByteArraySegment"/>
         /// </returns>
-        internal static PacketOrByteArraySegment ParseEncapsulatedBytes(ByteArraySegment Header,
+        internal static PacketOrByteArraySegment ParseEncapsulatedBytes(ByteArraySegment payload,
                                                                         IPProtocolType ProtocolType,
                                                                         PosixTimeval Timeval,
                                                                         Packet ParentPacket)
         {
-            // slice off the payload
-            var payload = Header.EncapsulatedBytes();
-
             log.DebugFormat("payload: {0}, ParentPacket.GetType() {1}",
                             payload,
                             ParentPacket.GetType());
@@ -278,26 +275,24 @@ namespace PacketDotNet
             switch(ProtocolType)
             {
             case IPProtocolType.TCP:
-                payloadPacketOrData.ThePacket = new TcpPacket(payload.Bytes,
-                                                              payload.Offset,
-                                                              Timeval,
+                payloadPacketOrData.ThePacket = new TcpPacket(payload,
                                                               ParentPacket);
                 break;
             case IPProtocolType.UDP:
-                payloadPacketOrData.ThePacket = new UdpPacket(payload.Bytes,
-                                                              payload.Offset,
-                                                              Timeval,
+                payloadPacketOrData.ThePacket = new UdpPacket(payload,
                                                               ParentPacket);
                 break;
             case IPProtocolType.ICMP:
-                payloadPacketOrData.ThePacket = new ICMPv4Packet(payload.Bytes,
-                                                                 payload.Offset,
-                                                                 Timeval);
+                payloadPacketOrData.ThePacket = new ICMPv4Packet(payload,
+                                                                 ParentPacket);
                 break;
             case IPProtocolType.ICMPV6:
-                payloadPacketOrData.ThePacket = new ICMPv6Packet(payload.Bytes,
-                                                                 payload.Offset,
-                                                                 Timeval);
+                payloadPacketOrData.ThePacket = new ICMPv6Packet(payload,
+                                                                 ParentPacket);
+                break;
+            case IPProtocolType.IGMP:
+                payloadPacketOrData.ThePacket = new IGMPv2Packet(payload,
+                                                                 ParentPacket);
                 break;
             // NOTE: new payload parsing entries go here
             default:
@@ -335,7 +330,7 @@ namespace PacketDotNet
         }
 
         /// <summary>
-        /// Generate a random packet of a specific ip version 
+        /// Generate a random packet of a specific ip version
         /// </summary>
         /// <param name="version">
         /// A <see cref="IpVersion"/>

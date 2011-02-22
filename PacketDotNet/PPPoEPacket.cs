@@ -18,6 +18,8 @@ along with PacketDotNet.  If not, see <http://www.gnu.org/licenses/>.
  *  Copyright 2010 Chris Morgan <chmorgan@gmail.com>
  */
 using System;
+using System.Collections.Generic;
+using System.Text;
 using PacketDotNet.Utils;
 using MiscUtil.Conversion;
 
@@ -34,9 +36,9 @@ namespace PacketDotNet
 #else
         // NOTE: No need to warn about lack of use, the compiler won't
         //       put any calls to 'log' here but we need 'log' to exist to compile
-#pragma warning disable 0169
+#pragma warning disable 0169, 0649
         private static readonly ILogInactive log;
-#pragma warning restore 0169
+#pragma warning restore 0169, 0649
 #endif
 
         private byte VersionType
@@ -55,6 +57,7 @@ namespace PacketDotNet
         /// <summary>
         /// PPPoe version, must be 0x1 according to RFC
         /// </summary>
+        /// FIXME: This currently outputs the wrong version number
         public byte Version
         {
             get
@@ -97,6 +100,7 @@ namespace PacketDotNet
         /// <summary>
         ///
         /// </summary>
+        /// FIXME: This currently outputs the wrong code
         public PPPoECode Code
         {
             get
@@ -159,7 +163,6 @@ namespace PacketDotNet
         /// </summary>
         public PPPoEPacket(PPPoECode Code,
                      UInt16 SessionId)
-            : base(new PosixTimeval())
         {
             log.Debug("");
 
@@ -180,39 +183,18 @@ namespace PacketDotNet
         }
 
         /// <summary>
-        /// Create an PPPoEPacket from a byte array
+        /// Constructor
         /// </summary>
-        /// <param name="Bytes">
-        /// A <see cref="System.Byte"/>
+        /// <param name="bas">
+        /// A <see cref="ByteArraySegment"/>
         /// </param>
-        /// <param name="Offset">
-        /// A <see cref="System.Int32"/>
-        /// </param>
-        public PPPoEPacket(byte[] Bytes, int Offset) :
-            this(Bytes, Offset, new PosixTimeval())
-        {
-            log.Debug("");
-        }
-
-        /// <summary>
-        /// Create an PPPoEPacket from a byte array and a Timeval
-        /// </summary>
-        /// <param name="Bytes">
-        /// A <see cref="System.Byte"/>
-        /// </param>
-        /// <param name="Offset">
-        /// A <see cref="System.Int32"/>
-        /// </param>
-        /// <param name="Timeval">
-        /// A <see cref="PosixTimeval"/>
-        /// </param>
-        public PPPoEPacket(byte[] Bytes, int Offset, PosixTimeval Timeval) :
-            base(Timeval)
+        public PPPoEPacket(ByteArraySegment bas)
         {
             log.Debug("");
 
             // slice off the header portion
-            header = new ByteArraySegment(Bytes, Offset, PPPoEFields.HeaderLength);
+            header = new ByteArraySegment(bas);
+            header.Length = PPPoEFields.HeaderLength;
 
             // parse the encapsulated bytes
             payloadPacketOrData = ParseEncapsulatedBytes(header, Timeval);
@@ -228,9 +210,7 @@ namespace PacketDotNet
             var payloadPacketOrData = new PacketOrByteArraySegment();
 
             // we assume that we have a PPPPacket as the payload
-            payloadPacketOrData.ThePacket = new PPPPacket(payload.Bytes,
-                                                          payload.Offset,
-                                                          Timeval);
+            payloadPacketOrData.ThePacket = new PPPPacket(payload);
 
             return payloadPacketOrData;
         }
@@ -244,34 +224,92 @@ namespace PacketDotNet
             }
         }
 
-        /// <summary> Convert this packet to a readable string.</summary>
-        public override System.String ToString()
+        /// <summary cref="Packet.ToString(StringOutputType)" />
+        public override string ToString(StringOutputType outputFormat)
         {
-            return ToColoredString(false);
-        }
+            var buffer = new StringBuilder();
+            string color = "";
+            string colorEscape = "";
 
-        /// <summary> Generate string with contents describing this packet.</summary>
-        /// <param name="colored">whether or not the string should contain ansi
-        /// color escape sequences.
-        /// </param>
-        public override System.String ToColoredString(bool colored)
-        {
-            var buffer = new System.Text.StringBuilder();
+            if(outputFormat == StringOutputType.Colored || outputFormat == StringOutputType.VerboseColored)
+            {
+                color = Color;
+                colorEscape = AnsiEscapeSequences.Reset;
+            }
 
-            buffer.AppendFormat("[PPPoEPacket] Version {0}, Type {1}, Code {2}, SessionId {3}, Length {4}",
-                                Version, Type, Code, SessionId, Length);
+            if(outputFormat == StringOutputType.Normal || outputFormat == StringOutputType.Colored)
+            {
+                // build the output string
+                buffer.AppendFormat("{0}[PPPoEPacket: Version={2}, Type={3}, Code={4}, SessionId={5}, Length={6}]{1}",
+                    color,
+                    colorEscape,
+                    Version,
+                    Type,
+                    Code,
+                    SessionId,
+                    Length);
+            }
+
+            if(outputFormat == StringOutputType.Verbose || outputFormat == StringOutputType.VerboseColored)
+            {
+                // collect the properties and their value
+                Dictionary<string,string> properties = new Dictionary<string,string>();
+                // FIXME: The version output is incorrect
+                properties.Add("", Convert.ToString(Version, 2).PadLeft(4, '0') + " .... = version: " + Version.ToString());
+                properties.Add(" ", ".... " + Convert.ToString(Type, 2).PadLeft(4, '0') + " = type: " + Type.ToString());
+                // FIXME: The Code output is incorrect
+                properties.Add("code", Code.ToString() + " (0x" + Code.ToString("x") + ")");
+                properties.Add("session id", "0x" + SessionId.ToString("x"));
+                // TODO: Implement a PayloadLength property for PPPoE
+                //properties.Add("payload length", PayloadLength.ToString());
+
+                // calculate the padding needed to right-justify the property names
+                int padLength = Utils.RandomUtils.LongestStringLength(new List<string>(properties.Keys));
+
+                // build the output string
+                buffer.AppendLine("PPPoE:  ******* PPPoE - \"Point-to-Point Protocol over Ethernet\" - offset=? length=" + TotalPacketLength);
+                buffer.AppendLine("PPPoE:");
+                foreach(var property in properties)
+                {
+                    if(property.Key.Trim() != "")
+                    {
+                        buffer.AppendLine("PPPoE: " + property.Key.PadLeft(padLength) + " = " + property.Value);
+                    }
+                    else
+                    {
+                        buffer.AppendLine("PPPoE: " + property.Key.PadLeft(padLength) + "   " + property.Value);
+                    }
+                }
+                buffer.AppendLine("PPPoE:");
+            }
 
             // append the base output
-            buffer.Append(base.ToColoredString(colored));
+            buffer.Append(base.ToString(outputFormat));
 
             return buffer.ToString();
         }
 
-        /// <summary> Convert a more verbose string.</summary>
-        public override System.String ToColoredVerboseString(bool colored)
+        /// <summary>
+        /// Returns the encapsulated PPPoE of the Packet p or null if
+        /// there is no encapsulated packet
+        /// </summary>
+        /// <param name="p">
+        /// A <see cref="Packet"/>
+        /// </param>
+        /// <returns>
+        /// A <see cref="ARPPacket"/>
+        /// </returns>
+        public static PPPoEPacket GetEncapsulated(Packet p)
         {
-            //TODO: just output the colored output for now
-            return ToColoredString(colored);
+            if(p is EthernetPacket)
+            {
+                if(p.PayloadPacket is PPPoEPacket)
+                {
+                    return (PPPoEPacket)p.PayloadPacket;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>

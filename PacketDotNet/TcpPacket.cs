@@ -19,8 +19,10 @@ along with PacketDotNet.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 ﻿using System;
+using System.Text;
 using System.Collections.Generic;
 using MiscUtil.Conversion;
+using PacketDotNet.Tcp;
 using PacketDotNet.Utils;
 
 namespace PacketDotNet
@@ -36,9 +38,9 @@ namespace PacketDotNet
 #else
         // NOTE: No need to warn about lack of use, the compiler won't
         //       put any calls to 'log' here but we need 'log' to exist to compile
-#pragma warning disable 0169
+#pragma warning disable 0169, 0649
         private static readonly ILogInactive log;
-#pragma warning restore 0169
+#pragma warning restore 0169, 0649
 #endif
 
         /// <value>
@@ -187,7 +189,7 @@ namespace PacketDotNet
                 // IPv6 has no checksum so only the TCP checksum needs evaluation
                 if (parentPacket.GetType() == typeof(IPv6Packet))
                     return ValidTCPChecksum;
-                // For IPv4 both the IP layer and the TCP layer contain checksums 
+                // For IPv4 both the IP layer and the TCP layer contain checksums
                 else
                     return ((IPv4Packet)ParentPacket).ValidIPChecksum && ValidTCPChecksum;
             }
@@ -308,7 +310,7 @@ namespace PacketDotNet
         /// Create a new TCP packet from values
         /// </summary>
         public TcpPacket(ushort SourcePort,
-                         ushort DestinationPort) : base(new PosixTimeval())
+                         ushort DestinationPort)
         {
             log.Debug("");
 
@@ -327,39 +329,17 @@ namespace PacketDotNet
         }
 
         /// <summary>
-        /// byte[]/int offset constructor, timeval defaults to the current time
+        /// Constructor
         /// </summary>
-        /// <param name="Bytes">
-        /// A <see cref="System.Byte"/>
+        /// <param name="bas">
+        /// A <see cref="ByteArraySegment"/>
         /// </param>
-        /// <param name="Offset">
-        /// A <see cref="System.Int32"/>
-        /// </param>
-        public TcpPacket(byte[] Bytes, int Offset) :
-            this(Bytes, Offset, new PosixTimeval())
-        {
-            log.Debug("");
-        }
-
-        /// <summary>
-        /// byte[]/int offset/PosixTimeval constructor
-        /// </summary>
-        /// <param name="Bytes">
-        /// A <see cref="System.Byte"/>
-        /// </param>
-        /// <param name="Offset">
-        /// A <see cref="System.Int32"/>
-        /// </param>
-        /// <param name="Timeval">
-        /// A <see cref="PosixTimeval"/>
-        /// </param>
-        public TcpPacket(byte[] Bytes, int Offset, PosixTimeval Timeval) :
-            base(Timeval)
+        public TcpPacket(ByteArraySegment bas)
         {
             log.Debug("");
 
             // set the header field, header field values are retrieved from this byte array
-            header = new ByteArraySegment(Bytes, Offset, Bytes.Length - Offset);
+            header = new ByteArraySegment(bas);
 
             // NOTE: we update the Length field AFTER the header field because
             // we need the header to be valid to retrieve the value of DataOffset
@@ -371,23 +351,17 @@ namespace PacketDotNet
         }
 
         /// <summary>
-        /// Constructor when this packet is encapsulated in another packet
+        /// Constructor
         /// </summary>
-        /// <param name="Bytes">
-        /// A <see cref="System.Byte"/>
-        /// </param>
-        /// <param name="Offset">
-        /// A <see cref="System.Int32"/>
-        /// </param>
-        /// <param name="Timeval">
-        /// A <see cref="PosixTimeval"/>
+        /// <param name="bas">
+        /// A <see cref="ByteArraySegment"/>
         /// </param>
         /// <param name="ParentPacket">
         /// A <see cref="Packet"/>
         /// </param>
-        public TcpPacket(byte[] Bytes, int Offset, PosixTimeval Timeval,
+        public TcpPacket(ByteArraySegment bas,
                          Packet ParentPacket) :
-            this(Bytes, Offset, Timeval)
+            this(bas)
         {
             log.DebugFormat("ParentPacket.GetType() {0}", ParentPacket.GetType());
 
@@ -419,8 +393,8 @@ namespace PacketDotNet
             }
         }
 
-        /// <summary> Computes the TCP checksum, optionally updating the TCP checksum header.
-        /// 
+        /// <summary>
+        /// Computes the TCP checksum. Does not update the current checksum value
         /// </summary>
         /// <returns> The calculated TCP checksum.</returns>
         public int CalculateTCPChecksum()
@@ -434,6 +408,7 @@ namespace PacketDotNet
         /// </summary>
         public void UpdateTCPChecksum()
         {
+            log.Debug("");
             this.Checksum = (ushort)CalculateTCPChecksum();
         }
 
@@ -454,21 +429,6 @@ namespace PacketDotNet
                                                  header.Offset + TcpFields.UrgentPointerPosition);
             }
         }
-
-#pragma warning disable 1591
-        public enum OptionTypes
-        {
-            EndOfList = 0x0,
-            Nop = 0x1,
-            MaximumSegmentSize = 0x2,
-            WindowScale = 0x3,
-            SelectiveAckSupported = 0x4,
-            Unknown5 = 0x5,
-            Unknown6 = 0x6,
-            Unknown7 = 0x7,
-            Timestamp = 0x8 // http://en.wikipedia.org/wiki/Transmission_Control_Protocol#TCP_Timestamps
-        }
-#pragma warning restore 1591
 
         /// <summary>
         /// Bytes that represent the tcp options
@@ -497,107 +457,198 @@ namespace PacketDotNet
             }
         }
 
-        /// <summary> Convert this TCP packet to a readable string.</summary>
-        public override System.String ToString()
-        {
-            return ToColoredString(false);
-        }
-
-        /// <summary> Generate string with contents describing this TCP packet.</summary>
-        /// <param name="colored">whether or not the string should contain ansi
-        /// color escape sequences.
+        /// <summary>
+        /// Parses options, pointed to by optionBytes into an array of Options
+        /// </summary>
+        /// <param name="optionBytes">
+        /// A <see cref="System.Byte[]"/>
         /// </param>
-        public override System.String ToColoredString(bool colored)
+        /// <returns>
+        /// A <see cref="List<Option>"/>
+        /// </returns>
+        private List<Option> ParseOptions(byte[] optionBytes)
         {
-            System.Text.StringBuilder buffer = new System.Text.StringBuilder();
-            buffer.Append('[');
-            if (colored)
-                buffer.Append(Color);
-            buffer.Append("TCPPacket");
-            if (colored)
-                buffer.Append(AnsiEscapeSequences.Reset);
-            buffer.Append(": ");
-            buffer.Append(" SourcePort: ");
-            if(Enum.IsDefined(typeof(IpPort), (ushort)SourcePort))
+            int offset = 0;
+            OptionTypes type;
+            byte length;
+
+            if(optionBytes.Length == 0)
+                return null;
+
+            // reset the OptionsCollection list to prepare
+            //  to be re-populated with new data
+            var retval = new List<Option>();
+
+            while(offset < optionBytes.Length)
             {
-                buffer.Append((IpPort)SourcePort);
-                buffer.Append(" (" + SourcePort + ") ");
-            } else
-            {
-                buffer.Append(SourcePort);
+                type = (OptionTypes)optionBytes[offset + Option.KindFieldOffset];
+                length = optionBytes[offset + Option.LengthFieldOffset];
+
+                switch(type)
+                {
+                    case OptionTypes.EndOfOptionList:
+                        retval.Add(new EndOfOptions(optionBytes, offset, length));
+                        offset += EndOfOptions.OptionLength;
+                        break;
+                    case OptionTypes.NoOperation:
+                        retval.Add(new NoOperation(optionBytes, offset, length));
+                        offset += NoOperation.OptionLength;
+                        break;
+                    case OptionTypes.MaximumSegmentSize:
+                        retval.Add(new MaximumSegmentSize(optionBytes, offset, length));
+                        offset += length;
+                        break;
+                    case OptionTypes.WindowScaleFactor:
+                        retval.Add(new WindowScaleFactor(optionBytes, offset, length));
+                        offset += length;
+                        break;
+                    case OptionTypes.SACKPermitted:
+                        retval.Add(new SACKPermitted(optionBytes, offset, length));
+                        offset += length;
+                        break;
+                    case OptionTypes.SACK:
+                        retval.Add(new SACK(optionBytes, offset, length));
+                        offset += length;
+                        break;
+                    case OptionTypes.Echo:
+                        retval.Add(new Echo(optionBytes, offset, length));
+                        offset += length;
+                        break;
+                    case OptionTypes.EchoReply:
+                        retval.Add(new EchoReply(optionBytes, offset, length));
+                        offset += length;
+                        break;
+                    case OptionTypes.Timestamp:
+                        retval.Add(new TimeStamp(optionBytes, offset, length));
+                        offset += length;
+                        break;
+                    case OptionTypes.AlternateChecksumRequest:
+                        retval.Add(new AlternateChecksumRequest(optionBytes, offset, length));
+                        offset += length;
+                        break;
+                    case OptionTypes.AlternateChecksumData:
+                        retval.Add(new AlternateChecksumData(optionBytes, offset, length));
+                        offset += length;
+                        break;
+                    case OptionTypes.MD5Signature:
+                        retval.Add(new MD5Signature(optionBytes, offset, length));
+                        offset += length;
+                        break;
+                    case OptionTypes.UserTimeout:
+                        retval.Add(new UserTimeout(optionBytes, offset, length));
+                        offset += length;
+                        break;
+                    // these fields aren't supported because they're still considered
+                    //  experimental in their respecive RFC specifications
+                    case OptionTypes.POConnectionPermitted:
+                    case OptionTypes.POServiceProfile:
+                    case OptionTypes.ConnectionCount:
+                    case OptionTypes.ConnectionCountNew:
+                    case OptionTypes.ConnectionCountEcho:
+                    case OptionTypes.QuickStartResponse:
+                        throw new NotSupportedException("Option: " + type.ToString() + " is not supported because its RFC specification is still experimental");
+                    // add more options types here
+                    default:
+                        throw new NotImplementedException("Option: " + type.ToString() + " not supported in Packet.Net yet");
+                }
             }
-            buffer.Append(" -> ");
-            buffer.Append(" DestinationPort: ");
-            if(Enum.IsDefined(typeof(IpPort), (ushort)DestinationPort))
-            {
-                buffer.Append((IpPort)DestinationPort);
-                buffer.Append(" (" + DestinationPort + ") ");
-            } else
-            {
-                buffer.Append(DestinationPort);
-            }
 
-            if (Urg)
-                buffer.Append(" urg[0x" + System.Convert.ToString(UrgentPointer, 16) + "]");
-            if (Ack)
-                buffer.Append(" ack[" + AcknowledgmentNumber + " (0x" + System.Convert.ToString(AcknowledgmentNumber, 16) + ")]");
-            if (Psh)
-                buffer.Append(" psh");
-            if (Rst)
-                buffer.Append(" rst");
-            if (Syn)
-                buffer.Append(" syn[0x" + System.Convert.ToString(SequenceNumber, 16) + "," +
-                              SequenceNumber + "]");
-            if (Fin)
-                buffer.Append(" fin");
-
-            //FIXME: not sure what to put here
-//            buffer.Append(" l=" + TCPHeaderLength + "," + PayloadDataLength);
-            buffer.Append(']');
-
-            // append the base class output
-            buffer.Append(base.ToColoredString(colored));
-
-            return buffer.ToString();
+            return retval;
         }
 
-        /// <summary> Convert this TCP packet to a verbose.</summary>
-        public override System.String ToColoredVerboseString(bool colored)
+        /// <summary cref="Packet.ToString(StringOutputType)" />
+        public override string ToString(StringOutputType outputFormat)
         {
-            System.Text.StringBuilder buffer = new System.Text.StringBuilder();
-            buffer.Append('[');
-            if (colored)
-                buffer.Append(Color);
-            buffer.Append("TCPPacket");
-            if (colored)
-                buffer.Append(AnsiEscapeSequences.Reset);
-            buffer.Append(": ");
-            buffer.Append("sport=" + SourcePort + ", ");
-            buffer.Append("dport=" + DestinationPort + ", ");
-            buffer.Append("seqn=0x" + System.Convert.ToString(SequenceNumber, 16) + ", ");
-            buffer.Append("ackn=0x" + System.Convert.ToString(AcknowledgmentNumber, 16) + ", ");
-            //FIXME: what is header length now?
-//            buffer.Append("hlen=" + HeaderLength + ", ");
-            buffer.Append("urg=" + Urg + ", ");
-            buffer.Append("ack=" + Ack + ", ");
-            buffer.Append("psh=" + Psh + ", ");
-            buffer.Append("rst=" + Rst + ", ");
-            buffer.Append("syn=" + Syn + ", ");
-            buffer.Append("fin=" + Fin + ", ");
-            buffer.Append("wsize=" + WindowSize + ", ");
-            //FIXME: probably want to fix this one
-//            buffer.Append("sum=0x" + System.Convert.ToString(Checksum, 16));
-#if false
-            if (this.ValidTCPChecksum)
-                buffer.Append(" (correct), ");
-            else
-                buffer.Append(" (incorrect, should be " + ComputeTCPChecksum(false) + "), ");
-#endif
-            buffer.Append("uptr=0x" + System.Convert.ToString(UrgentPointer, 16));
-            buffer.Append(']');
+            var buffer = new StringBuilder();
+            string color = "";
+            string colorEscape = "";
+
+            if(outputFormat == StringOutputType.Colored || outputFormat == StringOutputType.VerboseColored)
+            {
+                color = Color;
+                colorEscape = AnsiEscapeSequences.Reset;
+            }
+
+            if(outputFormat == StringOutputType.Normal || outputFormat == StringOutputType.Colored)
+            {
+                // build flagstring
+                string flags = "{";
+                if (Urg)
+                    flags += "urg[0x" + System.Convert.ToString(UrgentPointer, 16) + "]|";
+                if (Ack)
+                    flags += "ack[" + AcknowledgmentNumber + " (0x" + System.Convert.ToString(AcknowledgmentNumber, 16) + ")]|";
+                if (Psh)
+                    flags += "psh|";
+                if (Rst)
+                    flags += "rst|";
+                if (Syn)
+                    flags += "syn[0x" + System.Convert.ToString(SequenceNumber, 16) + "," + SequenceNumber + "]|";
+                flags = flags.TrimEnd('|');
+                flags += "}";
+
+                // build the output string
+                buffer.AppendFormat("{0}[TCPPacket: SourcePort={2}, DestinationPort={3}, Flags={4}]{1}",
+                    color,
+                    colorEscape,
+                    SourcePort,
+                    DestinationPort,
+                    flags);
+            }
+
+            if(outputFormat == StringOutputType.Verbose || outputFormat == StringOutputType.VerboseColored)
+            {
+                // collect the properties and their value
+                Dictionary<string,string> properties = new Dictionary<string,string>();
+                properties.Add("source port", SourcePort.ToString());
+                properties.Add("destination port", DestinationPort.ToString());
+                properties.Add("sequence number", SequenceNumber.ToString() + " (0x" + SequenceNumber.ToString("x") + ")");
+                properties.Add("acknowledgement number", AcknowledgmentNumber.ToString() + " (0x" + AcknowledgmentNumber.ToString("x") + ")");
+                // TODO: Implement a HeaderLength property for TCPPacket
+                //properties.Add("header length", HeaderLength.ToString());
+                properties.Add("flags", "(0x" + AllFlags.ToString("x") + ")");
+                string flags = Convert.ToString(AllFlags, 2).PadLeft(8, '0');
+                properties.Add("", flags[0] + "... .... = [" + flags[0] + "] congestion window reduced");
+                properties.Add(" ", "." + flags[1] + ".. .... = [" + flags[1] + "] ECN - echo");
+                properties.Add("  ", ".." + flags[2] + ". .... = [" + flags[2] + "] urgent");
+                properties.Add("   ", "..." + flags[3] + " .... = [" + flags[3] + "] acknowledgement");
+                properties.Add("    ", ".... " + flags[4] + "... = [" + flags[4] + "] push");
+                properties.Add("     ", ".... ." + flags[5] + ".. = [" + flags[5] + "] reset");
+                properties.Add("      ", ".... .."+ flags[6] + ". = [" + flags[6] + "] syn");
+                properties.Add("       ", ".... ..." + flags[7] + " = [" + flags[7] + "] fin");
+                properties.Add("window size", WindowSize.ToString());
+                properties.Add("checksum", "0x" + Checksum.ToString() + " [" + (ValidChecksum ? "valid" : "invalid") + "]");
+                properties.Add("options", "0x" + BitConverter.ToString(Options).Replace("-", "").PadLeft(12, '0'));
+                var parsedOptions = OptionsCollection;
+                if(parsedOptions != null)
+                {
+                    for(int i = 0; i < parsedOptions.Count; i++)
+                    {
+                        properties.Add("option" + (i + 1).ToString(), parsedOptions[i].ToString());
+                    }
+                }
+
+                // calculate the padding needed to right-justify the property names
+                int padLength = Utils.RandomUtils.LongestStringLength(new List<string>(properties.Keys));
+
+                // build the output string
+                buffer.AppendLine("TCP:  ******* TCP - \"Transmission Control Protocol\" - offset=? length=" + TotalPacketLength);
+                buffer.AppendLine("TCP:");
+                foreach(var property in properties)
+                {
+                    if(property.Key.Trim() != "")
+                    {
+                        buffer.AppendLine("TCP: " + property.Key.PadLeft(padLength) + " = " + property.Value);
+                    }
+                    else
+                    {
+                        buffer.AppendLine("TCP: " + property.Key.PadLeft(padLength) + "   " + property.Value);
+                    }
+                }
+                buffer.AppendLine("TCP:");
+            }
 
             // append the base class output
-            buffer.Append(base.ToColoredVerboseString(colored));
+            buffer.Append(base.ToString(outputFormat));
 
             return buffer.ToString();
         }
@@ -640,6 +691,19 @@ namespace PacketDotNet
             var tcpPacket = new TcpPacket(srcPort, dstPort);
 
             return tcpPacket;
+        }
+
+        /// <summary>
+        /// Contains the Options list attached to the TCP header
+        /// </summary>
+        public List<Option> OptionsCollection
+        {
+            get
+            {
+                // evaluates the options field and generates a list of
+                //  attached options
+                return ParseOptions(this.Options);
+            }
         }
     }
 }

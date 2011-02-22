@@ -18,6 +18,8 @@ along with PacketDotNet.  If not, see <http://www.gnu.org/licenses/>.
  *  Copyright 2010 Chris Morgan <chmorgan@gmail.com>
  */
 using System;
+using System.Collections.Generic;
+using System.Text;
 using PacketDotNet.Utils;
 using MiscUtil.Conversion;
 
@@ -34,9 +36,9 @@ namespace PacketDotNet
 #else
         // NOTE: No need to warn about lack of use, the compiler won't
         //       put any calls to 'log' here but we need 'log' to exist to compile
-#pragma warning disable 0169
+#pragma warning disable 0169, 0649
         private static readonly ILogInactive log;
-#pragma warning restore 0169
+#pragma warning restore 0169, 0649
 #endif
 
         /// <summary>
@@ -64,7 +66,6 @@ namespace PacketDotNet
         /// </summary>
         public PPPPacket(PPPoECode Code,
                      UInt16 SessionId)
-            : base(new PosixTimeval())
         {
             log.Debug("");
 
@@ -79,39 +80,18 @@ namespace PacketDotNet
         }
 
         /// <summary>
-        /// Create an PPPPacket from a byte array
+        /// Constructor
         /// </summary>
-        /// <param name="Bytes">
-        /// A <see cref="System.Byte"/>
+        /// <param name="bas">
+        /// A <see cref="ByteArraySegment"/>
         /// </param>
-        /// <param name="Offset">
-        /// A <see cref="System.Int32"/>
-        /// </param>
-        public PPPPacket(byte[] Bytes, int Offset) :
-            this(Bytes, Offset, new PosixTimeval())
-        {
-            log.Debug("");
-        }
-
-        /// <summary>
-        /// Create an PPPPacket from a byte array and a Timeval
-        /// </summary>
-        /// <param name="Bytes">
-        /// A <see cref="System.Byte"/>
-        /// </param>
-        /// <param name="Offset">
-        /// A <see cref="System.Int32"/>
-        /// </param>
-        /// <param name="Timeval">
-        /// A <see cref="PosixTimeval"/>
-        /// </param>
-        public PPPPacket(byte[] Bytes, int Offset, PosixTimeval Timeval) :
-            base(Timeval)
+        public PPPPacket(ByteArraySegment bas)
         {
             log.Debug("");
 
             // slice off the header portion as our header
-            header = new ByteArraySegment(Bytes, Offset, PPPFields.HeaderLength);
+            header = new ByteArraySegment(bas);
+            header.Length = PPPFields.HeaderLength;
 
             // parse the encapsulated bytes
             payloadPacketOrData = ParseEncapsulatedBytes(header, Timeval, Protocol);
@@ -131,14 +111,10 @@ namespace PacketDotNet
             switch(Protocol)
             {
             case PPPProtocol.IPv4:
-                payloadPacketOrData.ThePacket = new IPv4Packet(payload.Bytes,
-                                                               payload.Offset,
-                                                               Timeval);
+                payloadPacketOrData.ThePacket = new IPv4Packet(payload);
                 break;
             case PPPProtocol.IPv6:
-                payloadPacketOrData.ThePacket = new IPv6Packet(payload.Bytes,
-                                                               payload.Offset,
-                                                               Timeval);
+                payloadPacketOrData.ThePacket = new IPv6Packet(payload);
                 break;
             default:
                 throw new System.NotImplementedException("Protocol of " + Protocol + " is not implemented");
@@ -156,34 +132,76 @@ namespace PacketDotNet
             }
         }
 
-        /// <summary> Convert this packet to a readable string.</summary>
-        public override System.String ToString()
+        /// <summary cref="Packet.ToString(StringOutputType)" />
+        public override string ToString(StringOutputType outputFormat)
         {
-            return ToColoredString(false);
-        }
+            var buffer = new StringBuilder();
+            string color = "";
+            string colorEscape = "";
 
-        /// <summary> Generate string with contents describing this packet.</summary>
-        /// <param name="colored">whether or not the string should contain ansi
-        /// color escape sequences.
-        /// </param>
-        public override System.String ToColoredString(bool colored)
-        {
-            var buffer = new System.Text.StringBuilder();
+            if(outputFormat == StringOutputType.Colored || outputFormat == StringOutputType.VerboseColored)
+            {
+                color = Color;
+                colorEscape = AnsiEscapeSequences.Reset;
+            }
 
-            buffer.AppendFormat("[PPPPacket] Protocol {0}",
-                                Protocol);
+            if(outputFormat == StringOutputType.Normal || outputFormat == StringOutputType.Colored)
+            {
+                // build the output string
+                buffer.AppendFormat("{0}[PPPPacket: Protocol={2}]{1}",
+                    color,
+                    colorEscape,
+                    Protocol);
+            }
+
+            if(outputFormat == StringOutputType.Verbose || outputFormat == StringOutputType.VerboseColored)
+            {
+                // collect the properties and their value
+                Dictionary<string,string> properties = new Dictionary<string,string>();
+                properties.Add("protocol", Protocol.ToString() + " (0x" + Protocol.ToString("x") + ")");
+
+                // calculate the padding needed to right-justify the property names
+                int padLength = Utils.RandomUtils.LongestStringLength(new List<string>(properties.Keys));
+
+                // build the output string
+                buffer.AppendLine("PPP:  ******* PPP - \"Point-to-Point Protocol\" - offset=? length=" + TotalPacketLength);
+                buffer.AppendLine("PPP:");
+                foreach(var property in properties)
+                {
+                    buffer.AppendLine("PPP: " + property.Key.PadLeft(padLength) + " = " + property.Value);
+                }
+                buffer.AppendLine("PPP:");
+            }
 
             // append the base output
-            buffer.Append(base.ToColoredString(colored));
+            buffer.Append(base.ToString(outputFormat));
 
             return buffer.ToString();
         }
 
-        /// <summary> Convert a more verbose string.</summary>
-        public override System.String ToColoredVerboseString(bool colored)
+        /// <summary>
+        /// Returns the encapsulated PPPPacket of the Packet p or null if
+        /// there is no encapsulated packet
+        /// </summary>
+        /// <param name="p">
+        /// A <see cref="Packet"/>
+        /// </param>
+        /// <returns>
+        /// A <see cref="PPPPacket"/>
+        /// </returns>
+        public static PPPPacket GetEncapsulated(Packet p)
         {
-            //TODO: just output the colored output for now
-            return ToColoredString(colored);
+            if(p is EthernetPacket)
+            {
+                var payload = p.PayloadPacket;
+                if(payload is PPPoEPacket)
+                {
+                    return (PPPPacket)payload.PayloadPacket;
+
+                }
+            }
+
+            return null;
         }
 
         /// <summary>

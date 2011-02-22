@@ -20,6 +20,7 @@ along with PacketDotNet.  If not, see <http://www.gnu.org/licenses/>.
 
 ﻿using System;
 using System.IO;
+using System.Text;
 using PacketDotNet.Utils;
 
 namespace PacketDotNet
@@ -36,9 +37,9 @@ namespace PacketDotNet
 #else
         // NOTE: No need to warn about lack of use, the compiler won't
         //       put any calls to 'log' here but we need 'log' to exist to compile
-#pragma warning disable 0169
+#pragma warning disable 0169, 0649
         private static readonly ILogInactive log;
-#pragma warning restore 0169
+#pragma warning restore 0169, 0649
 #endif
 
         internal ByteArraySegment header;
@@ -66,7 +67,7 @@ namespace PacketDotNet
             {
                 int totalLength = 0;
                 totalLength += header.Length;
-    
+
                 if(payloadPacketOrData.Type == PayloadType.Bytes)
                 {
                     totalLength += payloadPacketOrData.TheByteArraySegment.Length;
@@ -146,7 +147,7 @@ namespace PacketDotNet
         }
 
         /// <value>
-        /// Returns a 
+        /// Returns a
         /// </value>
         public virtual byte[] Header
         {
@@ -242,7 +243,7 @@ namespace PacketDotNet
                     // packets that have not had their header, or any of their sub packets, resized
                     var newByteArraySegment = new ByteArraySegment(header.Bytes,
                                                                    header.Offset,
-                                                                   (header.Bytes.Length - header.Offset));
+                                                                   header.BytesLength - header.Offset);
                     log.DebugFormat("SharesMemoryWithSubPackets, returning byte array {0}",
                                     newByteArraySegment.ToString());
                     return newByteArraySegment;
@@ -263,19 +264,16 @@ namespace PacketDotNet
                     var newBytes = ms.ToArray();
 
                     return new ByteArraySegment(newBytes, 0, newBytes.Length);
-                }  
+                }
             }
         }
 
         /// <summary>
-        /// Basic Packet constructor
+        /// Constructor
         /// </summary>
-        /// <param name="timeval">
-        /// A <see cref="PosixTimeval"/>
-        /// </param>
-        public Packet(PosixTimeval timeval)
+        public Packet()
         {
-            this.timeval = timeval;
+            timeval = new PosixTimeval();
         }
 
         /// <summary>
@@ -285,7 +283,7 @@ namespace PacketDotNet
         /// <returns>An ethernet packet which has references to the higher protocols</returns>
         public static Packet Parse(byte[] data)
         {
-            return new EthernetPacket(data, 0);
+            return new EthernetPacket(new ByteArraySegment(data));
         }
 
         /// <summary>
@@ -323,15 +321,34 @@ namespace PacketDotNet
                                          PosixTimeval Timeval,
                                          byte[] PacketData)
         {
+            Packet p;
+            var bas = new ByteArraySegment(PacketData);
+
+            log.DebugFormat("LinkLayer {0}", LinkLayer);
+
             switch(LinkLayer)
             {
             case LinkLayers.Ethernet:
-                return new EthernetPacket(PacketData, 0, Timeval);
+                p = new EthernetPacket(bas);
+                break;
             case LinkLayers.LinuxSLL:
-                return new LinuxSLLPacket(PacketData, 0, Timeval);
+                p = new LinuxSLLPacket(bas);
+                break;
+            case LinkLayers.Ppp:
+                p = new PPPPacket(bas);
+                break;
+            case LinkLayers.Ieee80211:
+                p = new Ieee80211MacFrame(bas);
+                break;
+            case LinkLayers.Ieee80211_Radio:
+                p = new Ieee80211RadioPacket(bas);
+                break;
             default:
                 throw new System.NotImplementedException("LinkLayer of " + LinkLayer + " is not implemented");
             }
+
+            p.timeval = Timeval;
+            return p;
         }
 
         /// <summary>
@@ -353,7 +370,7 @@ namespace PacketDotNet
         /// <summary>
         /// Called to ensure that calculated values are updated before
         /// the packet bytes are retrieved
-        /// 
+        ///
         /// Classes should override this method to update things like
         /// checksums and lengths that take too much time or are too complex
         /// to update for each packet parameter change
@@ -361,22 +378,28 @@ namespace PacketDotNet
         public virtual void UpdateCalculatedValues()
         { }
 
-        /// <summary>
-        /// Returns a ansi colored string. This routine calls
-        /// the ToColoredString() of the payload packet if one
-        /// is present.
+        /// <summary>Output this packet as a readable string</summary>
+        public override System.String ToString()
+        {
+            return ToString(StringOutputType.Normal);
+        }
+
+        /// <summary cref="Packet.ToString()">
+        ///
+        /// Output the packet information in the specified format
+        ///   Normal - outputs the packet info to a single line
+        ///   Colored - outputs the packet info to a single line with coloring
+        ///   Verbose - outputs detailed info about the packet
+        ///   VerboseColored - outputs detailed info about the packet with coloring
         /// </summary>
-        /// <param name="colored">
-        /// A <see cref="System.Boolean"/>
+        /// <param name="outputFormat">
+        /// <see cref="StringOutputType" />
         /// </param>
-        /// <returns>
-        /// A <see cref="System.String"/>
-        /// </returns>
-        public virtual System.String ToColoredString(bool colored)
+        public virtual string ToString(StringOutputType outputFormat)
         {
             if(payloadPacketOrData.Type == PayloadType.Packet)
             {
-                return payloadPacketOrData.ThePacket.ToColoredString(colored);
+                return payloadPacketOrData.ThePacket.ToString(outputFormat);
             } else
             {
                 return String.Empty;
@@ -384,25 +407,78 @@ namespace PacketDotNet
         }
 
         /// <summary>
-        /// Returns a verbose ansi colored string. This routine calls
-        /// the ToColoredVerboseString() of the payload packet if one
-        /// is present.
+        /// Prints the Packet PayloadData in Hex format
+        ///  With the 16-byte segment number, raw bytes, and parsed ascii output
+        /// Ex:
+        ///  0010  00 18 82 6c 7c 7f 00 c0  9f 77 a3 b0 88 64 11 00   ...1|... .w...d..
         /// </summary>
-        /// <param name="colored">
-        /// A <see cref="System.Boolean"/>
-        /// </param>
         /// <returns>
         /// A <see cref="System.String"/>
         /// </returns>
-        public virtual System.String ToColoredVerboseString(bool colored)
+        public string PrintHex()
         {
-            if(payloadPacketOrData.Type == PayloadType.Packet)
+            byte[] data = BytesHighPerformance.Bytes;
+            var buffer = new StringBuilder();
+            string segmentNumber = "";
+            string bytes = "";
+            string ascii = "";
+
+            buffer.AppendLine("Data:  ******* Raw Hex Output - length=" + data.Length + " bytes");
+            buffer.AppendLine("Data: Segment:                   Bytes:                              Ascii:");
+            buffer.AppendLine("Data: --------------------------------------------------------------------------");
+
+            // parse the raw data
+            for(int i = 1; i <= data.Length; i++)
             {
-                return payloadPacketOrData.ThePacket.ToColoredVerboseString(colored);
-            } else
-            {
-                return String.Empty;
+                // add the current byte to the bytes hex string
+                bytes += (data[i-1].ToString("x")).PadLeft(2, '0') + " ";
+
+                // add the current byte to the asciiBytes array for later processing
+                if(data[i-1] < 0x21 || data[i-1] > 0x7e)
+                {
+                    ascii += ".";
+                }
+                else
+                {
+                    ascii += Encoding.ASCII.GetString(new byte[1] { data[i-1] });
+                }
+
+                // add an additional space to split the bytes into
+                //  two groups of 8 bytes
+                if(i % 16 != 0 && i % 8 == 0)
+                {
+                    bytes += " ";
+                    ascii += " ";
+                }
+
+                // append the output string
+                if(i % 16 == 0)
+                {
+                    // add the 16 byte segment number
+                    segmentNumber = ((((i - 16) / 16) * 10).ToString()).PadLeft(4, '0');
+
+                    // build the line
+                    buffer.AppendLine("Data: " + segmentNumber + "  " + bytes + "  " + ascii);
+
+                    // reset for the next line
+                    bytes = "";
+                    ascii = "";
+
+                    continue;
+                }
+
+                // handle the last pass
+                if(i == data.Length)
+                {
+                    // add the 16 byte segment number
+                    segmentNumber = (((((i - 16) / 16) + 1) * 10).ToString()).PadLeft(4, '0');
+
+                    // build the line
+                    buffer.AppendLine("Data: " + (segmentNumber.ToString()).PadLeft(4, '0') + "  " + bytes.PadRight(49, ' ') + "  " + ascii);
+                }
             }
+
+            return buffer.ToString();
         }
 
         /// <value>

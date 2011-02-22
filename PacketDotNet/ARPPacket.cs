@@ -18,7 +18,9 @@ along with PacketDotNet.  If not, see <http://www.gnu.org/licenses/>.
  *  Copyright 2009 Chris Morgan <chmorgan@gmail.com>
  */
 using System;
+using System.Collections.Generic;
 using System.Net.NetworkInformation;
+using System.Text;
 using MiscUtil.Conversion;
 using PacketDotNet.Utils;
 
@@ -34,9 +36,9 @@ namespace PacketDotNet
 #else
         // NOTE: No need to warn about lack of use, the compiler won't
         //       put any calls to 'log' here but we need 'log' to exist to compile
-#pragma warning disable 0169
+#pragma warning disable 0169, 0649
         private static readonly ILogInactive log;
-#pragma warning restore 0169
+#pragma warning restore 0169, 0649
 #endif
 
         /// <value>
@@ -278,7 +280,6 @@ namespace PacketDotNet
                          System.Net.IPAddress TargetProtocolAddress,
                          PhysicalAddress SenderHardwareAddress,
                          System.Net.IPAddress SenderProtocolAddress)
-            : base(new PosixTimeval())
         {
             log.Debug("");
 
@@ -303,69 +304,73 @@ namespace PacketDotNet
         }
 
         /// <summary>
-        /// byte[]/int Offset constructor
+        /// Constructor
         /// </summary>
-        /// <param name="Bytes">
-        /// A <see cref="System.Byte"/>
+        /// <param name="bas">
+        /// A <see cref="ByteArraySegment"/>
         /// </param>
-        /// <param name="Offset">
-        /// A <see cref="System.Int32"/>
-        /// </param>
-        public ARPPacket(byte[] Bytes, int Offset) :
-            this(Bytes, Offset, new PosixTimeval())
-        { }
-
-        /// <summary>
-        /// byte[]/int offset/PosixTimeval constructor
-        /// </summary>
-        /// <param name="Bytes">
-        /// A <see cref="System.Byte"/>
-        /// </param>
-        /// <param name="Offset">
-        /// A <see cref="System.Int32"/>
-        /// </param>
-        /// <param name="Timeval">
-        /// A <see cref="PosixTimeval"/>
-        /// </param>
-        public ARPPacket(byte[] Bytes, int Offset, PosixTimeval Timeval) :
-            base(Timeval)
+        public ARPPacket(ByteArraySegment bas)
         {
-            header = new ByteArraySegment(Bytes, Offset, ARPFields.HeaderLength);
+            header = new ByteArraySegment(bas);
+            header.Length = ARPFields.HeaderLength;
 
             // NOTE: no need to set the payloadPacketOrData field, arp packets have
             //       no payload
         }
 
-        /// <summary> Convert this ARP packet to a readable string.</summary>
-        public override System.String ToString()
+        /// <summary cref="Packet.ToString(StringOutputType)" />
+        public override string ToString(StringOutputType outputFormat)
         {
-            return ToColoredString(false);
-        }
+            var buffer = new StringBuilder();
+            string color = "";
+            string colorEscape = "";
 
-        /// <summary> Generate string with contents describing this ARP packet.</summary>
-        /// <param name="colored">whether or not the string should contain ansi
-        /// color escape sequences.
-        /// </param>
-        public override System.String ToColoredString(bool colored)
-        {
-            System.Text.StringBuilder buffer = new System.Text.StringBuilder();
-            buffer.Append('[');
-            if (colored)
-                buffer.Append(Color);
-            buffer.Append("ARPPacket");
-            if (colored)
-                buffer.Append(AnsiEscapeSequences.Reset);
-            buffer.Append(": ");
-            buffer.Append(Operation);
-            buffer.Append(' ');
-            buffer.Append(SenderHardwareAddress + " -> " + TargetHardwareAddress);
-            buffer.Append(", ");
-            buffer.Append(SenderProtocolAddress + " -> " + TargetProtocolAddress);
-            //buffer.append(" l=" + header.length + "," + data.length);
-            buffer.Append(']');
+            if(outputFormat == StringOutputType.Colored || outputFormat == StringOutputType.VerboseColored)
+            {
+                color = Color;
+                colorEscape = AnsiEscapeSequences.Reset;
+            }
+
+            if(outputFormat == StringOutputType.Normal || outputFormat == StringOutputType.Colored)
+            {
+                // build the output string
+                buffer.AppendFormat("{0}[ARPPacket: Operation={2}, SenderHardwareAddress={3}, TargetHardwareAddress={4}, SenderProtocolAddress={5}, TargetProtocolAddress={6}]{1}",
+                    color,
+                    colorEscape,
+                    Operation,
+                    HexPrinter.PrintMACAddress(SenderHardwareAddress),
+                    HexPrinter.PrintMACAddress(TargetHardwareAddress),
+                    SenderProtocolAddress,
+                    TargetProtocolAddress);
+            }
+
+            if(outputFormat == StringOutputType.Verbose || outputFormat == StringOutputType.VerboseColored)
+            {
+                // collect the properties and their value
+                Dictionary<string,string> properties = new Dictionary<string,string>();
+                properties.Add("hardware type", HardwareAddressType.ToString() + " (0x" + HardwareAddressType.ToString("x") + ")");
+                properties.Add("protocol type", ProtocolAddressType.ToString() + " (0x" + ProtocolAddressType.ToString("x") + ")");
+                properties.Add("operation", Operation.ToString() + " (0x" + Operation.ToString("x") + ")");
+                properties.Add("source hardware address", HexPrinter.PrintMACAddress(SenderHardwareAddress));
+                properties.Add("destination hardware address", HexPrinter.PrintMACAddress(TargetHardwareAddress));
+                properties.Add("source protocol address", SenderProtocolAddress.ToString());
+                properties.Add("destination protocol address", TargetProtocolAddress.ToString());
+
+                // calculate the padding needed to right-justify the property names
+                int padLength = Utils.RandomUtils.LongestStringLength(new List<string>(properties.Keys));
+
+                // build the output string
+                buffer.AppendLine("ARP:  ******* ARP - \"Address Resolution Protocol\" - offset=? length=" + TotalPacketLength);
+                buffer.AppendLine("ARP:");
+                foreach(var property in properties)
+                {
+                    buffer.AppendLine("ARP: " + property.Key.PadLeft(padLength) + " = " + property.Value);
+                }
+                buffer.AppendLine("ARP:");
+            }
 
             // append the base string output
-            buffer.Append(base.ToColoredString(colored));
+            buffer.Append(base.ToString(outputFormat));
 
             return buffer.ToString();
         }

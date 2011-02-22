@@ -19,6 +19,8 @@ along with PacketDotNet.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 using System;
+using System.Collections.Generic;
+using System.Text;
 using MiscUtil.Conversion;
 using PacketDotNet.Utils;
 
@@ -35,9 +37,9 @@ namespace PacketDotNet
 #else
         // NOTE: No need to warn about lack of use, the compiler won't
         //       put any calls to 'log' here but we need 'log' to exist to compile
-#pragma warning disable 0169
+#pragma warning disable 0169, 0649
         private static readonly ILogInactive log;
-#pragma warning restore 0169
+#pragma warning restore 0169, 0649
 #endif
 
         /// <value>
@@ -45,10 +47,10 @@ namespace PacketDotNet
         /// </value>
         public const int HeaderMinimumLength = 20;
 
-        /// <summary> Type of service code constants for IP. Type of service describes 
+        /// <summary> Type of service code constants for IP. Type of service describes
         /// how a packet should be handled.
         /// <p>
-        /// TOS is an 8-bit record in an IP header which contains a 3-bit 
+        /// TOS is an 8-bit record in an IP header which contains a 3-bit
         /// precendence field, 4 TOS bit fields and a 0 bit.
         /// </p>
         /// <p>
@@ -113,7 +115,7 @@ namespace PacketDotNet
         }
 
         /// <summary>
-        /// The IP header length field.  At most, this can be a 
+        /// The IP header length field.  At most, this can be a
         /// four-bit value.  The high order bits beyond the fourth bit
         /// will be ignored.
         /// </summary>
@@ -228,17 +230,17 @@ namespace PacketDotNet
         }
 
         /// <summary> Fetch the header checksum.</summary>
-        virtual public int Checksum
+        virtual public ushort Checksum
         {
             get
             {
-                return EndianBitConverter.Big.ToInt16(header.Bytes,
+                return EndianBitConverter.Big.ToUInt16(header.Bytes,
                                                       header.Offset + IPv4Fields.ChecksumPosition);
             }
 
             set
             {
-                var val = (Int16)value;
+                var val = (UInt16)value;
                 EndianBitConverter.Big.CopyBytes(val,
                                                  header.Bytes,
                                                  header.Offset + IPv4Fields.ChecksumPosition);
@@ -328,13 +330,13 @@ namespace PacketDotNet
         {
             get
             {
-                return EndianBitConverter.Big.ToInt16(header.Bytes,
-                                                      header.Offset + IPv4Fields.TotalLengthPosition);
+                return EndianBitConverter.Big.ToUInt16(header.Bytes,
+                                                       header.Offset + IPv4Fields.TotalLengthPosition);
             }
 
             set
             {
-                var theValue = (Int16)value;
+                var theValue = (UInt16)value;
                 EndianBitConverter.Big.CopyBytes(theValue,
                                                  header.Bytes,
                                                  header.Offset + IPv4Fields.TotalLengthPosition);
@@ -369,11 +371,11 @@ namespace PacketDotNet
             }
         }
 
-        /// <summary> Fetch the time to live. TTL sets the upper limit on the number of 
+        /// <summary> Fetch the time to live. TTL sets the upper limit on the number of
         /// routers through which this IP datagram is allowed to pass.
         /// Originally intended to be the number of seconds the packet lives it is now decremented
         /// by one each time a router passes the packet on
-        /// 
+        ///
         /// 8-bit value
         /// </summary>
         public override int TimeToLive
@@ -410,7 +412,7 @@ namespace PacketDotNet
         /// </summary>
         /// <returns> The calculated IP checksum.
         /// </returns>
-        public int CalculateIPChecksum()
+        public ushort CalculateIPChecksum()
         {
             //copy the ip header
             var theHeader = Header;
@@ -424,7 +426,7 @@ namespace PacketDotNet
             //calculate the one's complement sum of the ip header
             int cs = ChecksumUtils.OnesComplementSum(ip, 0, ip.Length);
 
-            return cs;
+            return (ushort)cs;
         }
 
         /// <summary>
@@ -450,7 +452,8 @@ namespace PacketDotNet
         /// </returns>
         internal override byte[] AttachPseudoIPHeader(byte[] origHeader)
         {
-            log.Debug("");
+            log.DebugFormat("origHeader.Length {0}",
+                            origHeader.Length);
 
             bool odd = origHeader.Length % 2 != 0;
             int numberOfBytesFromIPHeaderUsedToGenerateChecksum = 12;
@@ -491,7 +494,6 @@ namespace PacketDotNet
         /// </summary>
         public IPv4Packet(System.Net.IPAddress SourceAddress,
                           System.Net.IPAddress DestinationAddress)
-            : base(new PosixTimeval())
         {
             // allocate memory for this packet
             int offset = 0;
@@ -511,38 +513,16 @@ namespace PacketDotNet
         }
 
         /// <summary>
-        /// Parse bytes into an IP packet
+        /// Constructor
         /// </summary>
-        /// <param name="Bytes">
-        /// A <see cref="System.Byte"/>
+        /// <param name="bas">
+        /// A <see cref="ByteArraySegment"/>
         /// </param>
-        /// <param name="Offset">
-        /// A <see cref="System.Int32"/>
-        /// </param>
-        public IPv4Packet(byte[] Bytes, int Offset) :
-            this(Bytes, Offset, new PosixTimeval())
-        {
-            log.Debug("");
-        }
-
-        /// <summary>
-        /// Parse bytes into an IP packet
-        /// </summary>
-        /// <param name="Bytes">
-        /// A <see cref="System.Byte"/>
-        /// </param>
-        /// <param name="Offset">
-        /// A <see cref="System.Int32"/>
-        /// </param>
-        /// <param name="Timeval">
-        /// A <see cref="PosixTimeval"/>
-        /// </param>
-        public IPv4Packet(byte[] Bytes, int Offset, PosixTimeval Timeval) :
-            base(Timeval)
+        public IPv4Packet(ByteArraySegment bas)
         {
             log.Debug("");
 
-            header = new ByteArraySegment(Bytes, Offset, Bytes.Length - Offset);
+            header = new ByteArraySegment(bas);
 
             // Check that the TotalLength is valid, at least HeaderMinimumLength long
             if(TotalLength < HeaderMinimumLength)
@@ -560,80 +540,87 @@ namespace PacketDotNet
             log.DebugFormat("header {0}", header);
 
             // parse the payload
-            payloadPacketOrData = IpPacket.ParseEncapsulatedBytes(header,
+            var payload = header.EncapsulatedBytes(PayloadLength);
+            payloadPacketOrData = IpPacket.ParseEncapsulatedBytes(payload,
                                                                   NextHeader,
                                                                   Timeval,
                                                                   this);
         }
 
-        /// <summary> Convert this IP packet to a readable string.</summary>
-        public override System.String ToString()
+        /// <summary cref="Packet.ToString(StringOutputType)" />
+        public override string ToString(StringOutputType outputFormat)
         {
-            return ToColoredString(false);
-        }
+            var buffer = new StringBuilder();
+            string color = "";
+            string colorEscape = "";
 
-        /// <summary> Generate string with contents describing this IP packet.</summary>
-        /// <param name="colored">whether or not the string should contain ansi
-        /// color escape sequences.
-        /// </param>
-        public override System.String ToColoredString(bool colored)
-        {
-            System.Text.StringBuilder buffer = new System.Text.StringBuilder();
-            buffer.Append('[');
-            if (colored)
-                buffer.Append(Color);
-            buffer.Append("IPv4Packet");
-            if (colored)
-                buffer.Append(AnsiEscapeSequences.Reset);
-            buffer.Append(": ");
-            buffer.Append(SourceAddress + " -> " + DestinationAddress);
-            buffer.Append(" HeaderLength=" + HeaderLength);
-            buffer.Append(" Protocol=" + Protocol);
-            buffer.Append(" TimeToLive=" + TimeToLive);            
-            // FIXME: what would we use for Length?
-//            buffer.Append(" l=" + HeaderLength + "," + Length);
-            buffer.Append(']');
+            if(outputFormat == StringOutputType.Colored || outputFormat == StringOutputType.VerboseColored)
+            {
+                color = Color;
+                colorEscape = AnsiEscapeSequences.Reset;
+            }
+
+            if(outputFormat == StringOutputType.Normal || outputFormat == StringOutputType.Colored)
+            {
+                // build the output string
+                buffer.AppendFormat("{0}[IPv4Packet: SourceAddress={2}, DestinationAddress={3}, HeaderLength={4}, Protocol={5}, TimeToLive={6}]{1}",
+                    color,
+                    colorEscape,
+                    SourceAddress,
+                    DestinationAddress,
+                    HeaderLength,
+                    Protocol,
+                    TimeToLive);
+            }
+
+            if(outputFormat == StringOutputType.Verbose || outputFormat == StringOutputType.VerboseColored)
+            {
+                // collect the properties and their value
+                Dictionary<string,string> properties = new Dictionary<string,string>();
+                properties.Add("version", Version.ToString());
+                // FIXME: Header length output is incorrect
+                properties.Add("header length", HeaderLength + " bytes");
+                string diffServices =  Convert.ToString(DifferentiatedServices, 2).PadLeft(8, '0').Insert(4, " ");
+                properties.Add("differentiated services", "0x" + DifferentiatedServices.ToString("x").PadLeft(2, '0'));
+                properties.Add("", diffServices.Substring(0, 7) + ".. = [" + (DifferentiatedServices >> 2) + "] code point");
+                properties.Add(" ",".... .." + diffServices[6] + ". = [" + diffServices[6] + "] ECN");
+                properties.Add("  ",".... ..." + diffServices[7] + " = [" + diffServices[7] + "] ECE");
+                properties.Add("total length", TotalLength.ToString());
+                properties.Add("identification", "0x" + Id.ToString("x") + " (" + Id + ")");
+                string flags = Convert.ToString(FragmentFlags, 2).PadLeft(8, '0').Substring(5, 3);
+                properties.Add("flags", "0x" + FragmentFlags.ToString("x").PadLeft(2, '0'));
+                properties.Add("   ", flags[0] + ".. = [" +  flags[0] + "] reserved");
+                properties.Add("    ", "." + flags[1] + ". = [" + flags[1] + "] don't fragment");
+                properties.Add("     ", ".." + flags[2] + " = [" + flags[2] + "] more fragments");
+                properties.Add("fragment offset", FragmentOffset.ToString());
+                properties.Add("time to live", TimeToLive.ToString());
+                properties.Add("protocol", Protocol.ToString() + " (0x" + Protocol.ToString("x") + ")");
+                properties.Add("header checksum", "0x" + Checksum.ToString("x") + " [" + (ValidChecksum ? "valid" : "invalid") + "]");
+                properties.Add("source", SourceAddress.ToString());
+                properties.Add("destination", DestinationAddress.ToString());
+
+                // calculate the padding needed to right-justify the property names
+                int padLength = Utils.RandomUtils.LongestStringLength(new List<string>(properties.Keys));
+
+                // build the output string
+                buffer.AppendLine("IP:  ******* IPv4 - \"Internet Protocol (Version 4)\" - offset=? length=" + TotalPacketLength);
+                buffer.AppendLine("IP:");
+                foreach(var property in properties)
+                {
+                    if(property.Key.Trim() != "")
+                    {
+                        buffer.AppendLine("IP: " + property.Key.PadLeft(padLength) + " = " + property.Value);
+                    }
+                    else
+                    {
+                        buffer.AppendLine("IP: " + property.Key.PadLeft(padLength) + "   " + property.Value);
+                    }
+                }
+                buffer.AppendLine("IP:");
+            }
 
             // append the base class output
-            buffer.Append(base.ToColoredString(colored));
-
-            return buffer.ToString();
-        }
-
-        /// <summary> Convert this IP packet to a more verbose string.</summary>
-        public override System.String ToColoredVerboseString(bool colored)
-        {
-            System.Text.StringBuilder buffer = new System.Text.StringBuilder();
-            buffer.Append('[');
-            if (colored)
-                buffer.Append(Color);
-            buffer.Append("IPv4Packet");
-            if (colored)
-                buffer.Append(AnsiEscapeSequences.Reset);
-            buffer.Append(": ");
-            buffer.Append("version=" + Version + ", ");
-            buffer.Append("hlen=" + HeaderLength + ", ");
-            buffer.Append("tos=" + TypeOfService + ", ");
-            //FIXME: what to use for length here?
-//            buffer.Append("length=" + Length + ", ");
-            buffer.Append("id=" + Id + ", ");
-            buffer.Append("flags=0x" + System.Convert.ToString(FragmentFlags, 16) + ", ");
-            buffer.Append("offset=" + FragmentOffset + ", ");
-            buffer.Append("ttl=" + TimeToLive + ", ");
-            buffer.Append("proto=" + Protocol + ", ");
-            buffer.Append("sum=0x" + System.Convert.ToString(Checksum, 16));
-#if false
-            if (this.ValidChecksum)
-                buffer.Append(" (correct), ");
-            else
-                buffer.Append(" (incorrect, should be " + ComputeIPChecksum(false) + "), ");
-#endif
-            buffer.Append("src=" + SourceAddress + ", ");
-            buffer.Append("dest=" + DestinationAddress);
-            buffer.Append(']');
-
-            // append the base class output
-            buffer.Append(base.ToColoredVerboseString(colored));
+            buffer.Append(base.ToString(outputFormat));
 
             return buffer.ToString();
         }

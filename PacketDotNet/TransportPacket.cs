@@ -30,21 +30,18 @@ namespace PacketDotNet
 #else
         // NOTE: No need to warn about lack of use, the compiler won't
         //       put any calls to 'log' here but we need 'log' to exist to compile
-#pragma warning disable 0169
+#pragma warning disable 0169, 0649
         private static readonly ILogInactive log;
-#pragma warning restore 0169
-#endif		
+#pragma warning restore 0169, 0649
+#endif
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="Timeval">
-        /// A <see cref="PosixTimeval"/>
-        /// </param>
-        public TransportPacket(PosixTimeval Timeval) : base(Timeval)
+        public TransportPacket()
         {
         }
-		
-		/// <value>
+
+        /// <value>
         /// The Checksum version
         /// </value>
         public abstract ushort Checksum
@@ -52,8 +49,8 @@ namespace PacketDotNet
             get;
             set;
         }
-		
-		/// <summary>
+
+        /// <summary>
         /// Calculates the transport layer checksum, either for the
         /// tcp or udp packet
         /// </summary>
@@ -63,10 +60,14 @@ namespace PacketDotNet
         /// </returns>
         internal int CalculateChecksum(TransportChecksumOption option)
         {
+            // save the checksum field value so it can be restored, altering the checksum is not
+            // an intended side effect of this method
+            var originalChecksum = Checksum;
+
             // reset the checksum field (checksum is calculated when this field is
             // zeroed)
-                Checksum = 0;
-	
+            Checksum = 0;
+
             // copy the tcp section with data
             byte[] dataToChecksum = ((IpPacket)ParentPacket).PayloadPacket.Bytes;
 
@@ -75,11 +76,15 @@ namespace PacketDotNet
 
             // calculate the one's complement sum of the tcp header
             int cs = ChecksumUtils.OnesComplementSum(dataToChecksum);
+
+            // restore the checksum field value
+            Checksum = originalChecksum;
+
             return cs;
         }
-		
-		/// <summary>
-        /// Determine if the transport layer checksum is valid 
+
+        /// <summary>
+        /// Determine if the transport layer checksum is valid
         /// </summary>
         /// <param name="option">
         /// A <see cref="TransportChecksumOption"/>
@@ -89,9 +94,10 @@ namespace PacketDotNet
         /// </returns>
         public virtual bool IsValidChecksum(TransportChecksumOption option)
         {
-            log.DebugFormat("option: {0}", option);
-
             var upperLayer = ((IpPacket)ParentPacket).PayloadPacket.Bytes;
+
+            log.DebugFormat("option: {0}, upperLayer.Length {1}",
+                            option, upperLayer.Length);
 
             if (option == TransportChecksumOption.AttachPseudoIPHeader)
                 upperLayer = ((IpPacket)ParentPacket).AttachPseudoIPHeader(upperLayer);
@@ -104,19 +110,19 @@ namespace PacketDotNet
 
             return (onesSum == expectedOnesSum);
         }
-		
-		/// <summary>
+
+        /// <summary>
         /// Options for use when creating a transport layer checksum
         /// </summary>
         public enum TransportChecksumOption
         {
             /// <summary>
-            /// No extra options 
+            /// No extra options
             /// </summary>
             None,
 
             /// <summary>
-            /// Attach a pseudo IP header to the transport data being checksummed 
+            /// Attach a pseudo IP header to the transport data being checksummed
             /// </summary>
             AttachPseudoIPHeader,
         }

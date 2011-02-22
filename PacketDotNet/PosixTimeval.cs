@@ -22,7 +22,7 @@ using System;
 namespace PacketDotNet
 {
     /// <summary> POSIX.4 timeval</summary>
-    public class PosixTimeval
+    public class PosixTimeval : IComparable<PosixTimeval>
     {
         private static readonly System.DateTime epochDateTime = new System.DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
@@ -185,7 +185,7 @@ namespace PacketDotNet
         public override bool Equals (object obj)
         {
             // Check for null values and compare run-time types.
-            if (obj == null || GetType() != obj.GetType()) 
+            if (obj == null || GetType() != obj.GetType())
                 return false;
 
             var pt = (PosixTimeval)obj;
@@ -272,8 +272,27 @@ namespace PacketDotNet
             sb.Append('.');
             sb.Append(MicroSeconds);
             sb.Append('s');
-            
+
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Compare this to another
+        /// </summary>
+        /// <param name="that">
+        /// A <see cref="PosixTimeval"/>
+        /// </param>
+        /// <returns>
+        /// A <see cref="System.Int32"/>
+        /// </returns>
+        public int CompareTo(PosixTimeval that)
+        {
+            if (this < that)
+                return -1;
+            else if (this > that)
+                return 1;
+            else
+                return 0;
         }
     }
 }

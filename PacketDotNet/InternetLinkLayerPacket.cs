@@ -34,18 +34,15 @@ namespace PacketDotNet
 #else
         // NOTE: No need to warn about lack of use, the compiler won't
         //       put any calls to 'log' here but we need 'log' to exist to compile
-#pragma warning disable 0169
+#pragma warning disable 0169, 0649
         private static readonly ILogInactive log;
-#pragma warning restore 0169
+#pragma warning restore 0169, 0649
 #endif
 
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="timeval">
-        /// A <see cref="PosixTimeval"/>
-        /// </param>
-        public InternetLinkLayerPacket(PosixTimeval timeval) : base(timeval)
+        public InternetLinkLayerPacket()
         {}
 
         /// <summary>

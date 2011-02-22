@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Net;
 
 namespace PacketDotNet.Utils
 {
@@ -35,6 +37,29 @@ namespace PacketDotNet.Utils
             }
 
             return new System.Net.IPAddress(randomAddressBytes);
+        }
+
+        /// <summary>
+        /// Get the length of the longest string in a list of strings
+        /// </summary>
+        /// <param name="stringsList">
+        /// A <see cref="List<System.String>"/>
+        /// </param>
+        /// <returns>
+        /// A <see cref="System.Int32"/>
+        /// </returns>
+        public static int LongestStringLength(List<string> stringsList)
+        {
+            string longest="";
+
+            foreach(string L in stringsList)
+            {
+                if (L.Length > longest.Length)
+                {
+                    longest = L;
+                }
+            }
+            return longest.Length;
         }
     }
 }

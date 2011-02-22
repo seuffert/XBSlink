@@ -18,6 +18,8 @@ along with PacketDotNet.  If not, see <http://www.gnu.org/licenses/>.
  *  Copyright 2009 Chris Morgan <chmorgan@gmail.com>
  */
 using System;
+using System.Collections.Generic;
+using System.Text;
 using MiscUtil.Conversion;
 using PacketDotNet.Utils;
 
@@ -52,7 +54,7 @@ namespace PacketDotNet
         }
 
         /// <value>
-        /// The 
+        /// The
         /// </value>
         public int LinkLayerAddressType
         {
@@ -145,34 +147,15 @@ namespace PacketDotNet
         }
 
         /// <summary>
-        /// Create an LinuxSLLPacket from a byte array 
+        /// Constructor
         /// </summary>
-        /// <param name="bytes">
-        /// A <see cref="System.Byte"/>
+        /// <param name="bas">
+        /// A <see cref="ByteArraySegment"/>
         /// </param>
-        /// <param name="offset">
-        /// A <see cref="System.Int32"/>
-        /// </param>
-        public LinuxSLLPacket(byte[] bytes, int offset) :
-            this(bytes, offset, new PosixTimeval())
-        { }
-
-        /// <summary>
-        /// Create an LinuxSLLPacket from a byte array and a Timeval 
-        /// </summary>
-        /// <param name="Bytes">
-        /// A <see cref="System.Byte"/>
-        /// </param>
-        /// <param name="Offset">
-        /// A <see cref="System.Int32"/>
-        /// </param>
-        /// <param name="Timeval">
-        /// A <see cref="PosixTimeval"/>
-        /// </param>
-        public LinuxSLLPacket(byte[] Bytes, int Offset, PosixTimeval Timeval) :
-            base(Timeval)
+        public LinuxSLLPacket(ByteArraySegment bas)
         {
-            header = new ByteArraySegment(Bytes, Offset, LinuxSLLFields.SLLHeaderLength);
+            header = new ByteArraySegment(bas);
+            header.Length = LinuxSLLFields.SLLHeaderLength;
 
             // parse the payload via an EthernetPacket method
             payloadPacketOrData = EthernetPacket.ParseEncapsulatedBytes(header,
@@ -180,48 +163,60 @@ namespace PacketDotNet
                                                                         Timeval);
         }
 
-        /// <summary>
-        /// ToString implementation
-        /// </summary>
-        /// <returns>
-        /// A <see cref="System.String"/>
-        /// </returns>
-        public override string ToString ()
+        /// <summary cref="Packet.ToString(StringOutputType)" />
+        public override string ToString (StringOutputType outputFormat)
         {
-            return ToColoredString(false);
-        }
+            var buffer = new StringBuilder();
+            string color = "";
+            string colorEscape = "";
 
-        /// <summary>
-        /// Colored string that represents the values in this class instance
-        /// </summary>
-        /// <param name="colored">
-        /// A <see cref="System.Boolean"/>
-        /// </param>
-        /// <returns>
-        /// A <see cref="System.String"/>
-        /// </returns>
-        public override string ToColoredString (bool colored)
-        {
-            var sb = new System.Text.StringBuilder();
+            if(outputFormat == StringOutputType.Colored || outputFormat == StringOutputType.VerboseColored)
+            {
+                color = Color;
+                colorEscape = AnsiEscapeSequences.Reset;
+            }
 
-            sb.AppendFormat("[LinuxSLLPacket: Type={0}, LinkLayerAddressType={1}, LinkLayerAddressLength={2}, LinkLayerHeader={3}, EthernetProtocolType={4}]",
-                                 Type,
-                                 LinkLayerAddressType,
-                                 LinkLayerAddressLength,
-                                 LinkLayerAddress,
-                                 EthernetProtocolType);
+            if(outputFormat == StringOutputType.Normal || outputFormat == StringOutputType.Colored)
+            {
+                // build the output string
+                buffer.AppendFormat("[{0}LinuxSLLPacket{1}: Type={2}, LinkLayerAddressType={3}, LinkLayerAddressLength={4}, Source={5}, ProtocolType={6}]",
+                    color,
+                    colorEscape,
+                    Type,
+                    LinkLayerAddressType,
+                    LinkLayerAddressLength,
+                    BitConverter.ToString(LinkLayerAddress, 0),
+                    EthernetProtocolType);
+            }
+
+            if(outputFormat == StringOutputType.Verbose || outputFormat == StringOutputType.VerboseColored)
+            {
+                // collect the properties and their value
+                Dictionary<string,string> properties = new Dictionary<string,string>();
+                properties.Add("type", Type.ToString() + " (" + ((int)Type).ToString() + ")");
+                properties.Add("link layer address type", LinkLayerAddressType.ToString());
+                properties.Add("link layer address length", LinkLayerAddressLength.ToString());
+                properties.Add("source", BitConverter.ToString(LinkLayerAddress));
+                properties.Add("protocol", EthernetProtocolType.ToString() + " (0x" + EthernetProtocolType.ToString("x") + ")");
+
+
+                // calculate the padding needed to right-justify the property names
+                int padLength = Utils.RandomUtils.LongestStringLength(new List<string>(properties.Keys));
+
+                // build the output string
+                buffer.AppendLine("LCC:  ******* LinuxSLL - \"Linux Cooked Capture\" - offset=? length=" + TotalPacketLength);
+                buffer.AppendLine("LCC:");
+                foreach(var property in properties)
+                {
+                    buffer.AppendLine("LCC: " + property.Key.PadLeft(padLength) + " = " + property.Value);
+                }
+                buffer.AppendLine("LCC:");
+            }
 
             // append the base output
-            sb.Append(base.ToColoredString(colored));
+            buffer.Append(base.ToString(outputFormat));
 
-            return sb.ToString();
-        }
-
-        /// <summary> Convert a more verbose string.</summary>
-        public override System.String ToColoredVerboseString(bool colored)
-        {
-            //TODO: just output the colored output for now
-            return ToColoredString(colored);
+            return buffer.ToString();
         }
     }
 }

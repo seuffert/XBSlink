@@ -1,9 +1,29 @@
+/*
+This file is part of PacketDotNet
 
+PacketDotNet is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+PacketDotNet is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with PacketDotNet.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/*
+ *  Copyright 2010 Evan Plaice <evanplaice@gmail.com>
+ *  Copyright 2010 Chris Morgan <chmorgan@gmail.com>
+ */
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Text;
 using System.Text.RegularExpressions;
 using MiscUtil.Conversion;
 using PacketDotNet.Utils;
@@ -29,9 +49,9 @@ namespace PacketDotNet
 #else
         // NOTE: No need to warn about lack of use, the compiler won't
         //       put any calls to 'log' here but we need 'log' to exist to compile
-#pragma warning disable 0169
+#pragma warning disable 0169, 0649
         private static readonly ILogInactive log;
-#pragma warning restore 0169
+#pragma warning restore 0169, 0649
 #endif
 
         #endregion
@@ -41,7 +61,7 @@ namespace PacketDotNet
         /// <summary>
         /// Create an empty LLDPPacket
         /// </summary>
-        public LLDPPacket() : base(new PosixTimeval())
+        public LLDPPacket()
         {
             log.Debug("");
 
@@ -51,38 +71,16 @@ namespace PacketDotNet
         }
 
         /// <summary>
-        /// Creates a LLDP packet from a byte[]
+        /// Constructor
         /// </summary>
-        /// <param name="bytes">
-        /// A <see cref="System.Byte"/>
+        /// <param name="bas">
+        /// A <see cref="ByteArraySegment"/>
         /// </param>
-        /// <param name="offset">
-        /// A <see cref="System.Int32"/>
-        /// </param>
-        public LLDPPacket(byte[] bytes, int offset) :
-            this(bytes, offset, new PosixTimeval())
-        {
-            log.Debug("");
-        }
-
-        /// <summary>
-        /// Creates a LLDP packet from a byte[]
-        /// </summary>
-        /// <param name="bytes">
-        /// A <see cref="System.Byte"/>
-        /// </param>
-        /// <param name="offset">
-        /// A <see cref="System.Int32"/>
-        /// </param>
-        /// <param name="timeval">
-        /// A <see cref="PosixTimeval"/>
-        /// </param>
-        public LLDPPacket(byte[] bytes, int offset, PosixTimeval timeval) :
-            base(timeval)
+        public LLDPPacket(ByteArraySegment bas)
         {
             log.Debug("");
 
-            header = new ByteArraySegment(bytes, offset, bytes.Length - offset);
+            header = new ByteArraySegment(bas);
 
             // Initiate the TLV list from the existing data
             ParseByteArrayIntoTlvs(header.Bytes, header.Offset);
@@ -195,7 +193,7 @@ namespace PacketDotNet
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="Bytes">
         /// A <see cref="System.Byte[]"/>
@@ -248,7 +246,7 @@ namespace PacketDotNet
         /// <returns>
         /// A <see cref="IpPacket"/>
         /// </returns>
-        public static LLDPPacket GetType(Packet p)
+        public static LLDPPacket GetEncapsulated(Packet p)
         {
             log.Debug("");
 
@@ -273,14 +271,14 @@ namespace PacketDotNet
         public static LLDPPacket RandomPacket()
         {
             var rnd = new Random();
-            
+
             var lldpPacket = new LLDPPacket();
 
             byte[] physicalAddressBytes = new byte[EthernetFields.MacAddressLength];
             rnd.NextBytes(physicalAddressBytes);
             var physicalAddress = new PhysicalAddress(physicalAddressBytes);
             lldpPacket.TlvCollection.Add(new ChassisID(physicalAddress));
-            
+
             byte[] networkAddress = new byte[IPv4Fields.AddressLength];
             rnd.NextBytes(networkAddress);
             lldpPacket.TlvCollection.Add(new PortID(new NetworkAddress(new IPAddress(networkAddress))));
@@ -289,83 +287,64 @@ namespace PacketDotNet
             lldpPacket.TlvCollection.Add(new TimeToLive(seconds));
 
             lldpPacket.TlvCollection.Add(new EndOfLLDPDU());
-            
+
             return lldpPacket;
         }
-        
-        /// <summary>
-        /// Convert this LLDP packet to a readable string.
-        /// </summary>
-        /// <returns>
-        /// A human readable string.
-        /// </returns>
-        public override string ToString ()
-        {
-            return ToColoredString(false);
-        }
 
-        /// <summary>
-        /// Convert this LLDP packet to a readable string.
-        /// </summary>
-        /// <param name="colored">
-        /// Sets whether the output includes coloring.
-        /// </param>
-        /// <returns>
-        /// A human readable string.
-        /// </returns>
-        public override string ToColoredString(bool colored)
+        /// <summary cref="Packet.ToString(StringOutputType)" />
+        public override string ToString(StringOutputType outputFormat)
         {
-            System.Text.StringBuilder buffer = new System.Text.StringBuilder();
-            buffer.Append('[');
-            if (colored)
-                buffer.Append(AnsiEscapeSequences.Blue);
-            buffer.Append("LLDPPacket");
-            if (colored)
-                buffer.Append(AnsiEscapeSequences.Reset);
-            buffer.Append(":");
-            
-            foreach(TLV tlv in TlvCollection)
+            var buffer = new StringBuilder();
+            string color = "";
+            string colorEscape = "";
+
+            if(outputFormat == StringOutputType.Colored || outputFormat == StringOutputType.VerboseColored)
             {
-                // the regex trims the parent namespaces off of the class type
-                // ex. "PacketDotNet.LLDP.TimeToLive" returns "TimeToLive"
+                color = Color;
+                colorEscape = AnsiEscapeSequences.Reset;
+            }
+
+            if(outputFormat == StringOutputType.Normal || outputFormat == StringOutputType.Colored)
+            {
+                // build the string of tlvs
+                string tlvs = "{";
                 var r = new Regex(@"[^(\.)]([^\.]*)$");
-                var m = r.Match(tlv.GetType().ToString());
-                buffer.Append(" [" + m.Groups[0].Value + " length:" + tlv.Length + "]");
+                foreach(TLV tlv in TlvCollection)
+                {
+
+                    // regex trim the parent namespaces from the class type
+                    //   (ex. "PacketDotNet.LLDP.TimeToLive" becomes "TimeToLive")
+                    var m = r.Match(tlv.GetType().ToString());
+                    tlvs += m.Groups[0].Value + "|";
+                }
+                tlvs = tlvs.TrimEnd('|');
+                tlvs += "}";
+
+                // build the output string
+                buffer.AppendFormat("{0}[LLDPPacket: TLVs={2}]{1}",
+                color,
+                colorEscape,
+                tlvs);
             }
-            buffer.Append(']');
 
-            return buffer.ToString();
-        }
-
-        /// <summary>
-        /// Convert this LLDP packet to a verbose readable string.
-        /// </summary>
-        /// <param name="colored">
-        /// Sets whether the output includes coloring.
-        /// </param>
-        /// <returns>
-        /// A verbose human readable string.
-        /// </returns>
-        public override string ToColoredVerboseString (bool colored)
-        {
-            System.Text.StringBuilder buffer = new System.Text.StringBuilder();
-            buffer.Append('[');
-            if (colored)
-                buffer.Append(AnsiEscapeSequences.Blue);
-            buffer.Append("LLDPPacket");
-            if (colored)
-                buffer.Append(AnsiEscapeSequences.Reset);
-            buffer.Append(":");
-            
-            foreach(TLV tlv in TlvCollection)
+            if(outputFormat == StringOutputType.Verbose || outputFormat == StringOutputType.VerboseColored)
             {
-                buffer.Append(" " + tlv.ToString());
+                // build the output string
+                buffer.AppendLine("LLDP:  ******* LLDP - \"Link Layer Discovery Protocol\" - offset=? length=" + TotalPacketLength);
+                buffer.AppendLine("LLDP:");
+                foreach(var tlv in TlvCollection)
+                {
+                    buffer.AppendLine("LLDP:" + tlv.ToString());
+                }
+                buffer.AppendLine("LLDP:");
             }
-            buffer.Append(']');
+
+            // append the base string output
+            buffer.Append(base.ToString(outputFormat));
 
             return buffer.ToString();
         }
-        
+
         #endregion
 
         #region Members

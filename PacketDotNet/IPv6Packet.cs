@@ -20,6 +20,8 @@ along with PacketDotNet.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 using System;
+using System.Collections.Generic;
+using System.Text;
 using System.IO;
 using MiscUtil.Conversion;
 using PacketDotNet.Utils;
@@ -28,7 +30,7 @@ namespace PacketDotNet
 {
     /// <summary>
     /// IPv6 packet
-    /// 
+    ///
     /// References
     /// ----------
     /// http://tools.ietf.org/html/rfc2460
@@ -41,9 +43,9 @@ namespace PacketDotNet
 #else
         // NOTE: No need to warn about lack of use, the compiler won't
         //       put any calls to 'log' here but we need 'log' to exist to compile
-#pragma warning disable 0169
+#pragma warning disable 0169, 0649
         private static readonly ILogInactive log;
-#pragma warning restore 0169
+#pragma warning restore 0169, 0649
 #endif
 
         /// <value>
@@ -197,7 +199,7 @@ namespace PacketDotNet
 
         /// <summary>
         /// Identifies the protocol encapsulated by this packet
-        /// 
+        ///
         /// Replaces IPv4's 'protocol' field, has compatible values
         /// </summary>
         public override IPProtocolType NextHeader
@@ -225,7 +227,7 @@ namespace PacketDotNet
         /// <summary>
         /// The hop limit field of the IPv6 Packet.
         /// NOTE: Replaces the 'time to live' field of IPv4
-        /// 
+        ///
         /// 8-bit value
         /// </summary>
         public override int HopLimit
@@ -303,7 +305,6 @@ namespace PacketDotNet
         /// </param>
         public IPv6Packet(System.Net.IPAddress SourceAddress,
                           System.Net.IPAddress DestinationAddress)
-            : base(new PosixTimeval())
         {
             log.Debug("");
 
@@ -324,49 +325,27 @@ namespace PacketDotNet
         }
 
         /// <summary>
-        /// byte[]/int offset constructor, timeval defaults to the current time
+        /// Constructor
         /// </summary>
-        /// <param name="Bytes">
-        /// A <see cref="System.Byte"/>
+        /// <param name="bas">
+        /// A <see cref="ByteArraySegment"/>
         /// </param>
-        /// <param name="Offset">
-        /// A <see cref="System.Int32"/>
-        /// </param>
-        public IPv6Packet(byte[] Bytes, int Offset) :
-            this(Bytes, Offset, new PosixTimeval())
+        public IPv6Packet(ByteArraySegment bas)
         {
-            log.Debug("");
-        }
-
-        /// <summary>
-        /// byte[]/int offset/PosixTimeval constructor
-        /// </summary>
-        /// <param name="Bytes">
-        /// A <see cref="System.Byte"/>
-        /// </param>
-        /// <param name="Offset">
-        /// A <see cref="System.Int32"/>
-        /// </param>
-        /// <param name="Timeval">
-        /// A <see cref="PosixTimeval"/>
-        /// </param>
-        public IPv6Packet(byte[] Bytes, int Offset, PosixTimeval Timeval) :
-            base(Timeval)
-        {
-            log.DebugFormat("Bytes.Length {0}, Offset {1}",
-                            Bytes.Length,
-                            Offset);
+            log.Debug(bas.ToString());
 
             // slice off the header
-            header = new ByteArraySegment(Bytes, Offset, IPv6Packet.HeaderMinimumLength);
+            header = new ByteArraySegment(bas);
+            header.Length = IPv6Packet.HeaderMinimumLength;
 
             // set the actual length, we need to do this because we need to set
             // header to something valid above before we can retrieve the PayloadLength
             log.DebugFormat("PayloadLength: {0}", PayloadLength);
-            header.Length = (Bytes.Length - Offset) - PayloadLength;
+            header.Length = bas.Length - PayloadLength;
 
             // parse the payload
-            payloadPacketOrData = IpPacket.ParseEncapsulatedBytes(header,
+            var payload = header.EncapsulatedBytes(PayloadLength);
+            payloadPacketOrData = IpPacket.ParseEncapsulatedBytes(payload,
                                                                   NextHeader,
                                                                   Timeval,
                                                                   this);
@@ -431,57 +410,73 @@ namespace PacketDotNet
             return finalData;
         }
 
-        /// <summary>
-        /// Converts the packet to a string.
-        /// </summary>
-        /// <returns></returns>
-        public override String ToString( )
+        /// <summary cref="Packet.ToString(StringOutputType)" />
+        public override string ToString(StringOutputType outputFormat)
         {
-            return base.ToString( ) + "\r\nIPv6 Packet [\r\n"
-                   + "\tIPv6 Source Address: " + SourceAddress.ToString() + ", \r\n"
-                   + "\tIPv6 Destination Address: " + DestinationAddress.ToString() + "\r\n"
-                   + "]";
-            // TODO Implement Better ToString
-        }
+            var buffer = new StringBuilder();
+            string color = "";
+            string colorEscape = "";
 
-        /// <summary> Generate string with contents describing this IP packet.</summary>
-        /// <param name="colored">whether or not the string should contain ansi
-        /// color escape sequences.
-        /// </param>
-        public override System.String ToColoredString(bool colored)
-        {
-            System.Text.StringBuilder buffer = new System.Text.StringBuilder();
-            buffer.Append('[');
-            if (colored)
-                buffer.Append(Color);
-            buffer.Append("IPv6Packet");
-            if (colored)
-                buffer.Append(AnsiEscapeSequences.Reset);
-            buffer.Append(": ");
-            buffer.Append(SourceAddress + " -> " + DestinationAddress);
-            buffer.Append(" next header=" + NextHeader);
-            //FIXME: figure out what to use for the lengths
-#if false
-            buffer.Append(" l=" + this.IPPayloadLength);
-            buffer.Append(" sum=" + this.IPPayloadLength);
-#endif
-            buffer.Append(']');
+            if(outputFormat == StringOutputType.Colored || outputFormat == StringOutputType.VerboseColored)
+            {
+                color = Color;
+                colorEscape = AnsiEscapeSequences.Reset;
+            }
+
+            if(outputFormat == StringOutputType.Normal || outputFormat == StringOutputType.Colored)
+            {
+                // build the output string
+                buffer.AppendFormat("{0}[IPv6Packet: SourceAddress={2}, DestinationAddress={3}, NextHeader={4}]{1}",
+                    color,
+                    colorEscape,
+                    SourceAddress,
+                    DestinationAddress,
+                    NextHeader);
+            }
+
+            if(outputFormat == StringOutputType.Verbose || outputFormat == StringOutputType.VerboseColored)
+            {
+                // collect the properties and their value
+                Dictionary<string,string> properties = new Dictionary<string,string>();
+                string ipVersion = Convert.ToString((int)Version, 2).PadLeft(4, '0');
+                properties.Add("version", ipVersion + " .... .... .... .... .... .... .... = " + (int)Version);
+                string trafficClass = Convert.ToString(TrafficClass, 2).PadLeft(8, '0').Insert(4, " ");
+                properties.Add("traffic class", ".... " + trafficClass + " .... .... .... .... .... = 0x" + TrafficClass.ToString("x").PadLeft(8, '0'));
+                string flowLabel = Convert.ToString(FlowLabel, 2).PadLeft(20, '0').Insert(16, " ").Insert(12, " ").Insert(8, " ").Insert(4, " ");
+                properties.Add("flow label", ".... .... .... " + flowLabel + " = 0x" + FlowLabel.ToString("x").PadLeft(8, '0'));
+                properties.Add("payload length", PayloadLength.ToString());
+                properties.Add("next header", NextHeader.ToString() + " (0x" + NextHeader.ToString("x") + ")");
+                properties.Add("hop limit", HopLimit.ToString());
+                properties.Add("source", SourceAddress.ToString());
+                properties.Add("destination", DestinationAddress.ToString());
+
+                // calculate the padding needed to right-justify the property names
+                int padLength = Utils.RandomUtils.LongestStringLength(new List<string>(properties.Keys));
+
+                // build the output string
+                buffer.AppendLine("IP:  ******* IP - \"Internet Protocol (Version 6)\" - offset=? length=" + TotalPacketLength);
+                buffer.AppendLine("IP:");
+                foreach(var property in properties)
+                {
+                    if(property.Key.Trim() != "")
+                    {
+                        buffer.AppendLine("IP: " + property.Key.PadLeft(padLength) + " = " + property.Value);
+                    }
+                    else
+                    {
+                        buffer.AppendLine("IP: " + property.Key.PadLeft(padLength) + "   " + property.Value);
+                    }
+                }
+                buffer.AppendLine("IP");
+            }
 
             // append the base class output
-            buffer.Append(base.ToColoredString(colored));
+            buffer.Append(base.ToString(outputFormat));
 
             return buffer.ToString();
         }
 
-        /// <summary> Convert this IP packet to a more verbose string.</summary>
-        public override System.String ToColoredVerboseString(bool colored)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        /// <summary>
-        /// Converts the packet to a color string. TODO add a method for colored to string.
-        /// </summary>
+        /// <summary> Fetch ascii escape sequence of the color associated with this packet type.</summary>
         override public String Color
         {
             get

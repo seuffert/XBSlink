@@ -18,6 +18,8 @@ along with PacketDotNet.  If not, see <http://www.gnu.org/licenses/>.
  *  Copyright 2009 Chris Morgan <chmorgan@gmail.com>
  */
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using PacketDotNet.Utils;
 using MiscUtil.Conversion;
 
@@ -34,9 +36,9 @@ namespace PacketDotNet
 #else
         // NOTE: No need to warn about lack of use, the compiler won't
         //       put any calls to 'log' here but we need 'log' to exist to compile
-#pragma warning disable 0169
+#pragma warning disable 0169, 0649
         private static readonly ILogInactive log;
-#pragma warning restore 0169
+#pragma warning restore 0169, 0649
 #endif
 
         /// <summary> Fetch the port number on the source host.</summary>
@@ -113,7 +115,7 @@ namespace PacketDotNet
             }
         }
 
-		/// <summary> Check if the UDP packet is valid, checksum-wise.</summary>
+        /// <summary> Check if the UDP packet is valid, checksum-wise.</summary>
         public bool ValidChecksum
         {
             get
@@ -121,13 +123,13 @@ namespace PacketDotNet
                 // IPv6 has no checksum so only the TCP checksum needs evaluation
                 if (parentPacket.GetType() == typeof(IPv6Packet))
                     return ValidUDPChecksum;
-                // For IPv4 both the IP layer and the TCP layer contain checksums 
+                // For IPv4 both the IP layer and the TCP layer contain checksums
                 else
                     return ((IPv4Packet)ParentPacket).ValidIPChecksum && ValidUDPChecksum;
             }
         }
-		
-		/// <value>
+
+        /// <value>
         /// True if the udp checksum is valid
         /// </value>
         virtual public bool ValidUDPChecksum
@@ -140,8 +142,7 @@ namespace PacketDotNet
                 return retval;
             }
         }
-		
-		
+
         /// <summary> Fetch ascii escape sequence of the color associated with this packet type.</summary>
         override public System.String Color
         {
@@ -171,7 +172,6 @@ namespace PacketDotNet
         /// A <see cref="System.UInt16"/>
         /// </param>
         public UdpPacket(ushort SourcePort, ushort DestinationPort)
-            : base(new PosixTimeval())
         {
             log.Debug("");
 
@@ -187,35 +187,18 @@ namespace PacketDotNet
         }
 
         /// <summary>
-        /// byte[]/int offset constructor, timeval defaults to the current time
+        /// Constructor
         /// </summary>
-        /// <param name="Bytes">
-        /// A <see cref="System.Byte"/>
+        /// <param name="bas">
+        /// A <see cref="ByteArraySegment"/>
         /// </param>
-        /// <param name="Offset">
-        /// A <see cref="System.Int32"/>
-        /// </param>
-        public UdpPacket(byte[] Bytes, int Offset) :
-            this(Bytes, Offset, new PosixTimeval())
-        { }
-
-        /// <summary>
-        /// byte[]/int offset/PosixTimeval constructor
-        /// </summary>
-        /// <param name="Bytes">
-        /// A <see cref="System.Byte"/>
-        /// </param>
-        /// <param name="Offset">
-        /// A <see cref="System.Int32"/>
-        /// </param>
-        /// <param name="Timeval">
-        /// A <see cref="PosixTimeval"/>
-        /// </param>
-        public UdpPacket(byte[] Bytes, int Offset, PosixTimeval Timeval) :
-            base(Timeval)
+        public UdpPacket(ByteArraySegment bas)
         {
+            log.DebugFormat("bas {0}", bas.ToString());
+
             // set the header field, header field values are retrieved from this byte array
-            header = new ByteArraySegment(Bytes, Offset, UdpFields.HeaderLength);
+            header = new ByteArraySegment(bas);
+            header.Length = UdpFields.HeaderLength;
 
             // store the payload bytes
             payloadPacketOrData = new PacketOrByteArraySegment();
@@ -223,23 +206,17 @@ namespace PacketDotNet
         }
 
         /// <summary>
-        /// Constructor when this packet is encapsulated in another packet
+        /// Constructor
         /// </summary>
-        /// <param name="Bytes">
-        /// A <see cref="System.Byte"/>
-        /// </param>
-        /// <param name="Offset">
-        /// A <see cref="System.Int32"/>
-        /// </param>
-        /// <param name="Timeval">
-        /// A <see cref="PosixTimeval"/>
+        /// <param name="bas">
+        /// A <see cref="ByteArraySegment"/>
         /// </param>
         /// <param name="ParentPacket">
         /// A <see cref="Packet"/>
         /// </param>
-        public UdpPacket(byte[] Bytes, int Offset, PosixTimeval Timeval,
+        public UdpPacket(ByteArraySegment bas,
                          Packet ParentPacket) :
-            this(Bytes, Offset, Timeval)
+            this(bas)
         {
             this.ParentPacket = ParentPacket;
         }
@@ -262,43 +239,52 @@ namespace PacketDotNet
             this.Checksum = (ushort)CalculateUDPChecksum();
         }
 
-        /// <summary> Convert this UDP packet to a readable string.</summary>
-        public override System.String ToString()
+        /// <summary cref="Packet.ToString(StringOutputType)" />
+        public override string ToString(StringOutputType outputFormat)
         {
-            return ToColoredString(false);
-        }
+            var buffer = new StringBuilder();
+            string color = "";
+            string colorEscape = "";
 
-        /// <summary> Generate string with contents describing this UDP packet.</summary>
-        /// <param name="colored">whether or not the string should contain ansi
-        /// color escape sequences.
-        /// </param>
-        public override System.String ToColoredString(bool colored)
-        {
-            System.Text.StringBuilder buffer = new System.Text.StringBuilder();
-            buffer.Append('[');
-            if (colored)
-                buffer.Append(Color);
-            buffer.Append("UDPPacket");
-            if (colored)
-                buffer.Append(AnsiEscapeSequences.Reset);
-            buffer.Append(": ");
-            if(Enum.IsDefined(typeof(IpPort), SourcePort))
+            if(outputFormat == StringOutputType.Colored || outputFormat == StringOutputType.VerboseColored)
             {
-                buffer.Append((IpPort)SourcePort);
-            } else
-            {
-                buffer.Append(SourcePort);
+                color = Color;
+                colorEscape = AnsiEscapeSequences.Reset;
             }
-            buffer.Append(" -> ");
-            if(Enum.IsDefined(typeof(IpPort), DestinationPort))
+
+            if(outputFormat == StringOutputType.Normal || outputFormat == StringOutputType.Colored)
             {
-                buffer.Append((IpPort)DestinationPort);
-            } else
-            {
-                buffer.Append(DestinationPort);
+                buffer.AppendFormat("{0}[UDPPacket: SourcePort={2}, DestinationPort={3}]{1}",
+                color,
+                colorEscape,
+                SourcePort,
+                DestinationPort);
             }
-            buffer.Append(" l=" + UdpFields.HeaderLengthLength + "," + (Length - UdpFields.HeaderLengthLength));
-            buffer.Append(']');
+
+            if(outputFormat == StringOutputType.Verbose || outputFormat == StringOutputType.VerboseColored)
+            {
+                // collect the properties and their value
+                Dictionary<string,string> properties = new Dictionary<string,string>();
+                properties.Add("source", SourcePort.ToString());
+                properties.Add("destination", DestinationPort.ToString());
+                properties.Add("length", Length.ToString());
+                properties.Add("checksum", "0x" + Checksum.ToString("x") + " [" + (ValidUDPChecksum ? "valid" : "invalid") + "]");
+
+                // calculate the padding needed to right-justify the property names
+                int padLength = Utils.RandomUtils.LongestStringLength(new List<string>(properties.Keys));
+
+                // build the output string
+                buffer.AppendLine("UDP:  ******* UDP - \"User Datagram Protocol\" - offset=? length=" + TotalPacketLength);
+                buffer.AppendLine("UDP:");
+                foreach(var property in properties)
+                {
+                    buffer.AppendLine("UDP: " + property.Key.PadLeft(padLength) + " = " + property.Value);
+                }
+                buffer.AppendLine("UDP:");
+            }
+
+            // append the base string output
+            buffer.Append(base.ToString(outputFormat));
 
             return buffer.ToString();
         }
@@ -332,7 +318,7 @@ namespace PacketDotNet
         }
 
         /// <summary>
-        /// Generate a random packet 
+        /// Generate a random packet
         /// </summary>
         /// <returns>
         /// A <see cref="UdpPacket"/>
