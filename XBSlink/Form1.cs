@@ -111,8 +111,8 @@ namespace XBSlink
             WebRequest.DefaultWebProxy = null;
 
             timer_messages.Start();
-            this.Text += " - Version " + xbs_settings.xbslink_version;
             form1_width = this.Width;
+            ShowVersionInfoMessages();
 
             textBox_local_Port.Text = xbs_udp_listener.standard_port.ToString();
             textBox_remote_port.Text = xbs_udp_listener.standard_port.ToString();
@@ -129,6 +129,16 @@ namespace XBSlink
 
             tabControl1.SelectedTab = tabPage_settings;
             autoswitch_on_chat_message = checkBox_chatAutoSwitch.Checked;
+        }
+
+        private void ShowVersionInfoMessages()
+        {
+            this.Text += " - Version " + xbs_settings.xbslink_version;
+#if DEBUG
+            addMessage("using PacketDotNet version " + System.Reflection.Assembly.GetAssembly(typeof(PacketDotNet.IpPacket)).GetName().Version.ToString());
+            addMessage("using SharpPcap version " + SharpPcap.Version.VersionString);
+            addMessage("using Mono.NAT version " + System.Reflection.Assembly.GetAssembly(typeof(Mono.Nat.NatUtility)).GetName().Version.ToString());
+#endif
         }
 
         private void initializeAboutWindow()
