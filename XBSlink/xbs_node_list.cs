@@ -48,8 +48,12 @@ namespace XBSlink
         public const String NOTIFICATION_SOUND_NODE_JOINED = "sounds/new_node.wav";
         public const String NOTIFICATION_SOUND_NODE_LEFT = "sounds/node_left.wav";
 
+        private DateTime last_change_time;
+        private Object last_change_lock = new Object();
+
         public xbs_node_list()
         {
+            last_change_time = DateTime.Now;
             this.node_list = new List<xbs_node>();
             this.node_list_adding = new List<xbs_node>();
             ping_thread = new Thread(new ThreadStart(ping_nodes_thread));
@@ -96,6 +100,7 @@ namespace XBSlink
                 }
             }
             purgeAddedNodeFromAddingList(node);
+            listHasJustChanged();
         }
     
         public xbs_node addNode(IPAddress ip_announced, int port_announced, IPAddress ip_from, int port_from)
@@ -128,6 +133,7 @@ namespace XBSlink
                             {
                             }
                         }
+                        listHasJustChanged();
                         break;
                     }
             }
@@ -242,6 +248,7 @@ namespace XBSlink
                     FormMain.addMessage(" + removing node "+n+" (ping timeout)");
                     n.sendDelNodeMessage(local_node);
                     node_list.Remove(n);
+                    listHasJustChanged();
                 }
             }
         }
@@ -297,6 +304,7 @@ namespace XBSlink
                     node_list.Clear();
                 }
             }
+            listHasJustChanged();
         }
 
         public void tryAddingNode(xbs_node new_node)
@@ -378,6 +386,22 @@ namespace XBSlink
             xbs_node node_to = findNode(ip_to, port_to);
             if (node_from != null && node_to != null)
                 node_to.send_fromCloudhelper_helpWithAddingNode(node_from);
+        }
+
+        public void listHasJustChanged()
+        {
+            lock (last_change_lock)
+                last_change_time = DateTime.Now;
+        }
+
+        public DateTime getLastChangeTime()
+        {
+            DateTime lct;
+            lock (last_change_lock)
+            {
+                lct = this.last_change_time;
+            }
+            return lct;
         }
     }
 }

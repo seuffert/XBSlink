@@ -384,7 +384,10 @@ namespace XBSlink
                 case xbs_node_message_type.PONG:
                     new_node = node_list.findNode(udp_msg.src_ip, (UInt16)udp_msg.src_port);
                     if (new_node != null)
-                        new_node.pong ( xbs_node_message_pong.getDelay(udp_msg.data).Milliseconds );
+                    {
+                        new_node.pong(xbs_node_message_pong.getDelay(udp_msg.data).Milliseconds);
+                        node_list.listHasJustChanged();
+                    }
                     break;
 
                 case xbs_node_message_type.GETNODELIST:
@@ -404,6 +407,7 @@ namespace XBSlink
                     {
                         xbs_node_message_clientversion msg_cv = new xbs_node_message_clientversion(udp_msg.data);
                         new_node.client_version = msg_cv.version_string;
+                        node_list.listHasJustChanged();
                     }
                     break;
                 case xbs_node_message_type.CHATMSG:
@@ -421,6 +425,7 @@ namespace XBSlink
                         xbs_node_message_nickname msg_nick = new xbs_node_message_nickname(udp_msg.data);
                         new_node.nickname = msg_nick.getNickname();
                         new_node.nickname_received = true;
+                        node_list.listHasJustChanged();
                         xbs_chat.addSystemMessage(new_node.nickname + " joined.");
                     }
                     break;
