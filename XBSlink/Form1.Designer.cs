@@ -73,6 +73,7 @@ namespace XBSlink
             this.checkBox_all_broadcasts = new System.Windows.Forms.CheckBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage_info = new System.Windows.Forms.TabPage();
+            this.listView1 = new System.Windows.Forms.ListView();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.tabPage_clouds = new System.Windows.Forms.TabPage();
             this.button_CloudLeave = new System.Windows.Forms.Button();
@@ -116,6 +117,7 @@ namespace XBSlink
             this.button_save_settings = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.checkBox_mac_restriction = new System.Windows.Forms.CheckBox();
             this.checkBox_enable_MAC_list = new System.Windows.Forms.CheckBox();
             this.button_del_MAC = new System.Windows.Forms.Button();
             this.button_add_MAC = new System.Windows.Forms.Button();
@@ -128,7 +130,7 @@ namespace XBSlink
             this.timer_startEngine = new System.Windows.Forms.Timer(this.components);
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.toolTip2 = new System.Windows.Forms.ToolTip(this.components);
-            this.checkBox_mac_restriction = new System.Windows.Forms.CheckBox();
+            this.statusStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage_info.SuspendLayout();
             this.tabPage_clouds.SuspendLayout();
@@ -142,6 +144,12 @@ namespace XBSlink
             // 
             // statusStrip1
             // 
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel3,
+            this.toolStripStatusLabel_sniffer_in,
+            this.toolStripStatusLabel4,
+            this.toolStripStatusLabel_udp_in,
+            this.toolStripStatusLabel_udp_out});
             this.statusStrip1.Location = new System.Drawing.Point(0, 499);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(374, 22);
@@ -152,15 +160,15 @@ namespace XBSlink
             // toolStripStatusLabel3
             // 
             this.toolStripStatusLabel3.Name = "toolStripStatusLabel3";
-            this.toolStripStatusLabel3.Size = new System.Drawing.Size(89, 17);
-            this.toolStripStatusLabel3.Text = "sniffed Packets:";
+            this.toolStripStatusLabel3.Size = new System.Drawing.Size(99, 17);
+            this.toolStripStatusLabel3.Text = "Packets/s sniffed:";
             // 
             // toolStripStatusLabel_sniffer_in
             // 
             this.toolStripStatusLabel_sniffer_in.AutoSize = false;
             this.toolStripStatusLabel_sniffer_in.MergeIndex = 2;
             this.toolStripStatusLabel_sniffer_in.Name = "toolStripStatusLabel_sniffer_in";
-            this.toolStripStatusLabel_sniffer_in.Size = new System.Drawing.Size(110, 17);
+            this.toolStripStatusLabel_sniffer_in.Size = new System.Drawing.Size(100, 17);
             this.toolStripStatusLabel_sniffer_in.Text = "0";
             this.toolStripStatusLabel_sniffer_in.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -349,6 +357,7 @@ namespace XBSlink
             // tabPage_info
             // 
             this.tabPage_info.BackColor = System.Drawing.Color.Transparent;
+            this.tabPage_info.Controls.Add(this.listView1);
             this.tabPage_info.Controls.Add(this.textBox1);
             this.tabPage_info.Location = new System.Drawing.Point(4, 22);
             this.tabPage_info.Name = "tabPage_info";
@@ -357,6 +366,14 @@ namespace XBSlink
             this.tabPage_info.TabIndex = 0;
             this.tabPage_info.Text = "Info";
             this.tabPage_info.UseVisualStyleBackColor = true;
+            // 
+            // listView1
+            // 
+            this.listView1.Location = new System.Drawing.Point(0, 195);
+            this.listView1.Name = "listView1";
+            this.listView1.Size = new System.Drawing.Size(348, 209);
+            this.listView1.TabIndex = 2;
+            this.listView1.UseCompatibleStateImageBehavior = false;
             // 
             // textBox1
             // 
@@ -368,7 +385,7 @@ namespace XBSlink
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
             this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox1.Size = new System.Drawing.Size(350, 404);
+            this.textBox1.Size = new System.Drawing.Size(350, 189);
             this.textBox1.TabIndex = 1;
             this.textBox1.Text = "Engine not started.";
             // 
@@ -864,6 +881,21 @@ namespace XBSlink
             this.toolTip1.SetToolTip(this.groupBox1, "XBSlink will always forward packets from network devices with a MAC address liste" +
                     "d here.");
             // 
+            // checkBox_mac_restriction
+            // 
+            this.checkBox_mac_restriction.AutoSize = true;
+            this.checkBox_mac_restriction.Checked = true;
+            this.checkBox_mac_restriction.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_mac_restriction.Enabled = false;
+            this.checkBox_mac_restriction.Location = new System.Drawing.Point(6, 42);
+            this.checkBox_mac_restriction.Name = "checkBox_mac_restriction";
+            this.checkBox_mac_restriction.Size = new System.Drawing.Size(152, 17);
+            this.checkBox_mac_restriction.TabIndex = 23;
+            this.checkBox_mac_restriction.Text = "only forward these devices";
+            this.toolTip1.SetToolTip(this.checkBox_mac_restriction, "only packets from the listed MAC addresses will be forwarded by XBSlink");
+            this.checkBox_mac_restriction.UseVisualStyleBackColor = true;
+            this.checkBox_mac_restriction.CheckedChanged += new System.EventHandler(this.checkBox_mac_restriction_CheckedChanged);
+            // 
             // checkBox_enable_MAC_list
             // 
             this.checkBox_enable_MAC_list.AutoSize = true;
@@ -967,21 +999,6 @@ namespace XBSlink
             // 
             this.toolTip2.ShowAlways = true;
             // 
-            // checkBox_mac_restriction
-            // 
-            this.checkBox_mac_restriction.AutoSize = true;
-            this.checkBox_mac_restriction.Checked = true;
-            this.checkBox_mac_restriction.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_mac_restriction.Enabled = false;
-            this.checkBox_mac_restriction.Location = new System.Drawing.Point(6, 42);
-            this.checkBox_mac_restriction.Name = "checkBox_mac_restriction";
-            this.checkBox_mac_restriction.Size = new System.Drawing.Size(152, 17);
-            this.checkBox_mac_restriction.TabIndex = 23;
-            this.checkBox_mac_restriction.Text = "only forward these devices";
-            this.toolTip1.SetToolTip(this.checkBox_mac_restriction, "only packets from the listed MAC addresses will be forwarded by XBSlink");
-            this.checkBox_mac_restriction.UseVisualStyleBackColor = true;
-            this.checkBox_mac_restriction.CheckedChanged += new System.EventHandler(this.checkBox_mac_restriction_CheckedChanged);
-            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1004,6 +1021,8 @@ namespace XBSlink
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.SizeChanged += new System.EventHandler(this.Form1_SizeChanged);
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.tabControl1.ResumeLayout(false);
             this.tabPage_info.ResumeLayout(false);
             this.tabPage_info.PerformLayout();
@@ -1104,6 +1123,7 @@ namespace XBSlink
         private System.Windows.Forms.CheckBox checkBox_useCloudServerForPortCheck;
         private System.Windows.Forms.CheckBox checkBox_checkForUpdates;
         private System.Windows.Forms.CheckBox checkBox_mac_restriction;
+        private System.Windows.Forms.ListView listView1;
     }
 }
 

@@ -626,7 +626,7 @@ namespace XBSlink
         {
             UInt32 sniffer_packet_count = xbs_sniffer_statistics.getPacketCount();
             uint pps = sniffer_packet_count - old_sniffer_packet_count;
-            toolStripStatusLabel_sniffer_in.Text = pps.ToString()+"/s";
+            toolStripStatusLabel_sniffer_in.Text = pps.ToString();
             old_sniffer_packet_count = sniffer_packet_count;
 
             uint udp_in, udp_out;
