@@ -73,7 +73,13 @@ namespace XBSlink
             this.checkBox_all_broadcasts = new System.Windows.Forms.CheckBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage_info = new System.Windows.Forms.TabPage();
-            this.listView1 = new System.Windows.Forms.ListView();
+            this.label15 = new System.Windows.Forms.Label();
+            this.listView_nodes = new System.Windows.Forms.ListView();
+            this.columnHeader_nodeIP = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader_nodePort = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader_ping = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader_Version = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader_nickname = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.tabPage_clouds = new System.Windows.Forms.TabPage();
             this.button_CloudLeave = new System.Windows.Forms.Button();
@@ -356,8 +362,9 @@ namespace XBSlink
             // 
             // tabPage_info
             // 
-            this.tabPage_info.BackColor = System.Drawing.Color.Transparent;
-            this.tabPage_info.Controls.Add(this.listView1);
+            this.tabPage_info.BackColor = System.Drawing.SystemColors.Control;
+            this.tabPage_info.Controls.Add(this.label15);
+            this.tabPage_info.Controls.Add(this.listView_nodes);
             this.tabPage_info.Controls.Add(this.textBox1);
             this.tabPage_info.Location = new System.Drawing.Point(4, 22);
             this.tabPage_info.Name = "tabPage_info";
@@ -365,27 +372,74 @@ namespace XBSlink
             this.tabPage_info.Size = new System.Drawing.Size(348, 404);
             this.tabPage_info.TabIndex = 0;
             this.tabPage_info.Text = "Info";
-            this.tabPage_info.UseVisualStyleBackColor = true;
             // 
-            // listView1
+            // label15
             // 
-            this.listView1.Location = new System.Drawing.Point(0, 195);
-            this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(348, 209);
-            this.listView1.TabIndex = 2;
-            this.listView1.UseCompatibleStateImageBehavior = false;
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(7, 4);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(151, 13);
+            this.label15.TabIndex = 3;
+            this.label15.Text = "List of known XBSlink nodes : ";
+            // 
+            // listView_nodes
+            // 
+            this.listView_nodes.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.listView_nodes.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader_nodeIP,
+            this.columnHeader_nodePort,
+            this.columnHeader_ping,
+            this.columnHeader_Version,
+            this.columnHeader_nickname});
+            this.listView_nodes.GridLines = true;
+            this.listView_nodes.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.listView_nodes.LabelWrap = false;
+            this.listView_nodes.Location = new System.Drawing.Point(0, 22);
+            this.listView_nodes.MultiSelect = false;
+            this.listView_nodes.Name = "listView_nodes";
+            this.listView_nodes.ShowGroups = false;
+            this.listView_nodes.Size = new System.Drawing.Size(348, 290);
+            this.listView_nodes.TabIndex = 2;
+            this.listView_nodes.UseCompatibleStateImageBehavior = false;
+            this.listView_nodes.View = System.Windows.Forms.View.Details;
+            // 
+            // columnHeader_nodeIP
+            // 
+            this.columnHeader_nodeIP.Text = "Address";
+            this.columnHeader_nodeIP.Width = 86;
+            // 
+            // columnHeader_nodePort
+            // 
+            this.columnHeader_nodePort.Text = "Port";
+            this.columnHeader_nodePort.Width = 47;
+            // 
+            // columnHeader_ping
+            // 
+            this.columnHeader_ping.Text = "Ping";
+            this.columnHeader_ping.Width = 42;
+            // 
+            // columnHeader_Version
+            // 
+            this.columnHeader_Version.Text = "Version";
+            this.columnHeader_Version.Width = 54;
+            // 
+            // columnHeader_nickname
+            // 
+            this.columnHeader_nickname.Text = "Nickname";
+            this.columnHeader_nickname.Width = 114;
             // 
             // textBox1
             // 
-            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
+            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox1.Location = new System.Drawing.Point(-2, 0);
+            this.textBox1.Location = new System.Drawing.Point(0, 312);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
             this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox1.Size = new System.Drawing.Size(350, 189);
+            this.textBox1.Size = new System.Drawing.Size(348, 92);
             this.textBox1.TabIndex = 1;
             this.textBox1.Text = "Engine not started.";
             // 
@@ -1123,7 +1177,13 @@ namespace XBSlink
         private System.Windows.Forms.CheckBox checkBox_useCloudServerForPortCheck;
         private System.Windows.Forms.CheckBox checkBox_checkForUpdates;
         private System.Windows.Forms.CheckBox checkBox_mac_restriction;
-        private System.Windows.Forms.ListView listView1;
+        private System.Windows.Forms.ListView listView_nodes;
+        private System.Windows.Forms.ColumnHeader columnHeader_nodeIP;
+        private System.Windows.Forms.ColumnHeader columnHeader_nodePort;
+        private System.Windows.Forms.ColumnHeader columnHeader_ping;
+        private System.Windows.Forms.ColumnHeader columnHeader_Version;
+        private System.Windows.Forms.ColumnHeader columnHeader_nickname;
+        private System.Windows.Forms.Label label15;
     }
 }
 

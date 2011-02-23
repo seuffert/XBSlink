@@ -85,6 +85,8 @@ namespace XBSlink
         private DateTime last_update_check = new DateTime(0);
         private WebClient updatecheck_webclient = new WebClient();
 
+        private DateTime last_nodelist_update = new DateTime(0);
+
         public FormMain()
         {
             InitializeComponent();
@@ -463,6 +465,7 @@ namespace XBSlink
             button_CloudJoin.Enabled = false;
             button_CloudLeave.Enabled = false;
             textBox_chatNickname.ReadOnly = false;
+            listView_nodes.Items.Clear();
         }
 
         private IPAddress Resolver(string Hostname)
@@ -588,20 +591,10 @@ namespace XBSlink
 
             if (cloudlist.part_of_cloud)
             {
-                text += "Part of cloud \"" + cloudlist.current_cloudname + "\" (" + nodes.Count + " nodes)" + Environment.NewLine + Environment.NewLine;
+                text += "Part of cloud \"" + cloudlist.current_cloudname + "\" (" + nodes.Count + " nodes)" + Environment.NewLine;
             }
 
-            if (nodes.Count > 0)
-            {
-                foreach (xbs_node node in nodes)
-                {
-                    String ping = (node.last_ping_delay_ms >= 0) ? node.last_ping_delay_ms + "ms" : "Ping N/A";
-                    text += "Node " + node + " | " + ping + " | v" + node.client_version + " | Nick: " + node.nickname + Environment.NewLine;
-                    foreach (xbs_xbox xbox in node.xbox_list)
-                        text += "  => device: " + xbox + Environment.NewLine;
-                }
-            }
-            else
+            if (nodes.Count < 1)
             {
                 text += "no XBSlink nodes known yet." + Environment.NewLine + Environment.NewLine;
                 text += "to join another person enter the hostname and press Announce or " + Environment.NewLine;
@@ -620,6 +613,35 @@ namespace XBSlink
                     text += " => " + phy + Environment.NewLine;
             }
             textBox1.Text = text;
+
+            updateMainInfoListview();
+        }
+
+        private void updateMainInfoListview()
+        {
+            DateTime last_change_time = node_list.getLastChangeTime();
+            if (last_change_time > last_nodelist_update)
+            {
+                listView_nodes.Items.Clear();
+                List<xbs_node> nodes = node_list.getList();
+                foreach (xbs_node node in nodes)
+                {
+                    ListViewItem lv_item = new ListViewItem(node.ip_public.ToString());
+                    lv_item.SubItems.Add((node.port_sendfrom == node.port_public) ? node.port_public.ToString() : node.port_public+"/"+node.port_sendfrom );
+                    
+                    String ping = (node.last_ping_delay_ms >= 0) ? node.last_ping_delay_ms + "ms" : "N/A";
+                    lv_item.SubItems.Add(ping);
+
+                    lv_item.SubItems.Add(node.client_version);
+                    lv_item.SubItems.Add(node.nickname);
+
+                    listView_nodes.Items.Add(lv_item);
+                }
+#if DEBUG
+                DebugWindow.addMessage("updated MainInfoListView: " + last_nodelist_update + " => " + last_change_time);
+#endif
+                last_nodelist_update = last_change_time;
+            }
         }
 
         private void updateStatusBar()
