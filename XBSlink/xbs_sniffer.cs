@@ -105,6 +105,9 @@ namespace XBSlink
 
         public void start_capture()
         {
+#if DEBUG
+            FormMain.addMessage(" - start capturing packets");
+#endif
             pdev.StartCapture();
         }
 
@@ -208,7 +211,9 @@ namespace XBSlink
             Buffer.BlockCopy(rawPacket.Data, 6, src_mac, 0, 6);
             PhysicalAddress srcMAC = new PhysicalAddress(src_mac);
 
-            //DebugWindow.add(" - new ethernet packet from "+srcMAC+" => "+dstMAC);
+#if DEBUG
+            DebugWindow.addMessage(" - new ethernet packet from "+srcMAC+" => "+dstMAC);
+#endif
 
             // if sniffed packet has MAC of packet we injected, discard
             lock (injected_macs_hash)
