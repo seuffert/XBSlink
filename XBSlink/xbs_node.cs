@@ -164,6 +164,7 @@ namespace XBSlink
                 if (hash == xbox.hash)
                     return;
             xbox_list.Add( new xbs_xbox(mac) );
+            FormMain.addMessage(" ~ added new device " + mac + " for node " + this);
         }
 
         public bool Equals(xbs_node node)
