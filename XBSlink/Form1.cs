@@ -1016,7 +1016,7 @@ namespace XBSlink
                 textBox_CloudName.Enabled = true;
                 textBox_CloudMaxNodes.Enabled = true;
                 textBox_CloudPassword.Enabled = true;
-                sniffer.clearSniffedMACs();
+                sniffer.clearKnownMACsFromRemoteNodes();
                 sniffer.setPdevFilter();
             }
         }

@@ -59,9 +59,9 @@ namespace XBSlink
         public bool pdev_filter_use_special_macs = true;
         public bool pdev_filter_only_forward_special_macs = true;
 
-        private String pdev_filter = "udp and ((ip host 0.0.0.1) or (dst port 3074)) ";
-        private String pdev_filter_all_broadcast = "udp and ((ip host 0.0.0.1) or (dst port 3074) or (ether host FF:FF:FF:FF:FF:FF and ip dst host 255.255.255.255)) ";
-        private List<PhysicalAddress> pdev_filter_sniffed_macs = new List<PhysicalAddress>();
+        private String pdev_filter = "(udp and ((ip host 0.0.0.1) or (dst port 3074))) ";
+        private String pdev_filter_all_broadcast = "(udp and ((ip host 0.0.0.1) or (dst port 3074)) or (ether host FF:FF:FF:FF:FF:FF and ip dst host 255.255.255.255)) ";
+        private List<PhysicalAddress> pdev_filter_known_macs_from_remote_nodes = new List<PhysicalAddress>();
         private List<PhysicalAddress> pdev_filter_special_macs = new List<PhysicalAddress>();
 
         private Thread dispatcher_thread = null;
@@ -216,9 +216,11 @@ namespace XBSlink
 #endif
 
             // if sniffed packet has MAC of packet we injected, discard
+            bool is_injected_packet = false;
             lock (injected_macs_hash)
-                if (injected_macs_hash.Contains(srcMAC.GetHashCode()))
-                    return;
+                is_injected_packet = injected_macs_hash.Contains(srcMAC.GetHashCode());
+            if (is_injected_packet) 
+                return;
             
             // count the sniffed packets from local xboxs
             xbs_sniffer_statistics.increase_packet_count();
@@ -227,6 +229,7 @@ namespace XBSlink
             node_list.distributeDataPacket(dstMAC, rawPacket.Data);
 
             int srcMac_hash = srcMAC.GetHashCode();
+            bool pdevfilter_needs_change = false;
             lock (sniffed_macs_hash)
             {
                 if (!sniffed_macs_hash.Contains(srcMac_hash))
@@ -234,8 +237,11 @@ namespace XBSlink
                     sniffed_macs_hash.Add(srcMac_hash);
                     lock (sniffed_macs)
                         sniffed_macs.Add(srcMAC);
+                    pdevfilter_needs_change = true;
                 }
             }
+            if (pdevfilter_needs_change)
+                setPdevFilter();
         }
 
         public void injectRemotePacket(ref byte[] data, PhysicalAddress dstMAC, PhysicalAddress srcMAC)
@@ -243,12 +249,14 @@ namespace XBSlink
             int srcMac_hash = srcMAC.GetHashCode();
             // collect all injected source MACs. sniffer needs this to filter packets out
             lock (injected_macs_hash)
+            {
                 if (!injected_macs_hash.Contains(srcMac_hash))
                 {
                     injected_macs_hash.Add(srcMac_hash);
-                    addMacToSniffedPacketFilter(srcMAC);
+                    addMacToKnownMacListFromRemoteNodes(srcMAC);
                 }
-            // inject tha packet 
+            }
+            // inject the packet 
             try
             {
                 pdev.SendPacket(data, data.Length);
@@ -274,17 +282,17 @@ namespace XBSlink
             return mac_array;
         }
 
-        public void clearSniffedMACs()
+        public void clearKnownMACsFromRemoteNodes()
         {
-            lock (pdev_filter_sniffed_macs)
-                pdev_filter_sniffed_macs.Clear();
+            lock (pdev_filter_known_macs_from_remote_nodes)
+                pdev_filter_known_macs_from_remote_nodes.Clear();
         }
 
-        public void addMacToSniffedPacketFilter(PhysicalAddress mac)
+        public void addMacToKnownMacListFromRemoteNodes(PhysicalAddress mac)
         {
-            lock (pdev_filter_sniffed_macs)
-                if (!pdev_filter_sniffed_macs.Contains(mac))
-                    pdev_filter_sniffed_macs.Add(mac);
+            lock (pdev_filter_known_macs_from_remote_nodes)
+                if (!pdev_filter_known_macs_from_remote_nodes.Contains(mac))
+                    pdev_filter_known_macs_from_remote_nodes.Add(mac);
             setPdevFilter();
         }
 
@@ -313,23 +321,41 @@ namespace XBSlink
 
         public void setPdevFilter()
         {
-            String filter_sniffed_macs = "";
+            String filter_known_macs_from_remote_nodes = "";
+            String filter_exclude_injected_packets = "";
             String filter_special_macs = "";
-            lock (pdev_filter_sniffed_macs)
-                foreach (PhysicalAddress mac in pdev_filter_sniffed_macs)
-                    filter_sniffed_macs += " or ether host " + PhysicalAddressToString(mac);
+            String filter_discovered_devices = "";
+            lock (pdev_filter_known_macs_from_remote_nodes)
+            {
+                if (pdev_filter_known_macs_from_remote_nodes.Count > 0)
+                {
+                    // we want all packets send to MACs we know of from other XBSlink nodes
+                    filter_known_macs_from_remote_nodes = " or ( ether dst " + String.Join(" or ether dst ", pdev_filter_known_macs_from_remote_nodes.ConvertAll<string>(delegate(PhysicalAddress pa) { return PhysicalAddressToString(pa); }).ToArray()) + " )";
+                    // we do NOT want packets injected by us, send from other other nodes to out network
+                    filter_exclude_injected_packets = " and not ( ether src " + String.Join(" or ether src ", pdev_filter_known_macs_from_remote_nodes.ConvertAll<string>(delegate(PhysicalAddress pa) { return PhysicalAddressToString(pa); }).ToArray()) + " )";
+                }
+            }
             if (pdev_filter_use_special_macs)
+            {
                 lock (pdev_filter_special_macs)
                 {
                     if (pdev_filter_special_macs.Count > 0)
                     {
-                        filter_special_macs = (pdev_filter_only_forward_special_macs == false) ? " or ether host " : "ether host ";
-                        filter_special_macs += String.Join(" or ether host ", pdev_filter_special_macs.ConvertAll<string>(delegate(PhysicalAddress pa) { return PhysicalAddressToString(pa); }).ToArray());
+                        filter_special_macs = (pdev_filter_only_forward_special_macs == false) ? " or ether src " : "ether src ";
+                        filter_special_macs += String.Join(" or ether src ", pdev_filter_special_macs.ConvertAll<string>(delegate(PhysicalAddress pa) { return PhysicalAddressToString(pa); }).ToArray());
                     }
                 }
+            }
+            lock (sniffed_macs)
+            {
+                if (sniffed_macs.Count > 0)
+                {
+                    filter_discovered_devices = " or ( ether src " + String.Join(" or ether src ", sniffed_macs.ConvertAll<string>(delegate(PhysicalAddress pa) { return PhysicalAddressToString(pa); }).ToArray()) + " )";
+                }
+            }
             try
             {
-                String f = (pdev_sniff_additional_broadcast ? pdev_filter_all_broadcast : pdev_filter) + filter_special_macs + filter_sniffed_macs;
+                String f = (pdev_sniff_additional_broadcast ? pdev_filter_all_broadcast : pdev_filter) + filter_special_macs + filter_known_macs_from_remote_nodes + filter_discovered_devices + filter_exclude_injected_packets;
                 if (pdev_filter_use_special_macs && pdev_filter_only_forward_special_macs && filter_special_macs.Length>0)
                     f = filter_special_macs;
 #if DEBUG
