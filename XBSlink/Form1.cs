@@ -1177,5 +1177,23 @@ namespace XBSlink
                 sniffer.setPdevFilter();
             }
         }
+
+        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (tabControl1.SelectedTab == tabPage_chat)
+            {
+                textBox_chatMessages.SelectionStart = textBox_chatMessages.Text.Length;
+                textBox_chatMessages.ScrollToCaret();
+            }
+        }
+
+        private void tabControl1_TabIndexChanged(object sender, EventArgs e)
+        {
+            if (tabControl1.SelectedTab == tabPage_chat)
+            {
+                textBox_chatMessages.SelectionStart = textBox_chatMessages.Text.Length;
+                textBox_chatMessages.ScrollToCaret();
+            }
+        }
     }
 }
