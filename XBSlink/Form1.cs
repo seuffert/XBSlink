@@ -89,6 +89,11 @@ namespace XBSlink
 
         public FormMain()
         {
+#if DEBUG
+            debug_window = new DebugWindow();
+            debug_window.Show();
+#endif
+
             InitializeComponent();
             if (System.Environment.OSVersion.Platform != PlatformID.Win32NT)
             {
