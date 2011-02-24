@@ -640,6 +640,10 @@ namespace XBSlink
                     lv_item.SubItems.Add(node.client_version);
                     lv_item.SubItems.Add(node.nickname);
 
+                    if (node.xbox_list.Count == 0)
+                        lv_item.BackColor = Color.FromArgb(255,235,235);
+                    else
+                        lv_item.BackColor = Color.FromArgb(235, 255, 235);
                     listView_nodes.Items.Add(lv_item);
                 }
 #if DEBUG

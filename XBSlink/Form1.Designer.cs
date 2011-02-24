@@ -418,7 +418,7 @@ namespace XBSlink
             // columnHeader_ping
             // 
             this.columnHeader_ping.Text = "Ping";
-            this.columnHeader_ping.Width = 42;
+            this.columnHeader_ping.Width = 44;
             // 
             // columnHeader_Version
             // 
@@ -428,7 +428,7 @@ namespace XBSlink
             // columnHeader_nickname
             // 
             this.columnHeader_nickname.Text = "Nickname";
-            this.columnHeader_nickname.Width = 114;
+            this.columnHeader_nickname.Width = 113;
             // 
             // textBox1
             // 
