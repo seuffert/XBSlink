@@ -48,7 +48,7 @@ namespace XBSlink
     {
         public static xbs_udp_listener udp_listener = null;
         public static xbs_sniffer sniffer = null;
-        public static xbs_node_list node_list = new xbs_node_list();
+        public static xbs_node_list node_list = null;
 
         public DebugWindow debug_window = null;
 
@@ -69,7 +69,7 @@ namespace XBSlink
         private static Queue<String> messages = new Queue<String>();
         private static Queue<String> chat_messages = new Queue<String>();
 
-        private xbs_natstun natstun = new xbs_natstun();
+        private xbs_natstun natstun = null;
 
         private const int MAX_WAIT_START_ENGINE_SECONDS = 6;
         private DateTime start_engine_started_at;
@@ -83,9 +83,11 @@ namespace XBSlink
         public static Object askedCloudServerForHelloMessage_locker = new Object();
 
         private DateTime last_update_check = new DateTime(0);
-        private WebClient updatecheck_webclient = new WebClient();
+        private WebClient updatecheck_webclient = null;
 
         private DateTime last_nodelist_update = new DateTime(0);
+
+        private bool exit_app = false;
 
         public FormMain()
         {
@@ -93,14 +95,12 @@ namespace XBSlink
             debug_window = new DebugWindow();
             debug_window.Show();
 #endif
-
             InitializeComponent();
             if (System.Environment.OSVersion.Platform != PlatformID.Win32NT)
             {
                 this.MaximumSize = new System.Drawing.Size(450, this.MaximumSize.Height);
                 this.MinimumSize = new System.Drawing.Size(this.MaximumSize.Width, this.MinimumSize.Height);
             }
-            initializeCloudListView();
         }
 
         private void initializeCloudListView()
@@ -117,6 +117,18 @@ namespace XBSlink
             // globally turn off Proxy auto detection
             WebRequest.DefaultWebProxy = null;
 
+            if (!initializeCaptureDeviceList())
+            {
+                exit_app = true;
+                return;
+            }
+
+            node_list = new xbs_node_list();
+            updatecheck_webclient = new WebClient();
+            natstun = new xbs_natstun();
+
+            initializeCloudListView();
+
             timer_messages.Start();
             form1_width = this.Width;
             ShowVersionInfoMessages();
@@ -124,11 +136,6 @@ namespace XBSlink
             textBox_local_Port.Text = xbs_udp_listener.standard_port.ToString();
             textBox_remote_port.Text = xbs_udp_listener.standard_port.ToString();
 
-            if (!initializeCaptureDeviceList())
-            {
-                Application.Exit();
-                return;
-            }
             initializeLocalIPList();
             initializeTrayIcon();
             initWithRegistryValues();
@@ -440,8 +447,9 @@ namespace XBSlink
 
         private void engine_stop()
         {
-            if (cloudlist.part_of_cloud)
-                cloudlist.LeaveCloud();
+            if (cloudlist!=null)
+                if (cloudlist.part_of_cloud)
+                    cloudlist.LeaveCloud();
             timer1.Stop();
             //timer_messages.Stop();
             xbs_settings.saveRegistryValues();
@@ -456,8 +464,9 @@ namespace XBSlink
                 udp_listener.shutdown();
                 udp_listener = null;
             }
-            if (natstun.isUPnPavailable())
-                natstun.upnp_deleteAllPortMappings();
+            if (natstun != null)
+                if (natstun.isUPnPavailable())
+                    natstun.upnp_deleteAllPortMappings();
             engine_started = false;
             addMessage("Engine stopped.");
             button_start_engine.Text = "Start Engine";
@@ -1193,6 +1202,14 @@ namespace XBSlink
             {
                 textBox_chatMessages.SelectionStart = textBox_chatMessages.Text.Length;
                 textBox_chatMessages.ScrollToCaret();
+            }
+        }
+
+        private void FormMain_VisibleChanged(object sender, EventArgs e)
+        {
+            if (exit_app)
+            {
+                this.Close();
             }
         }
     }
