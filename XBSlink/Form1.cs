@@ -87,8 +87,6 @@ namespace XBSlink
 
         private DateTime last_nodelist_update = new DateTime(0);
 
-        private bool exit_app = false;
-
         public FormMain()
         {
 #if DEBUG
@@ -101,6 +99,9 @@ namespace XBSlink
                 this.MaximumSize = new System.Drawing.Size(450, this.MaximumSize.Height);
                 this.MinimumSize = new System.Drawing.Size(this.MaximumSize.Width, this.MinimumSize.Height);
             }
+
+            if (!initializeCaptureDeviceList())
+                throw new ApplicationException("no capture devices found");
         }
 
         private void initializeCloudListView()
@@ -116,12 +117,6 @@ namespace XBSlink
         {
             // globally turn off Proxy auto detection
             WebRequest.DefaultWebProxy = null;
-
-            if (!initializeCaptureDeviceList())
-            {
-                exit_app = true;
-                return;
-            }
 
             node_list = new xbs_node_list();
             updatecheck_webclient = new WebClient();
@@ -1207,10 +1202,6 @@ namespace XBSlink
 
         private void FormMain_VisibleChanged(object sender, EventArgs e)
         {
-            if (exit_app)
-            {
-                this.Close();
-            }
         }
     }
 }

@@ -39,8 +39,17 @@ namespace XBSlink
             Application.SetCompatibleTextRenderingDefault(false);
             settings = new xbs_settings();
 
-            main_form = new FormMain();
-            Application.Run(main_form);
+            try
+            {
+                main_form = new FormMain();
+            }
+            catch (ApplicationException)
+            {
+                main_form = null;
+            }
+
+            if (main_form != null )
+                Application.Run(main_form);
         }
     }
 }
