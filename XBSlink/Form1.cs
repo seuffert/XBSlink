@@ -72,6 +72,7 @@ namespace XBSlink
         private xbs_natstun natstun = null;
 
         private const int MAX_WAIT_START_ENGINE_SECONDS = 6;
+        private DateTime app_start_time;
         private DateTime start_engine_started_at;
         public static bool abort_start_engine = false;
         private bool engine_started = false;
@@ -102,6 +103,7 @@ namespace XBSlink
 
             if (!initializeCaptureDeviceList())
                 throw new ApplicationException("no capture devices found");
+            app_start_time = DateTime.Now;
         }
 
         private void initializeCloudListView()
@@ -866,8 +868,9 @@ namespace XBSlink
                     textBox_chatMessages.ScrollToCaret();
                 }
 
-                if (checkBox_checkForUpdates.Checked && (DateTime.Now - last_update_check).TotalHours >= 12)
-                    checkForProgramUpdates();
+                if ((DateTime.Now - app_start_time).TotalSeconds >= 5)
+                    if (checkBox_checkForUpdates.Checked && ((DateTime.Now - last_update_check).TotalHours >= 12) )
+                        checkForProgramUpdates();
 #if !DEBUG
             }
             catch (Exception ex)
@@ -1137,7 +1140,6 @@ namespace XBSlink
             }
             else
                 addMessage("You are using the latest XBSlink version.");
-
         }
 
         private void checkForProgramUpdatesAsync()
