@@ -1116,6 +1116,35 @@ namespace XBSlink
             String url = Resources.url_check_latest_version;
             Uri uri = new Uri(url);
             last_update_check = DateTime.Now;
+            String result;
+            updatecheck_webclient.Proxy = null;
+            try
+            {
+                result = updatecheck_webclient.DownloadString(uri);
+            }
+            catch (WebException wex)
+            {
+                // handle error
+                addMessage("!! could not get online update version information: " + wex.Message);
+                return;
+            }
+
+            if (result.Length == 7 && result != xbs_settings.xbslink_version)
+            {
+                DialogResult res = MessageBox.Show("A new version of XBSlink is available! (v" + result + ")" + Environment.NewLine + "Would you like to visit the homepage now?", "XBSlink update available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                if (res == DialogResult.Yes)
+                    System.Diagnostics.Process.Start(Resources.url_xbslink_website);
+            }
+            else
+                addMessage("You are using the latest XBSlink version.");
+
+        }
+
+        private void checkForProgramUpdatesAsync()
+        {
+            String url = Resources.url_check_latest_version;
+            Uri uri = new Uri(url);
+            last_update_check = DateTime.Now;
             updatecheck_webclient.Proxy = null;
             try
             {
