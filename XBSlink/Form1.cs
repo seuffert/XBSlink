@@ -307,6 +307,8 @@ namespace XBSlink
                 return;
             LibPcapLiveDeviceList devices;
             LibPcapLiveDevice pdev;
+            SharpPcap.WinPcap.WinPcapDeviceList devices_win;
+            SharpPcap.WinPcap.WinPcapDevice pdev_win;
             try
             {
                 devices = LibPcapLiveDeviceList.Instance;
@@ -330,6 +332,18 @@ namespace XBSlink
 
             try {
                 pdev = devices[comboBox_captureDevice.SelectedIndex];
+                if (System.Environment.OSVersion.Platform == PlatformID.Win32NT)
+                {
+                    devices_win = SharpPcap.WinPcap.WinPcapDeviceList.Instance;
+                    for (int i = 0; i < devices_win.Count; i++)
+                    {
+                        pdev_win = devices_win[i];
+                        if (pdev_win.Name.Contains(pdev.Name))
+                            pdev = pdev_win;
+                    }
+
+                }
+
             } 
             catch (Exception)
             {
