@@ -98,7 +98,11 @@ namespace XBSlink
             this.columnHeader_nodecount = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader_maxnodes = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.tabPage_chat = new System.Windows.Forms.TabPage();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.textBox_chatMessages = new System.Windows.Forms.TextBox();
+            this.listBox_chatUserList = new System.Windows.Forms.ListBox();
+            this.label16 = new System.Windows.Forms.Label();
+            this.label_num_persons_in_chat = new System.Windows.Forms.Label();
             this.button_clearChat = new System.Windows.Forms.Button();
             this.textBox_chatEntry = new System.Windows.Forms.TextBox();
             this.tabPage_messages = new System.Windows.Forms.TabPage();
@@ -141,6 +145,9 @@ namespace XBSlink
             this.tabPage_info.SuspendLayout();
             this.tabPage_clouds.SuspendLayout();
             this.tabPage_chat.SuspendLayout();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
             this.tabPage_messages.SuspendLayout();
             this.tabPage_settings.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -617,7 +624,7 @@ namespace XBSlink
             // tabPage_chat
             // 
             this.tabPage_chat.BackColor = System.Drawing.SystemColors.Control;
-            this.tabPage_chat.Controls.Add(this.textBox_chatMessages);
+            this.tabPage_chat.Controls.Add(this.splitContainer1);
             this.tabPage_chat.Controls.Add(this.button_clearChat);
             this.tabPage_chat.Controls.Add(this.textBox_chatEntry);
             this.tabPage_chat.Location = new System.Drawing.Point(4, 22);
@@ -626,6 +633,28 @@ namespace XBSlink
             this.tabPage_chat.TabIndex = 4;
             this.tabPage_chat.Text = "Chat";
             // 
+            // splitContainer1
+            // 
+            this.splitContainer1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.splitContainer1.Location = new System.Drawing.Point(0, 3);
+            this.splitContainer1.Name = "splitContainer1";
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.textBox_chatMessages);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.listBox_chatUserList);
+            this.splitContainer1.Panel2.Controls.Add(this.label16);
+            this.splitContainer1.Panel2.Controls.Add(this.label_num_persons_in_chat);
+            this.splitContainer1.Size = new System.Drawing.Size(348, 379);
+            this.splitContainer1.SplitterDistance = 274;
+            this.splitContainer1.SplitterWidth = 2;
+            this.splitContainer1.TabIndex = 7;
+            // 
             // textBox_chatMessages
             // 
             this.textBox_chatMessages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
@@ -633,13 +662,46 @@ namespace XBSlink
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_chatMessages.BackColor = System.Drawing.Color.WhiteSmoke;
             this.textBox_chatMessages.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textBox_chatMessages.Location = new System.Drawing.Point(0, 0);
+            this.textBox_chatMessages.Location = new System.Drawing.Point(3, 0);
             this.textBox_chatMessages.Multiline = true;
             this.textBox_chatMessages.Name = "textBox_chatMessages";
             this.textBox_chatMessages.ReadOnly = true;
             this.textBox_chatMessages.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox_chatMessages.Size = new System.Drawing.Size(348, 383);
+            this.textBox_chatMessages.Size = new System.Drawing.Size(268, 379);
             this.textBox_chatMessages.TabIndex = 3;
+            // 
+            // listBox_chatUserList
+            // 
+            this.listBox_chatUserList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.listBox_chatUserList.FormattingEnabled = true;
+            this.listBox_chatUserList.IntegralHeight = false;
+            this.listBox_chatUserList.Location = new System.Drawing.Point(3, 17);
+            this.listBox_chatUserList.Name = "listBox_chatUserList";
+            this.listBox_chatUserList.Size = new System.Drawing.Size(69, 362);
+            this.listBox_chatUserList.Sorted = true;
+            this.listBox_chatUserList.TabIndex = 6;
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label16.Location = new System.Drawing.Point(-1, 2);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(47, 13);
+            this.label16.TabIndex = 5;
+            this.label16.Text = "Online:";
+            // 
+            // label_num_persons_in_chat
+            // 
+            this.label_num_persons_in_chat.AutoSize = true;
+            this.label_num_persons_in_chat.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label_num_persons_in_chat.Location = new System.Drawing.Point(49, 2);
+            this.label_num_persons_in_chat.Name = "label_num_persons_in_chat";
+            this.label_num_persons_in_chat.Size = new System.Drawing.Size(14, 13);
+            this.label_num_persons_in_chat.TabIndex = 4;
+            this.label_num_persons_in_chat.Text = "0";
             // 
             // button_clearChat
             // 
@@ -1077,7 +1139,6 @@ namespace XBSlink
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.SizeChanged += new System.EventHandler(this.Form1_SizeChanged);
-            this.VisibleChanged += new System.EventHandler(this.FormMain_VisibleChanged);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             this.tabControl1.ResumeLayout(false);
@@ -1087,6 +1148,11 @@ namespace XBSlink
             this.tabPage_clouds.PerformLayout();
             this.tabPage_chat.ResumeLayout(false);
             this.tabPage_chat.PerformLayout();
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel1.PerformLayout();
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            this.splitContainer1.Panel2.PerformLayout();
+            this.splitContainer1.ResumeLayout(false);
             this.tabPage_messages.ResumeLayout(false);
             this.tabPage_settings.ResumeLayout(false);
             this.tabPage_settings.PerformLayout();
@@ -1187,6 +1253,10 @@ namespace XBSlink
         private System.Windows.Forms.ColumnHeader columnHeader_Version;
         private System.Windows.Forms.ColumnHeader columnHeader_nickname;
         private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.ListBox listBox_chatUserList;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.Label label_num_persons_in_chat;
+        private System.Windows.Forms.SplitContainer splitContainer1;
     }
 }
 

@@ -69,9 +69,13 @@ namespace XBSlink
                 ping_thread.Join();
         }
 
-        public List<xbs_node> getList()
+        public List<xbs_node> getXBSNodeListCopy()
         {
-            return node_list;
+            List<xbs_node> node_list_copy;
+            lock (this)
+                node_list_copy = new List<xbs_node>(node_list);
+            return node_list_copy;
+            //return node_list;
         }
 
         public void addNode(xbs_node node)

@@ -612,7 +612,7 @@ namespace XBSlink
         private void updateMainInfo()
         {
             String text = "";
-            List<xbs_node> nodes = node_list.getList();
+            List<xbs_node> nodes = node_list.getXBSNodeListCopy();
 
             if (cloudlist.part_of_cloud)
             {
@@ -639,37 +639,47 @@ namespace XBSlink
             }
             textBox1.Text = text;
 
-            updateMainInfoListview();
+            DateTime last_change_time = node_list.getLastChangeTime();
+            if (last_change_time > last_nodelist_update)
+            {
+                updateMainInfoListview();
+                updateChatUserList();
+                last_nodelist_update = last_change_time;
+            }
+        }
+
+        private void updateChatUserList()
+        {
+            listBox_chatUserList.Items.Clear();
+            List<xbs_node> nodes = node_list.getXBSNodeListCopy();
+            label_num_persons_in_chat.Text = nodes.Count.ToString();
+            foreach (xbs_node node in nodes)
+            {
+                listBox_chatUserList.Items.Add(node.nickname);
+            }
+
         }
 
         private void updateMainInfoListview()
         {
-            DateTime last_change_time = node_list.getLastChangeTime();
-            if (last_change_time > last_nodelist_update)
+            listView_nodes.Items.Clear();
+            List<xbs_node> nodes = node_list.getXBSNodeListCopy();
+            foreach (xbs_node node in nodes)
             {
-                listView_nodes.Items.Clear();
-                List<xbs_node> nodes = node_list.getList();
-                foreach (xbs_node node in nodes)
-                {
-                    ListViewItem lv_item = new ListViewItem(node.ip_public.ToString());
-                    lv_item.SubItems.Add((node.port_sendfrom == node.port_public) ? node.port_public.ToString() : node.port_public+"/"+node.port_sendfrom );
+                ListViewItem lv_item = new ListViewItem(node.ip_public.ToString());
+                lv_item.SubItems.Add((node.port_sendfrom == node.port_public) ? node.port_public.ToString() : node.port_public+"/"+node.port_sendfrom );
                     
-                    String ping = (node.last_ping_delay_ms >= 0) ? node.last_ping_delay_ms + "ms" : "N/A";
-                    lv_item.SubItems.Add(ping);
+                String ping = (node.last_ping_delay_ms >= 0) ? node.last_ping_delay_ms + "ms" : "N/A";
+                lv_item.SubItems.Add(ping);
 
-                    lv_item.SubItems.Add(node.client_version);
-                    lv_item.SubItems.Add(node.nickname);
+                lv_item.SubItems.Add(node.client_version);
+                lv_item.SubItems.Add(node.nickname);
 
-                    if (node.get_xbox_count() == 0)
-                        lv_item.BackColor = Color.FromArgb(255,235,235);
-                    else
-                        lv_item.BackColor = Color.FromArgb(235, 255, 235);
-                    listView_nodes.Items.Add(lv_item);
-                }
-#if DEBUG
-                DebugWindow.addMessage("updated MainInfoListView: " + last_nodelist_update + " => " + last_change_time);
-#endif
-                last_nodelist_update = last_change_time;
+                if (node.get_xbox_count() == 0)
+                    lv_item.BackColor = Color.FromArgb(255,235,235);
+                else
+                    lv_item.BackColor = Color.FromArgb(235, 255, 235);
+                listView_nodes.Items.Add(lv_item);
             }
         }
 
@@ -1223,10 +1233,6 @@ namespace XBSlink
                 textBox_chatMessages.SelectionStart = textBox_chatMessages.Text.Length;
                 textBox_chatMessages.ScrollToCaret();
             }
-        }
-
-        private void FormMain_VisibleChanged(object sender, EventArgs e)
-        {
         }
     }
 }
