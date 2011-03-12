@@ -987,7 +987,16 @@ namespace XBSlink
 
         private bool handlePlusMinusInTextBox(char pressed_key, TextBox tb, int min, int max)
         {
-            int i = int.Parse(tb.Text);
+            int i;
+            try
+            {
+                i = int.Parse(tb.Text);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
             switch (pressed_key)
             {
                 case '+':
