@@ -74,7 +74,7 @@ namespace XBSlink
         public String nickname = "Anonymous";
         public bool nickname_received = false;
 
-        public List<xbs_xbox> xbox_list;
+        private List<xbs_xbox> xbox_list;
 
         private static PhysicalAddress broadcast_mac = new PhysicalAddress(new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF });
 
@@ -121,10 +121,14 @@ namespace XBSlink
             if (xbox_addr.Equals(broadcast_mac))
                 return true;
             int hash = xbox_addr.GetHashCode();
-            foreach (xbs_xbox xbox in xbox_list)
-                if (xbox.hash==hash)
-                    return true;
-            return false;
+            bool ret = false;
+            lock (this)
+            {
+                foreach (xbs_xbox xbox in xbox_list)
+                    if (xbox.hash == hash)
+                        ret = true;
+            }
+            return ret;
         }
 
         public void sendDataMessage( ref byte[] data)
@@ -160,11 +164,17 @@ namespace XBSlink
         public void addXbox(PhysicalAddress mac)
         {
             int hash = mac.GetHashCode();
-            foreach (xbs_xbox xbox in xbox_list)
-                if (hash == xbox.hash)
-                    return;
-            xbox_list.Add( new xbs_xbox(mac) );
-            FormMain.addMessage(" ~ added new device " + mac + " for node " + this);
+            bool xbox_found = false;
+            lock (this)
+            {
+                foreach (xbs_xbox xbox in xbox_list)
+                    if (hash == xbox.hash)
+                        xbox_found = true;
+                if (!xbox_found)
+                    xbox_list.Add(new xbs_xbox(mac));
+            }
+            if (!xbox_found)
+                FormMain.addMessage(" ~ added new device " + mac + " for node " + this);
         }
 
         public bool Equals(xbs_node node)
@@ -243,6 +253,14 @@ namespace XBSlink
             xbs_node_message_fromCloudHelper_ContactNode msg = new xbs_node_message_fromCloudHelper_ContactNode(node.ip_public, (UInt16)node.port_public);
             msg.receiver = this;
             FormMain.udp_listener.send_xbs_node_message(msg);
+        }
+
+        public int get_xbox_count()
+        {
+            int count = 0;
+            lock (this)
+                count = this.xbox_list.Count;
+            return count;
         }
     }
 }
