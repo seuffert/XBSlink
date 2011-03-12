@@ -1167,46 +1167,6 @@ namespace XBSlink
             }
         }
 
-        private void checkForProgramUpdatesAsync()
-        {
-            String url = Resources.url_check_latest_version;
-            Uri uri = new Uri(url);
-            last_update_check = DateTime.Now;
-            updatecheck_webclient.Proxy = null;
-            try
-            {
-                updatecheck_webclient.DownloadStringCompleted += new DownloadStringCompletedEventHandler(checkForProgramUpdatesCompleted);
-                updatecheck_webclient.DownloadStringAsync(uri);
-            }
-            catch (WebException wex)
-            {
-                // handle error
-                addMessage("!! could not get online update version information: " + wex.Message);
-            }
-        }
-
-        private static void checkForProgramUpdatesCompleted(Object sender, DownloadStringCompletedEventArgs e)
-        {
-            String result = null;
-            if (!e.Cancelled && e.Error == null)
-            {
-                result = (string)e.Result.Trim();
-                if (result.Length == 7 && result != xbs_settings.xbslink_version)
-                {
-                    DialogResult res = MessageBox.Show("A new version of XBSlink is available! (v" + result + ")" + Environment.NewLine + "Would you like to visit the homepage now?", "XBSlink update available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
-                    if (res == DialogResult.Yes)
-                        System.Diagnostics.Process.Start(Resources.url_xbslink_website);
-                }
-                else
-                    addMessage("You are using the latest XBSlink version.");
-            }
-            else
-            {
-                addMessage("!! could not get online update version information: " + e.Error.Message);
-                return;
-            }
-        }
-
         public String getAllMessages()
         {
             String[] ret_array = new String[ listBox_messages.Items.Count ];
