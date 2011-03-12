@@ -145,6 +145,24 @@ namespace XBSlink.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die http://www.secudb.de/~seuffert/xbslink/latest_xbslink_version_linux ähnelt.
+        /// </summary>
+        internal static string url_check_latest_version_linux {
+            get {
+                return ResourceManager.GetString("url_check_latest_version_linux", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die http://www.secudb.de/~seuffert/xbslink/latest_xbslink_version_mac ähnelt.
+        /// </summary>
+        internal static string url_check_latest_version_mac {
+            get {
+                return ResourceManager.GetString("url_check_latest_version_mac", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die http://www.secudb.de/~seuffert/xbslink/ ähnelt.
         /// </summary>
         internal static string url_xbslink_website {

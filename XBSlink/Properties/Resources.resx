@@ -158,4 +158,10 @@ This problem occurs if the user has not enough rights to use the pcap library. P
 
 For more information see &lt;http://www.secudb.de/~seuffert/xbslink/faq#question-2&gt;</value>
   </data>
+  <data name="url_check_latest_version_linux" xml:space="preserve">
+    <value>http://www.secudb.de/~seuffert/xbslink/latest_xbslink_version_linux</value>
+  </data>
+  <data name="url_check_latest_version_mac" xml:space="preserve">
+    <value>http://www.secudb.de/~seuffert/xbslink/latest_xbslink_version_mac</value>
+  </data>
 </root>

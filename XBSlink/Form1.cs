@@ -1131,6 +1131,11 @@ namespace XBSlink
         private void checkForProgramUpdates()
         {
             String url = Resources.url_check_latest_version;
+            if (System.Environment.OSVersion.Platform == PlatformID.MacOSX)
+                url = Resources.url_check_latest_version_mac;
+            else if (System.Environment.OSVersion.Platform == PlatformID.Unix)
+                url = Resources.url_check_latest_version_linux;
+
             Uri uri = new Uri(url);
             last_update_check = DateTime.Now;
             String result;
@@ -1146,14 +1151,20 @@ namespace XBSlink
                 return;
             }
 
-            if (result.Length == 7 && result != xbs_settings.xbslink_version)
+            if (result.Length == 7)
             {
-                DialogResult res = MessageBox.Show("A new version of XBSlink is available! (v" + result + ")" + Environment.NewLine + "Would you like to visit the homepage now?", "XBSlink update available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
-                if (res == DialogResult.Yes)
-                    System.Diagnostics.Process.Start(Resources.url_xbslink_website);
+                int new_version_found = result.CompareTo(xbs_settings.xbslink_version);
+                if (new_version_found > 0)
+                {
+                    DialogResult res = MessageBox.Show("A new version of XBSlink is available! (v" + result + ")" + Environment.NewLine + "Would you like to visit the homepage now?", "XBSlink update available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                    if (res == DialogResult.Yes)
+                        System.Diagnostics.Process.Start(Resources.url_xbslink_website);
+                }
+                else if (new_version_found < 0)
+                    addMessage("Latest XBSlink version found: v" + result);
+                else
+                    addMessage("You are using the latest XBSlink version.");
             }
-            else
-                addMessage("You are using the latest XBSlink version.");
         }
 
         private void checkForProgramUpdatesAsync()
