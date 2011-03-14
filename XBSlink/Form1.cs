@@ -642,16 +642,15 @@ namespace XBSlink
             DateTime last_change_time = node_list.getLastChangeTime();
             if (last_change_time > last_nodelist_update)
             {
-                updateMainInfoListview();
-                updateChatUserList();
+                updateMainInfoListview(nodes);
+                updateChatUserList(nodes);
                 last_nodelist_update = last_change_time;
             }
         }
 
-        private void updateChatUserList()
+        private void updateChatUserList( List<xbs_node> nodes )
         {
             listBox_chatUserList.Items.Clear();
-            List<xbs_node> nodes = node_list.getXBSNodeListCopy();
             label_num_persons_in_chat.Text = nodes.Count.ToString();
             foreach (xbs_node node in nodes)
             {
@@ -660,10 +659,9 @@ namespace XBSlink
 
         }
 
-        private void updateMainInfoListview()
+        private void updateMainInfoListview(List<xbs_node> nodes )
         {
             listView_nodes.Items.Clear();
-            List<xbs_node> nodes = node_list.getXBSNodeListCopy();
             foreach (xbs_node node in nodes)
             {
                 ListViewItem lv_item = new ListViewItem(node.ip_public.ToString());
