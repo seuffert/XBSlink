@@ -95,6 +95,7 @@
     <Compile Include="ExceptionMessage.Designer.cs">
       <DependentUpon>ExceptionMessage.cs</DependentUpon>
     </Compile>
+    <Compile Include="Options.cs" />
     <Compile Include="xbs_cloudlist.cs" />
     <Compile Include="xbs_chat.cs" />
     <Compile Include="xbs_natstun.cs" />

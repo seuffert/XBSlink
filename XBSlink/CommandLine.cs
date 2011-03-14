@@ -6,6 +6,8 @@ using System.Text;
 using SharpPcap;
 using SharpPcap.LibPcap;
 using SharpPcap.WinPcap;
+using NDesk.Options;
+
 using XBSlink.Properties;
 
 namespace XBSlink
@@ -18,10 +20,15 @@ namespace XBSlink
         public static xbs_node_list node_list = null;
         private xbs_natstun natstun = null;
 
+        [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+        private static extern bool AllocConsole(); 
+
         public xbs_console_app(xbs_settings settings, String[] args)
         {
+            if (System.Environment.OSVersion.Platform == PlatformID.Win32NT)
+                AllocConsole(); 
+            
             xbs_settings = settings;
-
             output_version_info();
 
             switch (args[0])
@@ -30,6 +37,8 @@ namespace XBSlink
                     list_Devices(args);
                     break;
             }
+
+            Console.ReadLine();
         }
 
         private void initialize()
