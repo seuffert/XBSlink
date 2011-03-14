@@ -75,60 +75,81 @@ namespace XBSlink
 
         private void loadRegistryValues()
         {
-            foreach (String val_name in regkey.GetValueNames())
-                registry_settings.Add(val_name, (String)regkey.GetValue(val_name));
+            lock (registry_settings)
+            {
+                foreach (String val_name in regkey.GetValueNames())
+                    registry_settings.Add(val_name, (String)regkey.GetValue(val_name));
+            }
         }
 
         public static void saveRegistryValues()
         {
-            foreach (KeyValuePair<string, string> kvp in registry_settings)
+            lock (registry_settings)
             {
-                regkey.SetValue(kvp.Key, kvp.Value == null ? "" : kvp.Value);
+                foreach (KeyValuePair<string, string> kvp in registry_settings)
+                    regkey.SetValue(kvp.Key, kvp.Value == null ? "" : kvp.Value);
             }
         }
 
         public static String getRegistryValue(String value_name)
         {
-            if (registry_settings.ContainsKey(value_name))
-                return registry_settings[value_name];
-            return null;
+            String ret=null;
+            lock (registry_settings)
+                if (registry_settings.ContainsKey(value_name))
+                    ret = registry_settings[value_name];
+            return ret;
         }
 
         public static bool getRegistryValue(String value_name, bool default_value)
         {
-            if (!registry_settings.ContainsKey(value_name))
-                return default_value;
-            bool c;
-            if (Boolean.TryParse(registry_settings[value_name], out c))
-                return c;
-            return default_value;
+            bool ret = default_value;
+            lock (registry_settings)
+            {
+                if (registry_settings.ContainsKey(value_name))
+                    if (!Boolean.TryParse(registry_settings[value_name], out ret))
+                        ret = default_value;
+            }
+            return ret;
         }
 
         public static void setRegistryValue(String value_name, String value)
         {
-            registry_settings[value_name] = value;
+            lock (registry_settings)
+                registry_settings[value_name] = value;
         }
 
         public static void setRegistryValue(String value_name, Object value)
         {
 			if (value!=null)
-            	setRegistryValue( value_name, value.ToString());
+                lock (registry_settings)
+            	    setRegistryValue( value_name, value.ToString());
         }
 
         public static void initializeRegistrySettingWithControl(String value_name, CheckBox checkbox)
         {
-            if ( xbs_settings.getRegistryValue(value_name) != null )
-                checkbox.Checked = xbs_settings.getRegistryValue(value_name, checkbox.Checked);
+            bool check = checkbox.Checked;
+            lock (registry_settings)
+                if ( xbs_settings.getRegistryValue(value_name) != null )
+                    check = xbs_settings.getRegistryValue(value_name, check);
+            checkbox.Checked = check;
         }
         public static void initializeRegistrySettingWithControl(String value_name, TextBox textbox)
         {
-            if (xbs_settings.getRegistryValue(value_name) != null)
-                textbox.Text = xbs_settings.getRegistryValue(value_name);
+            String text = null;
+            lock (registry_settings)
+                if (xbs_settings.getRegistryValue(value_name) != null)
+                    text = xbs_settings.getRegistryValue(value_name);
+            if (text!=null)
+                textbox.Text = text;
         }
         public static void initializeRegistrySettingWithControl(String value_name, ComboBox combobox)
         {
-            if ( xbs_settings.getRegistryValue(value_name) != null )
-                combobox.SelectedItem = xbs_settings.getRegistryValue(value_name);
+            String text = null;
+            lock (registry_settings) 
+                if (xbs_settings.getRegistryValue(value_name) != null)
+                    text = xbs_settings.getRegistryValue(value_name);
+            if (text!=null)
+                combobox.SelectedItem = text;
         }
 
     }
