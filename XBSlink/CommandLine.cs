@@ -41,9 +41,10 @@ namespace XBSlink
 
         private void list_Devices(String[] args)
         {
+			Console.WriteLine("List of available devices:");
             LibPcapLiveDeviceList devices = LibPcapLiveDeviceList.Instance;
             foreach (LibPcapLiveDevice dev in devices)
-                Console.WriteLine(dev.Interface.FriendlyName + " (" + dev.Interface.Description + ")");
+                Console.WriteLine("  " + dev.Name + " (" + dev.Description+ ")");
         }
 
         private void output_version_info()
