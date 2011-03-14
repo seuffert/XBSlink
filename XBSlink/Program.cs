@@ -28,19 +28,19 @@ namespace XBSlink
     static class Program
     {
         public static FormMain main_form = null;
-        public static xbs_settings settings = null;
-        private static CommandLine console_app = null;
+        private static xbs_console_app console_app = null;
+
         /// <summary>
         /// Der Haupteinstiegspunkt für die Anwendung.
         /// </summary>
         [STAThread]
         static void Main(string[] args)
         {
-            settings = new xbs_settings();
+            xbs_settings settings = new xbs_settings();
 
-            if (args.Length > 1)
+            if (args.Length > 0)
             {
-                console_app = new CommandLine(settings);
+                console_app = new xbs_console_app(settings, args);
             }
             else
             {

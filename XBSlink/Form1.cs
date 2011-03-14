@@ -32,11 +32,12 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Security.Permissions;
 using System.Threading;
-using XBSlink.Properties;
 using Microsoft.Win32;
 using PacketDotNet;
 using SharpPcap;
 using SharpPcap.LibPcap;
+using SharpPcap.WinPcap;
+using XBSlink.Properties;
 
 
 [assembly: RegistryPermissionAttribute(SecurityAction.RequestMinimum,
