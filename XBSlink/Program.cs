@@ -29,27 +29,36 @@ namespace XBSlink
     {
         public static FormMain main_form = null;
         public static xbs_settings settings = null;
+        private static CommandLine console_app = null;
         /// <summary>
         /// Der Haupteinstiegspunkt für die Anwendung.
         /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
             settings = new xbs_settings();
 
-            try
+            if (args.Length > 1)
             {
-                main_form = new FormMain();
+                console_app = new CommandLine(settings);
             }
-            catch (ApplicationException)
+            else
             {
-                main_form = null;
-            }
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
 
-            if (main_form != null )
-                Application.Run(main_form);
+                try
+                {
+                    main_form = new FormMain();
+                }
+                catch (ApplicationException)
+                {
+                    main_form = null;
+                }
+
+                if (main_form != null)
+                    Application.Run(main_form);
+            }
         }
     }
 }
