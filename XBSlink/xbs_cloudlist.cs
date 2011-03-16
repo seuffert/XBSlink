@@ -122,12 +122,12 @@ namespace XBSlink
             String[] ret_array = str.Split(new char[]{'\n'}, StringSplitOptions.RemoveEmptyEntries);
             if (ret_array[0].StartsWith(xbs_cloudlist_returncode.RETURN_CODE_ERROR))
             {
-                FormMain.addMessage(" x cloudlist server error: " + ret_array[0]);
+                xbs_messages.addInfoMessage(" x cloudlist server error: " + ret_array[0]);
                 return false;
             }
             else if (!ret_array[0].StartsWith(xbs_cloudlist_returncode.RETURN_CODE_OK))
             {
-                FormMain.addMessage(" x unknown response from cloudlist server ");
+                xbs_messages.addInfoMessage(" x unknown response from cloudlist server ");
                 return false;
             }
             lock (cloudlist)
@@ -141,7 +141,7 @@ namespace XBSlink
                     }
                     catch (Exception ex)
                     {
-                        FormMain.addMessage(" x error adding cloud to cloudlist: " + ex.ToString());
+                        xbs_messages.addInfoMessage(" x error adding cloud to cloudlist: " + ex.ToString());
                     }
                 }
             }
@@ -193,7 +193,7 @@ namespace XBSlink
             get_params.Add(xbs_cloudlist_getparameters.GETALLNODES + "=1");
             String full_url = url + "?" + String.Join("&", get_params.ToArray());
 #if DEBUG
-            FormMain.addMessage(" x joining cloud: " + full_url);
+            xbs_messages.addInfoMessage(" x joining cloud: " + full_url);
 #endif
             WebClient client = new WebClient();
             client.Proxy = null;
@@ -213,15 +213,15 @@ namespace XBSlink
                 return false;
             }
 #if DEBUG
-            FormMain.addMessage(" x cloudlist server result: " + result.Replace("\n","|"));
+            xbs_messages.addInfoMessage(" x cloudlist server result: " + result.Replace("\n","|"));
 #endif
             part_of_cloud = true;
             current_cloudname = cloudname;
-            FormMain.addMessage(" x joined cloud " + cloudname);
+            xbs_messages.addInfoMessage(" x joined cloud " + cloudname);
             String[] result_rows = result.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
             uuid = result_rows[0].Split(':')[1];
 #if DEBUG
-            FormMain.addMessage(" x cloud node UUID: " + uuid);
+            xbs_messages.addInfoMessage(" x cloud node UUID: " + uuid);
 #endif
             cloudlist_url = url;
             if (result_rows.Length >= 2)
@@ -238,7 +238,7 @@ namespace XBSlink
                     }
                     catch (Exception)
                     {
-                        FormMain.addMessage("!! Error getting node contact from cloudlist server: " + result_rows[1]);
+                        xbs_messages.addInfoMessage("!! Error getting node contact from cloudlist server: " + result_rows[1]);
                         return false;
                     }
                     xbs_node_message_announce msg = new xbs_node_message_announce(ip, port);
@@ -274,7 +274,7 @@ namespace XBSlink
                 MessageBox.Show(result);
                 return false;
             }
-            FormMain.addMessage(" x left cloud " + current_cloudname);
+            xbs_messages.addInfoMessage(" x left cloud " + current_cloudname);
             part_of_cloud = false;
             uuid = null;
             current_cloudname = null;
@@ -306,7 +306,7 @@ namespace XBSlink
             get_params.Add(xbs_cloudlist_getparameters.UUID + "=" + HttpUtility.UrlEncode(uuid));
             string result = null;
             String url = cloudlist_url + "?" + String.Join("&", get_params.ToArray());
-            FormMain.addMessage(" x started cloudlist updater");
+            xbs_messages.addInfoMessage(" x started cloudlist updater");
 #if !DEBUG
             try
             {

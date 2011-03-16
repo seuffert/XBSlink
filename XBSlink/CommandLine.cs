@@ -87,6 +87,9 @@ namespace XBSlink
                 show_cloudlist();
             else
             {
+                node_list = new xbs_node_list();
+                natstun = new xbs_natstun();
+                
             }
 
             Console.ReadLine();

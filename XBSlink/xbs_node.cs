@@ -174,7 +174,7 @@ namespace XBSlink
                     xbox_list.Add(new xbs_xbox(mac));
             }
             if (!xbox_found)
-                FormMain.addMessage(" ~ added new device " + mac + " for node " + this);
+                xbs_messages.addInfoMessage(" ~ added new device " + mac + " for node " + this);
         }
 
         public bool Equals(xbs_node node)
@@ -194,7 +194,7 @@ namespace XBSlink
         public void sendDelNodeMessage(xbs_node node)
         {
 #if DEBUG
-            FormMain.addMessage(" ~ sending DelNodeMessage to " + this + " for node " + node);
+            xbs_messages.addInfoMessage(" ~ sending DelNodeMessage to " + this + " for node " + node);
 #endif
             xbs_node_message_delnode msg = new xbs_node_message_delnode(node.ip_public, (UInt16)node.port_public);
             msg.receiver = this;

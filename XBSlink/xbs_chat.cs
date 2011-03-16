@@ -60,12 +60,12 @@ namespace XBSlink
 
         public static void addSystemMessage(String message)
         {
-            FormMain.addChatMessage("* " + message + System.Environment.NewLine);
+            xbs_messages.addChatMessage("* " + message + System.Environment.NewLine);
         }
 
         public static void addMessage(String message)
         {
-            FormMain.addChatMessage(message + System.Environment.NewLine);
+            xbs_messages.addChatMessage(message + System.Environment.NewLine);
         }
 
     }

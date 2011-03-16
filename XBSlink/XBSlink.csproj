@@ -98,6 +98,7 @@
     <Compile Include="Options.cs" />
     <Compile Include="xbs_cloudlist.cs" />
     <Compile Include="xbs_chat.cs" />
+    <Compile Include="xbs_messages.cs" />
     <Compile Include="xbs_natstun.cs" />
     <Compile Include="xbs_settings.cs" />
     <Compile Include="DebugWindow.cs">

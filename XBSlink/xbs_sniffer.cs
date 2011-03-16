@@ -75,7 +75,7 @@ namespace XBSlink
 
         private xbs_node_list node_list = null;
 
-        public xbs_sniffer(SharpPcap.LibPcap.LibPcapLiveDevice dev, bool sniff_additional_broadcast, bool use_special_mac_filter, bool only_forward_special_macs)
+        public xbs_sniffer(SharpPcap.LibPcap.LibPcapLiveDevice dev, bool sniff_additional_broadcast, bool use_special_mac_filter, bool only_forward_special_macs, xbs_node_list node_list)
         {
             this.pdev_sniff_additional_broadcast = sniff_additional_broadcast;
             this.pdev_filter_use_special_macs = use_special_mac_filter;
@@ -84,7 +84,7 @@ namespace XBSlink
             sniffed_macs_hash.Capacity = 10;
             sniffed_macs.Capacity = 10;
 
-            node_list = FormMain.node_list;
+            this.node_list = node_list;
 
             this.pdev = dev;
             pdev.OnPacketArrival +=
@@ -95,7 +95,7 @@ namespace XBSlink
             if (System.Environment.OSVersion.Platform == PlatformID.Win32NT && pdev is SharpPcap.WinPcap.WinPcapDevice)
                 ((SharpPcap.WinPcap.WinPcapDevice)pdev).MinToCopy = 10;
 
-            FormMain.addMessage(" - sniffer created on device " + pdev.Description);
+            xbs_messages.addInfoMessage(" - sniffer created on device " + pdev.Description);
 
             dispatcher_thread = new Thread(new ThreadStart(dispatcher));
             dispatcher_thread.IsBackground = true;
@@ -106,7 +106,7 @@ namespace XBSlink
         public void start_capture()
         {
 #if DEBUG
-            FormMain.addMessage(" - start capturing packets");
+            xbs_messages.addInfoMessage(" - start capturing packets");
 #endif
             pdev.StartCapture();
         }
@@ -155,14 +155,14 @@ namespace XBSlink
             }
             catch (InvalidOperationException)
             {
-                FormMain.addMessage("!! InvalidOperationException in sniffer (OnPacketArrival)!");
+                xbs_messages.addInfoMessage("!! InvalidOperationException in sniffer (OnPacketArrival)!");
                 return;
             }
         }
 
         public void dispatcher()
         {
-            FormMain.addMessage(" - sniffer dispatcher thread starting...");
+            xbs_messages.addInfoMessage(" - sniffer dispatcher thread starting...");
             int count = 0;
             RawPacket p = null;
 
@@ -263,11 +263,11 @@ namespace XBSlink
             }
             catch (PcapException pex)
             {
-                FormMain.addMessage("!! error while injecting packet from "+srcMAC+" to "+dstMAC+" ("+data.Length+") : "+pex.Message);
+                xbs_messages.addInfoMessage("!! error while injecting packet from "+srcMAC+" to "+dstMAC+" ("+data.Length+") : "+pex.Message);
             }
             catch (ArgumentException aex)
             {
-                FormMain.addMessage("!! error while injecting packet from " + srcMAC + " to " + dstMAC + " (" + data.Length + ") : " + aex.Message);
+                xbs_messages.addInfoMessage("!! error while injecting packet from " + srcMAC + " to " + dstMAC + " (" + data.Length + ") : " + aex.Message);
             }
         }
 
@@ -359,13 +359,13 @@ namespace XBSlink
                 if (pdev_filter_use_special_macs && pdev_filter_only_forward_special_macs && filter_special_macs.Length>0)
                     f = filter_special_macs;
 #if DEBUG
-                FormMain.addMessage(" - pdev filter: " + f);
+                xbs_messages.addInfoMessage(" - pdev filter: " + f);
 #endif
                 pdev.Filter = f;
             }
             catch (PcapException)
             {
-                FormMain.addMessage("!! - ERROR setting pdev filter");
+                xbs_messages.addInfoMessage("!! - ERROR setting pdev filter");
             }
         }
 

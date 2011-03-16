@@ -131,9 +131,9 @@ namespace XBSlink
             }
             catch (SocketException)
             {
-                FormMain.addMessage("!! Socket Exception: could not bind to port "+udp_socket_port);
-                FormMain.addMessage("!! the UDP socket is not ready to send or receive packets.");
-                FormMain.addMessage("!! please check if another application is running on this port.");
+                xbs_messages.addInfoMessage("!! Socket Exception: could not bind to port "+udp_socket_port);
+                xbs_messages.addInfoMessage("!! the UDP socket is not ready to send or receive packets.");
+                xbs_messages.addInfoMessage("!! please check if another application is running on this port.");
                 System.Windows.Forms.MessageBox.Show("an error occured while initializing the UDP socket.\r\nPlease see the messages tab.");
                 FormMain.abort_start_engine = true;
                 return false;
@@ -144,7 +144,7 @@ namespace XBSlink
             receive_thread.Priority = ThreadPriority.AboveNormal;
             receive_thread.Start();
 
-            FormMain.addMessage(" * initialized udp listener on port " + port);
+            xbs_messages.addInfoMessage(" * initialized udp listener on port " + port);
             return true;
         }
 
@@ -164,7 +164,7 @@ namespace XBSlink
 
         public void udp_receiver()
         {
-            FormMain.addMessage(" * udp receiver thread started");
+            xbs_messages.addInfoMessage(" * udp receiver thread started");
             byte[] data = new byte[2048];
             byte[] data2 = new byte[2048];
             IPEndPoint remote_endpoint = new IPEndPoint(IPAddress.Any, 0);
@@ -244,7 +244,7 @@ namespace XBSlink
 
         public void dispatcher()
         {
-            FormMain.addMessage(" * udp listener dispatcher thread starting...");
+            xbs_messages.addInfoMessage(" * udp listener dispatcher thread starting...");
 #if !DEBUG
             try
             {
@@ -369,7 +369,7 @@ namespace XBSlink
                     }
                     catch (Exception ex)
                     {
-                        FormMain.addMessage("!! error on deleting node: "+ex.Message);
+                        xbs_messages.addInfoMessage("!! error on deleting node: "+ex.Message);
                     }
                     if (new_node!=null)
                         xbs_chat.addSystemMessage(new_node.nickname + " left.");
@@ -472,7 +472,7 @@ namespace XBSlink
 
         public void dispatcher_out()
         {
-            FormMain.addMessage(" * udp outgoing dispatcher thread starting...");
+            xbs_messages.addInfoMessage(" * udp outgoing dispatcher thread starting...");
 #if !DEBUG
             try
             {
@@ -531,7 +531,7 @@ namespace XBSlink
                 }
                 catch (SocketException sock_ex)
                 {
-                    FormMain.addMessage("!! ERROR in dispatch_out_queue SendTo: "+sock_ex.Message);
+                    xbs_messages.addInfoMessage("!! ERROR in dispatch_out_queue SendTo: "+sock_ex.Message);
                 }
                 
                 // recheck for new packets

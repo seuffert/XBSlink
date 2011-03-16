@@ -67,9 +67,6 @@ namespace XBSlink
 
         private int form1_width;
 
-        private static Queue<String> messages = new Queue<String>();
-        private static Queue<String> chat_messages = new Queue<String>();
-
         private xbs_natstun natstun = null;
 
         private const int MAX_WAIT_START_ENGINE_SECONDS = 6;
@@ -147,9 +144,9 @@ namespace XBSlink
         {
             this.Text += " - Version " + xbs_settings.xbslink_version;
 #if DEBUG
-            addMessage("using PacketDotNet version " + System.Reflection.Assembly.GetAssembly(typeof(PacketDotNet.IpPacket)).GetName().Version.ToString());
-            addMessage("using SharpPcap version " + SharpPcap.Version.VersionString);
-            addMessage("using Mono.NAT version " + System.Reflection.Assembly.GetAssembly(typeof(Mono.Nat.NatUtility)).GetName().Version.ToString());
+            xbs_messages.addInfoMessage("using PacketDotNet version " + System.Reflection.Assembly.GetAssembly(typeof(PacketDotNet.IpPacket)).GetName().Version.ToString());
+            xbs_messages.addInfoMessage("using SharpPcap version " + SharpPcap.Version.VersionString);
+            xbs_messages.addInfoMessage("using Mono.NAT version " + System.Reflection.Assembly.GetAssembly(typeof(Mono.Nat.NatUtility)).GetName().Version.ToString());
 #endif
         }
 
@@ -370,7 +367,7 @@ namespace XBSlink
             }
             catch (Exception)
             {
-                addMessage("!! UPnP port mapping failed");
+                xbs_messages.addInfoMessage("!! UPnP port mapping failed");
             }
             try
             {
@@ -385,7 +382,7 @@ namespace XBSlink
             }
             catch (Exception)
             {
-                addMessage("!! STUN discovery failed.");
+                xbs_messages.addInfoMessage("!! STUN discovery failed.");
             }
             if (external_ip==null)
                 external_ip = xbs_natstun.getExternalIPAddressFromWebsite();                        
@@ -394,7 +391,7 @@ namespace XBSlink
             node_list.local_node = new xbs_node(local_node_ip, udp_listener.udp_socket_port);
             node_list.local_node.nickname = textBox_chatNickname.Text;
 
-            sniffer = new xbs_sniffer(pdev, checkBox_all_broadcasts.Checked, checkBox_enable_MAC_list.Checked, checkBox_mac_restriction.Checked);
+            sniffer = new xbs_sniffer(pdev, checkBox_all_broadcasts.Checked, checkBox_enable_MAC_list.Checked, checkBox_mac_restriction.Checked, node_list);
             setSnifferMacList();
             sniffer.start_capture();
 
@@ -408,7 +405,7 @@ namespace XBSlink
             }
             catch (Exception)
             {
-                addMessage("!! open port check failed");
+                xbs_messages.addInfoMessage("!! open port check failed");
             }
 
             if (ExceptionMessage.ABORTING)
@@ -417,7 +414,7 @@ namespace XBSlink
             timer1.Enabled = true;
             button_announce.Enabled = true;
             saveRegistryValues();
-            addMessage("engine ready. waiting for incoming requests.");
+            xbs_messages.addInfoMessage("engine ready. waiting for incoming requests.");
             switch_tab = tabPage_info;
             textBox_chatEntry.ReadOnly = false;
             textBox_chatEntry.Clear();
@@ -446,7 +443,7 @@ namespace XBSlink
         {
             // show Messages to User
             tabControl1.SelectedTab = tabPage_messages;
-            addMessage("starting Engine");
+            xbs_messages.addInfoMessage("starting Engine");
             if (checkbox_UPnP.Checked)
                 natstun.upnp_startDiscovery();
             if (use_STUN && textBox_stunServerHostname.Text.Length > 0 && textBox_stunServerPort.Text.Length > 0)
@@ -480,7 +477,7 @@ namespace XBSlink
                 if (natstun.isUPnPavailable())
                     natstun.upnp_deleteAllPortMappings();
             engine_started = false;
-            addMessage("Engine stopped.");
+            xbs_messages.addInfoMessage("Engine stopped.");
             button_start_engine.Text = "Start Engine";
             textBox1.Text = "Engine not started.";
             textBox_chatEntry.ReadOnly = true;
@@ -846,20 +843,6 @@ namespace XBSlink
                 listBox_messages.Items.Clear();
         }
 
-        public static void addMessage( String msg )
-        {
-            DateTime dt = DateTime.Now;
-            String str = String.Format("{0:00}", dt.Hour) + ":" + String.Format("{0:00}", dt.Minute) + ":" + String.Format("{0:00}", dt.Second) + " : " + msg;
-            lock (messages)
-                messages.Enqueue(str);
-        }
-
-        public static void addChatMessage(String msg)
-        {
-            lock (chat_messages)
-                chat_messages.Enqueue(msg);
-        }
-
         private void timer_messages_Tick(object sender, EventArgs e)
         {
             bool added_messages = false;
@@ -867,33 +850,31 @@ namespace XBSlink
             try
             {
 #endif
-                lock (messages)
-                    while (messages.Count > 0)
-                    {
-                        added_messages = true;
-                        listBox_messages.Items.Add(messages.Dequeue());
-                    }
-                if (added_messages)
-                    listBox_messages.SelectedIndex = listBox_messages.Items.Count - 1;
+            while (xbs_messages.getInfoMessageCount() > 0)
+            {
+                added_messages = true;
+                listBox_messages.Items.Add( xbs_messages.DequeueInfoMessageString() );
+            }
+            if (added_messages)
+                listBox_messages.SelectedIndex = listBox_messages.Items.Count - 1;
 
-                added_messages = false;
-                lock (chat_messages)
-                    while (chat_messages.Count > 0)
-                    {
-                        added_messages = true;
-                        textBox_chatMessages.Text += chat_messages.Dequeue();
-                    }
-                if (added_messages)
-                {
-                    if (autoswitch_on_chat_message)
-                        tabControl1.SelectedTab = tabPage_chat;
-                    textBox_chatMessages.SelectionStart = textBox_chatMessages.Text.Length;
-                    textBox_chatMessages.ScrollToCaret();
-                }
+            added_messages = false;
+            while (xbs_messages.getChatMessageCount() > 0)
+            {
+                added_messages = true;
+                textBox_chatMessages.Text += xbs_messages.DequeueChatMessage().text;
+            }
+            if (added_messages)
+            {
+                if (autoswitch_on_chat_message)
+                    tabControl1.SelectedTab = tabPage_chat;
+                textBox_chatMessages.SelectionStart = textBox_chatMessages.Text.Length;
+                textBox_chatMessages.ScrollToCaret();
+            }
 
-                if ((DateTime.Now - app_start_time).TotalSeconds >= 5)
-                    if (checkBox_checkForUpdates.Checked && ((DateTime.Now - last_update_check).TotalHours >= 12) )
-                        checkForProgramUpdates();
+            if ((DateTime.Now - app_start_time).TotalSeconds >= 5)
+                if (checkBox_checkForUpdates.Checked && ((DateTime.Now - last_update_check).TotalHours >= 12))
+                    checkForProgramUpdates();
 #if !DEBUG
             }
             catch (Exception ex)
@@ -902,6 +883,7 @@ namespace XBSlink
             }
 #endif
         }
+
 
         private void checkBox_useStunServer_CheckedChanged(object sender, EventArgs e)
         {
@@ -1142,7 +1124,7 @@ namespace XBSlink
 
         private void checkIncomingPortWithCloudServer()
         {
-            addMessage(" contacting cloud server...");
+            xbs_messages.addInfoMessage(" contacting cloud server...");
             if (xbs_cloudlist.askCloudServerForHello(textBox_cloudlist.Text, node_list.local_node.ip_public, node_list.local_node.port_public))
             {
                 lock (udp_listener._locker_HELLO)
@@ -1153,7 +1135,7 @@ namespace XBSlink
 
                 if (xbs_natstun.isPortReachable == false)
                 {
-                    addMessage("!! cloudlist server HELLO timeout. incoming Port is CLOSED");
+                    xbs_messages.addInfoMessage("!! cloudlist server HELLO timeout. incoming Port is CLOSED");
                     MessageBox.Show(
                         "Your XBSlink is not reachable from the internet (port closed)." + Environment.NewLine +
                         "Please configure your router and firewall to forward a port to your computer or use UPnP where available." + Environment.NewLine + Environment.NewLine + 
@@ -1164,7 +1146,7 @@ namespace XBSlink
                     );
                 }
                 else
-                    addMessage("incoming Port is OPEN");
+                    xbs_messages.addInfoMessage("incoming Port is OPEN");
             }
         }
 
@@ -1187,7 +1169,7 @@ namespace XBSlink
             catch (WebException wex)
             {
                 // handle error
-                addMessage("!! could not get online update version information: " + wex.Message);
+                xbs_messages.addInfoMessage("!! could not get online update version information: " + wex.Message);
                 return;
             }
 
@@ -1201,9 +1183,9 @@ namespace XBSlink
                         System.Diagnostics.Process.Start(Resources.url_xbslink_website);
                 }
                 else if (new_version_found < 0)
-                    addMessage("Latest XBSlink version found: v" + result);
+                    xbs_messages.addInfoMessage("Latest XBSlink version found: v" + result);
                 else
-                    addMessage("You are using the latest XBSlink version.");
+                    xbs_messages.addInfoMessage("You are using the latest XBSlink version.");
             }
         }
 

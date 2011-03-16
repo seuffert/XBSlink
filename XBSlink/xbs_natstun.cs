@@ -66,7 +66,7 @@ namespace XBSlink
         {
             if (!isUPnPavailable())
             {
-                FormMain.addMessage(" @ UPnP device discovery started");
+                xbs_messages.addInfoMessage(" @ UPnP device discovery started");
                 NatUtility.StartDiscovery();
             }
         }
@@ -91,10 +91,10 @@ namespace XBSlink
                     this.device = dev;
                     this.public_ip = pub_ip;
                 }
-                FormMain.addMessage(" @ UPnP device found. external IP: " + pub_ip);
+                xbs_messages.addInfoMessage(" @ UPnP device found. external IP: " + pub_ip);
             }
             else
-                FormMain.addMessage(" @ UPnP discovery failed. Could not get public IP");
+                xbs_messages.addInfoMessage(" @ UPnP discovery failed. Could not get public IP");
         }
 
         public bool upnp_create_mapping(Protocol prot, int internalPort, int externalPort)
@@ -108,12 +108,12 @@ namespace XBSlink
                 }
                 catch (MappingException)
                 {
-                    FormMain.addMessage(" @ UPnP error: could not forward port");
+                    xbs_messages.addInfoMessage(" @ UPnP error: could not forward port");
                     return false;
                 }
                 lock (this)
                     my_PortMappings.Add(port_mapping);
-                FormMain.addMessage(" @ UPnP port mapped from " + public_ip+":"+port_mapping.PublicPort);
+                xbs_messages.addInfoMessage(" @ UPnP port mapped from " + public_ip+":"+port_mapping.PublicPort);
                 return true;
             }
             return false;
@@ -142,7 +142,7 @@ namespace XBSlink
 
         private void upnp_unhandled_exception(object sender, UnhandledExceptionEventArgs args)
         {
-            FormMain.addMessage(" @ UPnP error: " + args.ExceptionObject.ToString());
+            xbs_messages.addInfoMessage(" @ UPnP error: " + args.ExceptionObject.ToString());
         }
 
         public IPAddress upnp_getPublicIP()
@@ -164,7 +164,7 @@ namespace XBSlink
         {
             this.stun_server_hostname = hostname;
             this.stun_server_port = port;
-            FormMain.addMessage(" @ STUN server discovery at " + stun_server_hostname +":"+stun_server_port);
+            xbs_messages.addInfoMessage(" @ STUN server discovery at " + stun_server_hostname +":"+stun_server_port);
             discoverStunType_thread = new Thread(new ThreadStart(stun_asyncDiscoverStunType));
             discoverStunType_thread.IsBackground = true;
             discoverStunType_thread.Start();
@@ -181,7 +181,7 @@ namespace XBSlink
             }
             catch (Exception ex)
             {
-                FormMain.addMessage(" @ STUN server error: " + ex.Message);
+                xbs_messages.addInfoMessage(" @ STUN server error: " + ex.Message);
             }
 
             lock (this)
@@ -192,7 +192,7 @@ namespace XBSlink
             if (result != null)
             {
                 String public_ip = result.PublicEndPoint != null ? result.PublicEndPoint.Address.ToString() : "(N/A)";
-                FormMain.addMessage(" @ STUN result: " + result.NetType.ToString() + " on " + public_ip);
+                xbs_messages.addInfoMessage(" @ STUN result: " + result.NetType.ToString() + " on " + public_ip);
             }
         }
 
@@ -230,12 +230,12 @@ namespace XBSlink
             }
             catch (WebException)
             {
-                FormMain.addMessage("!! Could not resolve external IP Address.");
+                xbs_messages.addInfoMessage("!! Could not resolve external IP Address.");
                 return null;
             }
             bool ret = IPAddress.TryParse(external_ip_str.Trim(), out external_ip);
             if ( ret )
-                FormMain.addMessage(" @ discovered external public IP " + external_ip);
+                xbs_messages.addInfoMessage(" @ discovered external public IP " + external_ip);
             return ( ret ? external_ip : null);
         }
 

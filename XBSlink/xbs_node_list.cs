@@ -87,7 +87,7 @@ namespace XBSlink
                         return;
                 node_list.Add(node);
             }
-            FormMain.addMessage(" + Added new node: " + node);
+            xbs_messages.addInfoMessage(" + Added new node: " + node);
             node.sendGetClientVersion();
             node.sendPing();
             node.sendGetNickname();
@@ -122,7 +122,7 @@ namespace XBSlink
                 foreach (xbs_node n in node_list)
                     if (n.Equals(node))
                     {
-                        FormMain.addMessage(" + removed node " + n);
+                        xbs_messages.addInfoMessage(" + removed node " + n);
                         deleted_node = n;
                         node_list.Remove(n);
                         if (notify_on_new_node)
@@ -184,7 +184,7 @@ namespace XBSlink
         public void sendNodeListToNode(xbs_node new_node)
         {
 #if DEBUG
-            FormMain.addMessage(" + sending Nodelist to " + new_node);
+            xbs_messages.addInfoMessage(" + sending Nodelist to " + new_node);
 #endif
             lock (this)
             {
@@ -196,7 +196,7 @@ namespace XBSlink
 
         public void informNodesOnAddNode(xbs_node new_node)
         {
-            FormMain.addMessage(" + informing all nodes of new node " + new_node);
+            xbs_messages.addInfoMessage(" + informing all nodes of new node " + new_node);
             lock (this)
             {
                 foreach (xbs_node node in node_list)
@@ -207,7 +207,7 @@ namespace XBSlink
 
         public void informNodesOnDelNode(xbs_node node)
         {
-            FormMain.addMessage(" + informing all nodes of removed node " + node);
+            xbs_messages.addInfoMessage(" + informing all nodes of removed node " + node);
             lock (this)
             {
                 foreach (xbs_node n in node_list)
@@ -249,7 +249,7 @@ namespace XBSlink
                 }
                 foreach (xbs_node n in del_list)
                 {
-                    FormMain.addMessage(" + removing node "+n+" (ping timeout)");
+                    xbs_messages.addInfoMessage(" + removing node "+n+" (ping timeout)");
                     n.sendDelNodeMessage(local_node);
                     node_list.Remove(n);
                     listHasJustChanged();
@@ -278,7 +278,7 @@ namespace XBSlink
 
         private void ping_nodes_thread()
         {
-            FormMain.addMessage(" + starting node survey service");
+            xbs_messages.addInfoMessage(" + starting node survey service");
 #if !DEBUG
             try
             {
@@ -316,7 +316,7 @@ namespace XBSlink
             if (findNodeInAddingList(new_node.ip_public, new_node.port_public) != null)
             {
 #if DEBUG
-                FormMain.addMessage(" + node already in addingList: "+new_node);
+                xbs_messages.addInfoMessage(" + node already in addingList: "+new_node);
 #endif
                 return;
             }
@@ -328,7 +328,7 @@ namespace XBSlink
         private void purgeAddedNodeFromAddingList(xbs_node new_node)
         {
 #if DEBUG
-            FormMain.addMessage("+ trying to purged node from node_list_adding : " + new_node);
+            xbs_messages.addInfoMessage("+ trying to purged node from node_list_adding : " + new_node);
 #endif
             lock (node_list_adding)
             {
@@ -337,7 +337,7 @@ namespace XBSlink
                     {
                         node_list_adding.RemoveAt(i);
 #if DEBUG
-                        FormMain.addMessage("+ purged node from node_list_adding : "+new_node);
+                        xbs_messages.addInfoMessage("+ purged node from node_list_adding : "+new_node);
 #endif
                         break;
                     }
@@ -380,7 +380,7 @@ namespace XBSlink
                 cloud_helper = node_list.Count == 0 ? null : node_list[0];
             if (cloud_helper == null)
                 return;
-            FormMain.addMessage("+ asking cloud_helper ("+cloud_helper+") for help to add node "+node);
+            xbs_messages.addInfoMessage("+ asking cloud_helper ("+cloud_helper+") for help to add node "+node);
             cloud_helper.sendToCloudHelper_HelpWithNode(node);
         }
 
