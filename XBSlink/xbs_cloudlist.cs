@@ -63,6 +63,22 @@ namespace XBSlink
         public const String GETALLNODES = "getallnodes";
     }
 
+    class xbs_cloud
+    {
+        public String name;
+        public int node_count;
+        public int max_nodes;
+        public bool isPrivate = false;
+
+        public xbs_cloud(String name, int node_count, int max_nodes, bool isPrivate)
+        {
+            this.name = name;
+            this.node_count = node_count;
+            this.max_nodes = max_nodes;
+            this.isPrivate = isPrivate;
+        }
+    }
+
     class xbs_cloudlist
     {
         public const String DEFAULT_CLOUDLIST_SERVER = "http://www.secudb.de/~seuffert/xbslink/cloudlist";
@@ -74,13 +90,12 @@ namespace XBSlink
         public String uuid = null;
         public String cloudlist_url = null;
 
-        private ListView cloudlist_view = null;
-
         private Thread update_thread = null;
 
-        public xbs_cloudlist(ListView clv)
+        private List<xbs_cloud> cloudlist = new List<xbs_cloud>();
+
+        public xbs_cloudlist()
         {
-            cloudlist_view = clv;
         }
 
         public bool loadCloudlistFromURL(String url)
@@ -102,14 +117,6 @@ namespace XBSlink
             return parse_cloudlist(result);
         }
 
-        private void initCloudListView()
-        {
-            cloudlist_view.Items.Clear();
-            ImageList il = new ImageList();
-            il.Images.Add(Properties.Resources.icon_key);
-            cloudlist_view.SmallImageList = il;
-        }
-
         private bool parse_cloudlist(String str)
         {
             String[] ret_array = str.Split(new char[]{'\n'}, StringSplitOptions.RemoveEmptyEntries);
@@ -123,16 +130,19 @@ namespace XBSlink
                 FormMain.addMessage(" x unknown response from cloudlist server ");
                 return false;
             }
-            initCloudListView();
-            for (int i = 1; i < ret_array.Length; i++)
+            lock (cloudlist)
             {
-                try
+                cloudlist.Clear();
+                for (int i = 1; i < ret_array.Length; i++)
                 {
-                    parseAndAddCloudFromURLString(ret_array[i]);
-                }
-                catch (Exception ex)
-                {
-                    FormMain.addMessage(" x error adding cloud to cloudlist: "+ex.ToString());
+                    try
+                    {
+                        parseAndAddCloudFromURLString(ret_array[i]);
+                    }
+                    catch (Exception ex)
+                    {
+                        FormMain.addMessage(" x error adding cloud to cloudlist: " + ex.ToString());
+                    }
                 }
             }
             return true;
@@ -144,12 +154,13 @@ namespace XBSlink
             List<String> keys = new List<String>(query.AllKeys);
             if (keys.Contains(xbs_cloudlist_getparameters.CLOUDNAME) && keys.Contains(xbs_cloudlist_getparameters.MAXNODES) & keys.Contains(xbs_cloudlist_getparameters.PASSWORD) & keys.Contains(xbs_cloudlist_getparameters.COUNTNODES))
             {
-                ListViewItem lv_item = new ListViewItem(query[xbs_cloudlist_getparameters.CLOUDNAME]);
-                lv_item.SubItems.Add(query[xbs_cloudlist_getparameters.COUNTNODES]);
-                lv_item.SubItems.Add(query[xbs_cloudlist_getparameters.MAXNODES]);
-                if (query[xbs_cloudlist_getparameters.PASSWORD].ToUpper() == "TRUE")
-                    lv_item.ImageIndex = 0;
-                cloudlist_view.Items.Add(lv_item);
+                String cloudname = query[xbs_cloudlist_getparameters.CLOUDNAME];
+                int node_count;
+                int.TryParse(query[xbs_cloudlist_getparameters.COUNTNODES], out node_count);
+                int max_nodes;
+                int.TryParse(query[xbs_cloudlist_getparameters.MAXNODES], out max_nodes);
+                bool isPrivate = query[xbs_cloudlist_getparameters.PASSWORD].ToUpper() == "TRUE";
+                cloudlist.Add( new xbs_cloud(cloudname, node_count, max_nodes, isPrivate) );
             }
         }
 
@@ -350,6 +361,22 @@ namespace XBSlink
                 return false;
             }
             return (result.StartsWith(xbs_cloudlist_returncode.RETURN_CODE_OK));
+        }
+
+        public xbs_cloud[] getCloudlistArray()
+        {
+            xbs_cloud[] clouds;
+            lock (cloudlist)
+                clouds = cloudlist.ToArray();
+            return clouds;
+        }
+
+        public int cloud_count()
+        {
+            int count;
+            lock (cloudlist)
+                count = cloudlist.Count;
+            return count;
         }
     }
 }

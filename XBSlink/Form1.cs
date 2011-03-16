@@ -113,7 +113,6 @@ namespace XBSlink
             for (int i = 1; i < listView_clouds.Columns.Count; i++)
                 width -= listView_clouds.Columns[i].Width;
             listView_clouds.Columns[0].Width = width-listView_clouds.Columns.Count-1;
-            cloudlist = new xbs_cloudlist(this.listView_clouds);
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -122,6 +121,7 @@ namespace XBSlink
             WebRequest.DefaultWebProxy = null;
 
             node_list = new xbs_node_list();
+            cloudlist = new xbs_cloudlist();
             updatecheck_webclient = new WebClient();
             natstun = new xbs_natstun();
 
@@ -1030,12 +1030,34 @@ namespace XBSlink
             bool ret = cloudlist.loadCloudlistFromURL( textBox_cloudlist.Text );
             if (ret)
             {
-                xbs_settings.setRegistryValue(xbs_settings.REG_CLOUDLIST_SERVER, textBox_cloudlist.Text);
-                if (listView_clouds.Items.Count>0)
-                    toolTip2.Show(listView_clouds.Items.Count + " clouds loaded.", buttonLoadCloudlist, 0, -20, 2000);
+                xbs_cloud[] clouds = cloudlist.getCloudlistArray();
+                if (clouds.Length > 0)
+                {
+                    initCloudListView();
+                    foreach (xbs_cloud cloud in clouds)
+                    {
+                        ListViewItem lv_item = new ListViewItem(cloud.name);
+                        lv_item.SubItems.Add(cloud.node_count.ToString());
+                        lv_item.SubItems.Add(cloud.max_nodes.ToString());
+                        if (cloud.isPrivate)
+                            lv_item.ImageIndex = 0;
+                        listView_clouds.Items.Add(lv_item);
+                    }
+                    toolTip2.Show(clouds.Length + " clouds loaded.", buttonLoadCloudlist, 0, -20, 2000);
+                }
                 else
                     toolTip2.Show("no clouds available on server.", buttonLoadCloudlist, 0, -20, 2000);
+
+                xbs_settings.setRegistryValue(xbs_settings.REG_CLOUDLIST_SERVER, textBox_cloudlist.Text);
             }
+        }
+
+        private void initCloudListView()
+        {
+            listView_clouds.Items.Clear();
+            ImageList il = new ImageList();
+            il.Images.Add(Properties.Resources.icon_key);
+            listView_clouds.SmallImageList = il;
         }
 
         private void button_CloudJoin_Click(object sender, EventArgs e)

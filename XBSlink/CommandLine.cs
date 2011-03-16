@@ -21,6 +21,7 @@ namespace XBSlink
         public static xbs_sniffer sniffer = null;
         public static xbs_node_list node_list = null;
         private xbs_natstun natstun = null;
+        private xbs_cloudlist cloudlist = null;
 
         [System.Runtime.InteropServices.DllImport("kernel32.dll")]
         private static extern bool AllocConsole(); 
@@ -31,9 +32,11 @@ namespace XBSlink
                 AllocConsole(); 
             
             xbs_settings = settings;
+            cloudlist = new xbs_cloudlist();
 
             bool cmd_help = false;
             bool cmd_list_devices = false;
+            bool cmd_list_clouds = false;
             String option_nickname = null;
             String option_cloudserver = null;
             String option_cloudname = null;
@@ -43,10 +46,11 @@ namespace XBSlink
             IPAddress option_local_ip = null;
             String option_capture_device = null;
             OptionSet command_line_option_set = new OptionSet() {
-                { "h|help", "show this help message", v => cmd_help = v!=null },
+                { "?|h|help", "show this help message", v => cmd_help = v!=null },
                 { "l|list-devices", "list all available network packet capture devices", v => cmd_list_devices = v != null },
                 { "n|nickname=", "set the nickname", v => option_nickname=v },
                 { "s|cloudserver=", "set cloudserver URL", v => option_cloudserver=v },
+                { "j|list-clouds", "list available clouds on cloudserver", v => cmd_list_clouds = v!=null },
                 { "c|cloudname=", "connect to this cloud", v => option_cloudname=v },
                 { "u|upnp", "use UPnP to forward incoming port", v => option_upnp = v!=null },
                 { "a|advanced-broadcast", "enable advanced forwarding of broadcasts", v => option_advanced_broadcast = v!=null },
@@ -68,7 +72,7 @@ namespace XBSlink
                 command_line_parser_error(command_line_option_set, e);
                 return;
             }
-            if (!cmd_help && !cmd_list_devices && option_capture_device == null)
+            if (!cmd_help && !cmd_list_devices && !cmd_list_clouds && option_capture_device == null)
             {
                 command_line_parser_error(command_line_option_set, new OptionException("you need to specify a capture device", "capture-device"));
                 return;
@@ -79,6 +83,11 @@ namespace XBSlink
                 ShowHelp(command_line_option_set);
             else if (cmd_list_devices)
                 list_Devices(args);
+            else if (cmd_list_clouds)
+                show_cloudlist();
+            else
+            {
+            }
 
             Console.ReadLine();
         }
@@ -117,5 +126,17 @@ namespace XBSlink
             command_line_option_set.WriteOptionDescriptions(Console.Out);
         }
 
+        private void show_cloudlist()
+        {
+            bool ret = cloudlist.loadCloudlistFromURL( xbs_cloudlist.DEFAULT_CLOUDLIST_SERVER );
+            xbs_cloud[] clouds = cloudlist.getCloudlistArray();
+            int count=0;
+            Console.WriteLine("Available clouds on cloudlist server:");
+            foreach (xbs_cloud cloud in clouds)
+            {
+                count++;
+                Console.WriteLine(" " + count + ") " + cloud.name + " (" + cloud.node_count + "/" + cloud.max_nodes + ") " + (cloud.isPrivate ? " (password)" : ""));
+            }
+        }
     }
 }
