@@ -44,6 +44,7 @@ namespace XBSlink
 
             default_color_text = Console.ForegroundColor;
             default_color_background = Console.BackgroundColor;
+            xbs_chat.notify_on_incoming_message = false;
 
             if (!loadCaptureDeviceList())
             {
