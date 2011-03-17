@@ -32,7 +32,6 @@ namespace XBSlink
     public partial class DebugWindow : Form
     {
         private static DebugWindow form = null;
-        public Queue<String> messages = new Queue<String>();
 
         public DebugWindow()
         {
@@ -51,40 +50,19 @@ namespace XBSlink
             listBox_messages.TopIndex = listBox_messages.Items.Count - (listBox_messages.Height / listBox_messages.ItemHeight);
         }
 
-        public static void addMessage(String str)
-        {
-            if (form == null)
-                return;
-            DateTime dt = DateTime.Now;
-            str =  String.Format("{0:00}", dt.Hour)+":"+String.Format("{0:00}", dt.Minute)+":"+String.Format("{0:00}", dt.Second) + "." + String.Format("{0:000}", dt.Millisecond) + " : " + str;
-            lock (DebugWindow.form)
-            {
-                if (DebugWindow.form != null)
-                {
-                    lock (DebugWindow.form.messages)
-                        DebugWindow.form.messages.Enqueue(str);
-                }
-            }       
-
-        }
-
         private void button_clear_Click(object sender, EventArgs e)
         {
             lock (DebugWindow.form)
-                lock (DebugWindow.form.messages)
-                    listBox_messages.Items.Clear();
+                listBox_messages.Items.Clear();
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
             String msg;
-            lock (messages)
+            while (xbs_messages.getDebugMessageCount() > 0)
             {
-                while (messages.Count > 0)
-                {
-                    msg = messages.Dequeue();
-                    add_text(msg);
-                }
+                msg = xbs_messages.DequeueDebugMessageString();
+                add_text(msg);
             }
         }
 

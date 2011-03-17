@@ -212,7 +212,7 @@ namespace XBSlink
             PhysicalAddress srcMAC = new PhysicalAddress(src_mac);
 
 #if DEBUG
-            DebugWindow.addMessage(" - new ethernet packet from "+srcMAC+" => "+dstMAC);
+            xbs_messages.addDebugMessage(" - new ethernet packet from "+srcMAC+" => "+dstMAC);
 #endif
 
             // if sniffed packet has MAC of packet we injected, discard

@@ -314,7 +314,7 @@ namespace XBSlink
             xbs_node new_node = null;
 # if DEBUG
             if (udp_msg.msg_type!=xbs_node_message_type.PING && udp_msg.msg_type!=xbs_node_message_type.PONG)
-                DebugWindow.addMessage(" * IN " + udp_msg.msg_type + " " + udp_msg.src_ip+":"+udp_msg.src_port);
+                xbs_messages.addDebugMessage(" * IN " + udp_msg.msg_type + " " + udp_msg.src_ip + ":" + udp_msg.src_port);
 # endif
             switch (udp_msg.msg_type)
             {
@@ -335,20 +335,20 @@ namespace XBSlink
                     {
                         new_node = new xbs_node(msg_knownnode.ip, msg_knownnode.port);
 #if DEBUG
-                        DebugWindow.addMessage(" * trying to add known node: "+new_node);
+                        xbs_messages.addDebugMessage(" * trying to add known node: " + new_node);
 #endif
                         node_list.tryAddingNode(new_node);
                     }
 #if DEBUG
                     else
-                        DebugWindow.addMessage(" * already in contact with node: " + new_node);
+                        xbs_messages.addDebugMessage(" * already in contact with node: " + new_node);
 #endif
                     break;
 
                 case xbs_node_message_type.ADDNODE:
                     xbs_node_message_addnode msg_addnode = new xbs_node_message_addnode(udp_msg.data);
 # if DEBUG
-                    DebugWindow.addMessage(" * received ADDNODE from " + udp_msg.src_ip + ":" + udp_msg.src_port + " for " + msg_addnode.ip + ":" + msg_addnode.port);
+                    xbs_messages.addDebugMessage(" * received ADDNODE from " + udp_msg.src_ip + ":" + udp_msg.src_port + " for " + msg_addnode.ip + ":" + msg_addnode.port);
 # endif
                     new_node = node_list.findNode(udp_msg.src_ip, udp_msg.src_port);
                     if (new_node == null)
@@ -361,7 +361,7 @@ namespace XBSlink
                 case xbs_node_message_type.DELNODE:
                     xbs_node_message_delnode msg_delnode = new xbs_node_message_delnode(udp_msg.data);
 # if DEBUG  
-                    DebugWindow.addMessage(" * received DELNODE from " + udp_msg.src_ip + ":" + udp_msg.src_port + " for " + msg_delnode.ip + ":" + msg_delnode.port);
+                    xbs_messages.addDebugMessage(" * received DELNODE from " + udp_msg.src_ip + ":" + udp_msg.src_port + " for " + msg_delnode.ip + ":" + msg_delnode.port);
 # endif
                     try
                     {
@@ -462,7 +462,7 @@ namespace XBSlink
             Buffer.BlockCopy(udp_msg.data, 6, src_mac, 0, 6);
             PhysicalAddress srcMAC = new PhysicalAddress(src_mac);
 #if DEBUG
-            DebugWindow.addMessage(" * DATA (" + udp_msg.data.Length + ") from " + srcMAC + " => " + dstMAC);
+            xbs_messages.addDebugMessage(" * DATA (" + udp_msg.data.Length + ") from " + srcMAC + " => " + dstMAC);
 #endif
             FormMain.sniffer.injectRemotePacket(ref udp_msg.data, dstMAC, srcMAC);
             xbs_node node = node_list.findNode(udp_msg.src_ip, (UInt16)udp_msg.src_port);
@@ -520,7 +520,7 @@ namespace XBSlink
 
 # if DEBUG
                 if (msg.type != xbs_node_message_type.PING && msg.type != xbs_node_message_type.PONG)
-                    DebugWindow.addMessage(" * OUT MSG " + msg.type + " " +msg.receiver);
+                    xbs_messages.addDebugMessage(" * OUT MSG " + msg.type + " " + msg.receiver);
 # endif
                 xbs_udp_listener_statistics.increasePacketsOut();
                 byte[] bytes = msg.getByteArray();
