@@ -11,6 +11,7 @@
     <VerifyUploadedFiles>false</VerifyUploadedFiles>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <StartArguments>-u -i rpcap://\Device\NPF_{53B1B101-DE5E-4589-B3CC-E9D0AFD6DD6B} -o 192.168.11.100 -n="XBSlink test"</StartArguments>
+    <StartArguments>
+    </StartArguments>
   </PropertyGroup>
 </Project>
