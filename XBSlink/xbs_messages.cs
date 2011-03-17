@@ -45,7 +45,9 @@ namespace XBSlink
         }
         public static void addDebugMessage(String msg)
         {
+#if DEBUG
             addMessage(msg, debug_messages);
+#endif
         }
 
         private static int getMessageCount(Queue<xbs_message> queue)

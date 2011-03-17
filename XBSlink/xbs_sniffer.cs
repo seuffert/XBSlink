@@ -65,7 +65,7 @@ namespace XBSlink
         private List<PhysicalAddress> pdev_filter_special_macs = new List<PhysicalAddress>();
 
         private Thread dispatcher_thread = null;
-        private bool exiting = false;
+        private volatile bool exiting = false;
 
         public static Queue<RawPacket> packets = new Queue<RawPacket>();
 

@@ -42,7 +42,7 @@ namespace XBSlink
         public const int MIN_PING_DELAY_SECONDS = 20;
         public const int MAX_PING_NO_RESPONSE_SECONDS = 30;
         public const int MAX_ADD_NODE_TIMEOUT_SECONDS = 2;
-        private bool run_ping_nodes_loop = true;
+        private volatile bool run_ping_nodes_loop = true;
 
         public bool notify_on_new_node = true;
         public const String NOTIFICATION_SOUND_NODE_JOINED = "sounds/new_node.wav";

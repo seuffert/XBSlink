@@ -87,7 +87,7 @@ namespace XBSlink
         private Thread receive_thread = null;
         private readonly Object _locker = new Object();
         private readonly Object _locker_out = new Object();
-        private bool exiting = false;
+        private volatile bool exiting = false;
 
         private Queue<xbs_node_message> out_msgs = new Queue<xbs_node_message>();
         private Queue<xbs_node_message> out_msgs_high_prio = new Queue<xbs_node_message>();
@@ -131,12 +131,7 @@ namespace XBSlink
             }
             catch (SocketException)
             {
-                xbs_messages.addInfoMessage("!! Socket Exception: could not bind to port "+udp_socket_port);
-                xbs_messages.addInfoMessage("!! the UDP socket is not ready to send or receive packets.");
-                xbs_messages.addInfoMessage("!! please check if another application is running on this port.");
-                System.Windows.Forms.MessageBox.Show("an error occured while initializing the UDP socket.\r\nPlease see the messages tab.");
-                FormMain.abort_start_engine = true;
-                return false;
+                throw new Exception("an error occured while initializing the UDP socket.\r\nPlease see the messages tab.");
             }
             udp_socket.ReceiveTimeout = 1000;
             receive_thread = new Thread( new ThreadStart(udp_receiver) );

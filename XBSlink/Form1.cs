@@ -349,8 +349,19 @@ namespace XBSlink
                 Close();
                 return;
             }
-            
-            udp_listener = new xbs_udp_listener(internal_ip, UInt16.Parse(textBox_local_Port.Text));
+
+            try
+            {
+                udp_listener = new xbs_udp_listener(internal_ip, UInt16.Parse(textBox_local_Port.Text));
+            }
+            catch (Exception e)
+            {
+                xbs_messages.addInfoMessage("!! Socket Exception: could not bind to port " + textBox_local_Port.Text);
+                xbs_messages.addInfoMessage("!! the UDP socket is not ready to send or receive packets.");
+                xbs_messages.addInfoMessage("!! please check if another application is running on this port.");
+                System.Windows.Forms.MessageBox.Show(e.Message);
+                abort_start_engine = true;
+            }
             if (abort_start_engine || ExceptionMessage.ABORTING)
             {
                 udp_listener = null;
@@ -883,7 +894,6 @@ namespace XBSlink
             }
 #endif
         }
-
 
         private void checkBox_useStunServer_CheckedChanged(object sender, EventArgs e)
         {
