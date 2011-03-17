@@ -304,13 +304,13 @@ namespace XBSlink
 
         private void list_Devices(String[] args)
         {
-			Console.WriteLine("List of available devices:");
+			WriteLine("List of available devices:");
             if (System.Environment.OSVersion.Platform == PlatformID.Win32NT)
                 foreach (LibPcapLiveDevice dev in capture_devices_win)
-                    Console.WriteLine("  " + dev.Name + " (" + dev.Description + ")");
+                    WriteLine("  " + dev.Name + " (" + dev.Description + ")");
             else
                 foreach (LibPcapLiveDevice dev in capture_devices)
-                    Console.WriteLine("  " + dev.Name + " (" + dev.Description+ ")");
+                    WriteLine("  " + dev.Name + " (" + dev.Description+ ")");
         }
 
         private void output_version_info()
@@ -329,11 +329,11 @@ namespace XBSlink
             bool ret = cloudlist.loadCloudlistFromURL( xbs_cloudlist.DEFAULT_CLOUDLIST_SERVER );
             xbs_cloud[] clouds = cloudlist.getCloudlistArray();
             int count=0;
-            Console.WriteLine("Available clouds on cloudlist server:");
+            WriteLine("Available clouds on cloudlist server:");
             foreach (xbs_cloud cloud in clouds)
             {
                 count++;
-                Console.WriteLine(" " + count + ") " + cloud.name + " (" + cloud.node_count + "/" + cloud.max_nodes + ") " + (cloud.isPrivate ? " (password)" : ""));
+                WriteLine(" " + count + ") " + cloud.name + " (" + cloud.node_count + "/" + cloud.max_nodes + ") " + (cloud.isPrivate ? " (password)" : ""));
             }
         }
 
@@ -378,7 +378,7 @@ namespace XBSlink
                     WriteLine("I: " + str);
             }
             while (xbs_messages.getChatMessageCount() > 0)
-                WriteChat("C: " + xbs_messages.DequeueChatMessageString());
+                WriteChat("C: " + xbs_messages.DequeueChatMessageString().TrimEnd());
 #if DEBUG
             while (xbs_messages.getDebugMessageCount() > 0)
                 WriteDebug("D: " + xbs_messages.DequeueDebugMessageString());
