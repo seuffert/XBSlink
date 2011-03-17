@@ -31,6 +31,9 @@ namespace XBSlink
         WinPcapDeviceList capture_devices_win = null;
         IPAddress external_ip = null;
 
+        ConsoleColor default_color_text;
+        ConsoleColor default_color_background;
+
         [System.Runtime.InteropServices.DllImport("kernel32.dll")]
         private static extern bool AllocConsole(); 
 
@@ -38,6 +41,9 @@ namespace XBSlink
         {
             if (System.Environment.OSVersion.Platform == PlatformID.Win32NT)
                 AllocConsole();
+
+            default_color_text = Console.ForegroundColor;
+            default_color_background = Console.BackgroundColor;
 
             if (!loadCaptureDeviceList())
             {
@@ -256,16 +262,35 @@ namespace XBSlink
 
         private void main_engine_loop()
         {
-            while (true)
+            ConsoleKeyInfo keyinfo;
+
+            while (!exiting)
             {
                 Thread.Sleep(300);
+                if (Console.KeyAvailable)
+                {
+                    keyinfo = Console.ReadKey(true);
+                    switch (keyinfo.Key)
+                    {
+                        case ConsoleKey.Q:
+                            exiting = true;
+                            break;
+                        case ConsoleKey.L:
+                            show_cloudlist();
+                            break;
+                        case ConsoleKey.U:
+                            showConnectedNodes();
+                            break;
+                    }
+                }
             }
+            close_app(0);
         }
 
         private void command_line_parser_error(OptionSet command_line_option_set, Exception e)
         {
-            Console.WriteLine("!! Error parsing command line:");
-            Console.WriteLine("!! " + e.Message + Environment.NewLine);
+            WriteLine("!! Error parsing command line:");
+            WriteLine("!! " + e.Message + Environment.NewLine);
             ShowHelp(command_line_option_set);
             Console.ReadLine();
         }
@@ -343,13 +368,20 @@ namespace XBSlink
 
         private void output_queued_messages()
         {
+            String str;
             while (xbs_messages.getInfoMessageCount() > 0)
-                Console.WriteLine("I: " + xbs_messages.DequeueInfoMessageString());
+            {
+                str = xbs_messages.DequeueInfoMessageString();
+                if (str.StartsWith("!!"))
+                    WriteError("I: " + str);
+                else
+                    WriteLine("I: " + str);
+            }
             while (xbs_messages.getChatMessageCount() > 0)
-                Console.WriteLine("C: " + xbs_messages.DequeueChatMessageString());
+                WriteChat("C: " + xbs_messages.DequeueChatMessageString());
 #if DEBUG
             while (xbs_messages.getDebugMessageCount() > 0)
-                Console.WriteLine("D: " + xbs_messages.DequeueDebugMessageString());
+                WriteDebug("D: " + xbs_messages.DequeueDebugMessageString());
 #endif
         }
 
@@ -412,6 +444,54 @@ namespace XBSlink
             return pdev;
         }
 
+        private void WriteError(String text)
+        {
+            WriteLine(text, ConsoleColor.Black, ConsoleColor.Red);
+        }
+        private void WriteChat(String text)
+        {
+            WriteLine(text, ConsoleColor.Green);
+        }
+        private void WriteDebug(String text)
+        {
+            WriteLine(text, ConsoleColor.DarkYellow);
+        }
 
+        private void WriteLine(String text)
+        {
+            WriteLine(text, default_color_text, default_color_background);
+        }
+
+        private void WriteLine(String text, ConsoleColor color_text)
+        {
+            WriteLine(text, color_text, default_color_background);
+        }
+
+        private void WriteLine(String text, ConsoleColor color_text, ConsoleColor color_background)
+        {
+            Console.ForegroundColor = color_text;
+            Console.BackgroundColor = color_background;
+            Console.WriteLine(text);
+        }
+
+        private void showConnectedNodes()
+        {
+            List<xbs_node> nodes = node_list.getXBSNodeListCopy();
+            Console.WriteLine("Connected nodes: "+nodes.Count);
+            int count = 0;
+            String str;
+            foreach (xbs_node node in nodes)
+            {
+                count++;
+                String ping = (node.last_ping_delay_ms >= 0) ? node.last_ping_delay_ms + "ms" : "N/A";
+                int port = (node.port_sendfrom == node.port_public) ? node.port_public : node.port_sendfrom;
+                str = " " + count + ") \"" + node.nickname.PadRight(12) + "\" " + node.ip_public.ToString().PadLeft(15) + "/" + port.ToString().PadRight(5) + " Ping:" + ping.PadLeft(6) + " v:" + node.client_version;
+                if (node.get_xbox_count() > 0)
+                    WriteLine(str, ConsoleColor.Yellow);
+                else
+                    WriteLine(str, ConsoleColor.White);
+            }
+
+        }
     }
 }
