@@ -352,7 +352,7 @@ namespace XBSlink
 
             try
             {
-                udp_listener = new xbs_udp_listener(internal_ip, UInt16.Parse(textBox_local_Port.Text));
+                udp_listener = new xbs_udp_listener(internal_ip, UInt16.Parse(textBox_local_Port.Text), node_list);
             }
             catch (Exception e)
             {

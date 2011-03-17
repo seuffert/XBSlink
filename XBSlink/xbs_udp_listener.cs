@@ -98,20 +98,19 @@ namespace XBSlink
 
         public readonly Object _locker_HELLO = new Object();
 
-        public xbs_udp_listener()
+        public xbs_udp_listener(xbs_node_list nl)
         {
-            initialize(IPAddress.Any, xbs_udp_listener.standard_port);
+            initialize(IPAddress.Any, xbs_udp_listener.standard_port, nl);
         }
 
-        public xbs_udp_listener( IPAddress ip_endpoint, int port )
+        public xbs_udp_listener( IPAddress ip_endpoint, int port, xbs_node_list nl)
         {
-            initialize(ip_endpoint, port);
+            initialize(ip_endpoint, port, nl);
         }
 
-        private bool initialize(IPAddress ip_endpoint, int port)
+        private bool initialize(IPAddress ip_endpoint, int port, xbs_node_list nl)
         {
-            node_list = FormMain.node_list;
-
+            this.node_list = nl;
             dispatcher_thread = new Thread(new ThreadStart(dispatcher));
             dispatcher_thread.IsBackground = true;
             dispatcher_thread.Priority = ThreadPriority.AboveNormal;

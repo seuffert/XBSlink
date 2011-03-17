@@ -182,7 +182,7 @@ namespace XBSlink
                 option_local_port = xbs_udp_listener.standard_port;
             try
             {
-                udp_listener = new xbs_udp_listener(option_local_ip, option_local_port);
+                udp_listener = new xbs_udp_listener(option_local_ip, option_local_port, node_list);
             }
             catch (Exception e)
             {
@@ -239,7 +239,7 @@ namespace XBSlink
         private void initialize()
         {
             node_list = new xbs_node_list();
-            udp_listener = new xbs_udp_listener();
+            udp_listener = new xbs_udp_listener(node_list);
             natstun = new xbs_natstun();
         }
 
