@@ -285,7 +285,8 @@ namespace XBSlink
 #endif
                 while (run_ping_nodes_loop)
                 {
-                    pingAllnodes();
+                    if(xbs_udp_listener.getInstance()!=null)
+                        pingAllnodes();
                     checkNodesInAddingList();
                     if (run_ping_nodes_loop)
                         Thread.Sleep(1000);

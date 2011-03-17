@@ -62,6 +62,9 @@ namespace XBSlink
 
         private void close_app( int exit_code )
         {
+            if (cloudlist != null)
+                if (cloudlist.part_of_cloud)
+                    cloudlist.LeaveCloud();
             if (sniffer != null)
             {
                 sniffer.close();
@@ -95,6 +98,8 @@ namespace XBSlink
         private void parse_command_line(String[] args)
         {
             Console.CancelKeyPress += delegate { handleCancelKeyPress(); };
+            // globally turn off Proxy auto detection
+            WebRequest.DefaultWebProxy = null;
 
             bool cmd_help = false;
             bool cmd_list_devices = false;
@@ -102,6 +107,8 @@ namespace XBSlink
             String option_nickname = null;
             String option_cloudserver = null;
             String option_cloudname = null;
+            String option_password = null;
+            int option_maxnodes = 10;
             bool option_upnp = false;
             bool option_advanced_broadcast = false;
             int option_local_port = 0;
@@ -114,6 +121,8 @@ namespace XBSlink
                 { "s|cloudserver=", "set cloudserver URL", v => option_cloudserver=v },
                 { "j|list-clouds", "list available clouds on cloudserver", v => cmd_list_clouds = v!=null },
                 { "c|cloudname=", "connect to this cloud", v => option_cloudname=v },
+                { "m|max-nodes=", "maximum clients in cloud. default is 10", (UInt16 v) => option_maxnodes=v },
+                { "w|password=", "set password for cloud", v => option_password=v },
                 { "u|upnp", "use UPnP to forward incoming port", v => option_upnp = v!=null },
                 { "a|advanced-broadcast", "enable advanced forwarding of broadcasts", v => option_advanced_broadcast = v!=null },
                 { "p|port=", "set the incoming port number. default is 31415", (UInt16 v) => option_local_port = v },
@@ -163,10 +172,10 @@ namespace XBSlink
             else if (cmd_list_clouds)
                 show_cloudlist();
             else
-                start_engine(option_upnp, option_capture_device, option_local_port, option_local_ip, option_nickname, option_advanced_broadcast);
+                start_engine(option_upnp, option_capture_device, option_local_port, option_local_ip, option_nickname, option_advanced_broadcast, option_cloudname, option_cloudserver, option_maxnodes, option_password);
         }
 
-        private void start_engine(bool option_upnp, String option_capture_device, int option_local_port, IPAddress option_local_ip, String option_nickname, bool option_advanced_broadcast)
+        private void start_engine(bool option_upnp, String option_capture_device, int option_local_port, IPAddress option_local_ip, String option_nickname, bool option_advanced_broadcast, String option_cloudname, String option_cloudserver, int option_maxnodes, String option_password)
         {
             if (option_upnp)
                 discover_upnp();
@@ -211,11 +220,36 @@ namespace XBSlink
                 node_list.local_node.nickname = option_nickname;
 
             sniffer = new xbs_sniffer(pdev, option_advanced_broadcast, false, false, node_list);
-            //setSnifferMacList();
             sniffer.start_capture();
 
             if (ExceptionMessage.ABORTING)
                 close_app(-10);
+
+            if (option_cloudserver == null)
+                option_cloudserver = xbs_cloudlist.DEFAULT_CLOUDLIST_SERVER;
+
+            if (option_cloudname != null)
+            {
+                if (option_password == null)
+                    option_password = "";
+                if (option_cloudname.Length >= xbs_cloudlist.MIN_CLOUDNAME_LENGTH)
+                {
+                    try
+                    {
+                        cloudlist.JoinOrCreateCloud(option_cloudserver, option_cloudname, option_maxnodes.ToString(), option_password, node_list.local_node.ip_public, node_list.local_node.port_public, node_list.local_node.nickname, xbs_natstun.isPortReachable);
+                    }
+                    catch (Exception e)
+                    {
+                        xbs_messages.addInfoMessage("!! ERROR connection to cloud " + option_cloudname);
+                        xbs_messages.addInfoMessage(e.Message);
+                    }
+                }
+                else
+                {
+                    xbs_messages.addInfoMessage("!! ERROR - cloudname is too short. " + xbs_cloudlist.MIN_CLOUDNAME_LENGTH+" chars minimum");
+                    close_app(-12);
+                }
+            }
 
             main_engine_loop();
         }
@@ -312,7 +346,7 @@ namespace XBSlink
             while (xbs_messages.getInfoMessageCount() > 0)
                 Console.WriteLine("I: " + xbs_messages.DequeueInfoMessageString());
             while (xbs_messages.getChatMessageCount() > 0)
-                Console.WriteLine("C: " + xbs_messages.DequeueChatMessage());
+                Console.WriteLine("C: " + xbs_messages.DequeueChatMessageString());
 #if DEBUG
             while (xbs_messages.getDebugMessageCount() > 0)
                 Console.WriteLine("D: " + xbs_messages.DequeueDebugMessageString());
