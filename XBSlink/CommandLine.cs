@@ -194,6 +194,7 @@ namespace XBSlink
             }
 
             node_list = new xbs_node_list();
+            node_list.notify_on_new_node = false;
             if (option_local_port == 0)
                 option_local_port = xbs_udp_listener.standard_port;
             try
