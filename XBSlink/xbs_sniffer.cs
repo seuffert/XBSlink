@@ -375,5 +375,10 @@ namespace XBSlink
                 pdev_filter_special_macs = mac_list;
             setPdevFilter();
         }
+
+        public static xbs_sniffer getInstance()
+        {
+            return (FormMain.sniffer != null) ? FormMain.sniffer : xbs_console_app.sniffer;
+        }
     }
 }

@@ -458,7 +458,7 @@ namespace XBSlink
 #if DEBUG
             xbs_messages.addDebugMessage(" * DATA (" + udp_msg.data.Length + ") from " + srcMAC + " => " + dstMAC);
 #endif
-            FormMain.sniffer.injectRemotePacket(ref udp_msg.data, dstMAC, srcMAC);
+            xbs_sniffer.getInstance().injectRemotePacket(ref udp_msg.data, dstMAC, srcMAC);
             xbs_node node = node_list.findNode(udp_msg.src_ip, (UInt16)udp_msg.src_port);
             if (node != null)
                 node.addXbox(srcMAC);
@@ -539,5 +539,11 @@ namespace XBSlink
                 }
             }
         }
+
+        public static xbs_udp_listener getInstance()
+        {
+            return (FormMain.udp_listener != null) ? FormMain.udp_listener : xbs_console_app.udp_listener;
+        }
+
     }
 }

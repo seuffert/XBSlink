@@ -407,5 +407,10 @@ namespace XBSlink
             }
             return lct;
         }
+
+        public static xbs_node_list getInstance()
+        {
+            return (FormMain.node_list!=null) ? FormMain.node_list : xbs_console_app.node_list;
+        }
     }
 }

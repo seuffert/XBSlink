@@ -134,14 +134,14 @@ namespace XBSlink
         public void sendDataMessage( ref byte[] data)
         {
             xbs_node_message_data msg = new xbs_node_message_data(this, data);
-            FormMain.udp_listener.send_xbs_node_message_high_prio(msg);
+            xbs_udp_listener.getInstance().send_xbs_node_message_high_prio(msg);
         }
 
         public void sendAddNodeMessage(IPAddress ip, int port)
         {
             xbs_node_message_addnode msg_addnode = new xbs_node_message_addnode( ip, (UInt16)port);
             msg_addnode.receiver = this;
-            FormMain.udp_listener.send_xbs_node_message(msg_addnode);
+            xbs_udp_listener.getInstance().send_xbs_node_message(msg_addnode);
         }
 
         public void sendAddNodeMessage(xbs_node node)
@@ -153,7 +153,7 @@ namespace XBSlink
         {
             xbs_node_message_knownnode msg_knownnode = new xbs_node_message_knownnode(ip, (UInt16)port);
             msg_knownnode.receiver = this;
-            FormMain.udp_listener.send_xbs_node_message(msg_knownnode);
+            xbs_udp_listener.getInstance().send_xbs_node_message(msg_knownnode);
         }
 
         public void sendKnownNodeMessage(xbs_node node)
@@ -198,31 +198,31 @@ namespace XBSlink
 #endif
             xbs_node_message_delnode msg = new xbs_node_message_delnode(node.ip_public, (UInt16)node.port_public);
             msg.receiver = this;
-            FormMain.udp_listener.send_xbs_node_message(msg);
+            xbs_udp_listener.getInstance().send_xbs_node_message(msg);
         }
 
         public void sendPing()
         {
             xbs_node_message_ping msg_ping = new xbs_node_message_ping(this);
-            FormMain.udp_listener.send_xbs_node_message(msg_ping);
+            xbs_udp_listener.getInstance().send_xbs_node_message(msg_ping);
         }
 
         public void sendGetClientVersion()
         {
             xbs_node_message_getclientversion msg = new xbs_node_message_getclientversion(this);
-            FormMain.udp_listener.send_xbs_node_message(msg);
+            xbs_udp_listener.getInstance().send_xbs_node_message(msg);
         }
 
         public void sendChatMessage(String chat_message)
         {
             xbs_node_message_chatmsg msg = new xbs_node_message_chatmsg(this, chat_message);
-            FormMain.udp_listener.send_xbs_node_message(msg);
+            xbs_udp_listener.getInstance().send_xbs_node_message(msg);
         }
 
         public void sendGetNickname()
         {
             xbs_node_message_getnickname msg = new xbs_node_message_getnickname(this);
-            FormMain.udp_listener.send_xbs_node_message(msg);
+            xbs_udp_listener.getInstance().send_xbs_node_message(msg);
         }
 
         public IPAddress getSendToIP()
@@ -245,14 +245,14 @@ namespace XBSlink
         {
             xbs_node_message_toCloudHelper_HelpWithNode msg = new xbs_node_message_toCloudHelper_HelpWithNode(node.ip_public, (UInt16)node.port_public);
             msg.receiver = this;
-            FormMain.udp_listener.send_xbs_node_message(msg);
+            xbs_udp_listener.getInstance().send_xbs_node_message(msg);
         }
 
         public void send_fromCloudhelper_helpWithAddingNode(xbs_node node)
         {
             xbs_node_message_fromCloudHelper_ContactNode msg = new xbs_node_message_fromCloudHelper_ContactNode(node.ip_public, (UInt16)node.port_public);
             msg.receiver = this;
-            FormMain.udp_listener.send_xbs_node_message(msg);
+            xbs_udp_listener.getInstance().send_xbs_node_message(msg);
         }
 
         public int get_xbox_count()

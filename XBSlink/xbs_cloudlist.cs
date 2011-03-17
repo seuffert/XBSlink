@@ -242,7 +242,7 @@ namespace XBSlink
                         return false;
                     }
                     xbs_node_message_announce msg = new xbs_node_message_announce(ip, port);
-                    FormMain.udp_listener.send_xbs_node_message(msg);
+                    xbs_udp_listener.getInstance().send_xbs_node_message(msg);
                 }
             }
             startUpdateThread();
@@ -282,8 +282,8 @@ namespace XBSlink
                 if (update_thread.ThreadState != ThreadState.Stopped )
                     update_thread.Join();
             update_thread = null;
-            FormMain.node_list.sendLogOff();
-            FormMain.node_list.clear_nodes();
+            xbs_node_list.getInstance().sendLogOff();
+            xbs_node_list.getInstance().clear_nodes();
             cloudlist_url = null;
             return true;
         }
