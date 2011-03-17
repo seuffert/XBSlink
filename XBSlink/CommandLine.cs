@@ -487,7 +487,7 @@ namespace XBSlink
                 count++;
                 String ping = (node.last_ping_delay_ms >= 0) ? node.last_ping_delay_ms + "ms" : "N/A";
                 int port = (node.port_sendfrom == node.port_public) ? node.port_public : node.port_sendfrom;
-                str = " " + count + ") \"" + node.nickname.PadRight(12) + "\" " + node.ip_public.ToString().PadLeft(15) + "/" + port.ToString().PadRight(5) + " Ping:" + ping.PadLeft(6) + " v:" + node.client_version;
+                str = " " + count + ") \"" + node.nickname.PadRight(13) + "\" " + node.ip_public.ToString().PadLeft(15) + "/" + port.ToString().PadRight(5) + " Ping:" + ping.PadLeft(6) + " v:" + node.client_version;
                 if (node.get_xbox_count() > 0)
                     WriteLine(str, ConsoleColor.Yellow);
                 else
