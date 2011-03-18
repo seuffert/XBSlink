@@ -34,30 +34,49 @@ namespace XBSlink
         ConsoleColor default_color_text;
         ConsoleColor default_color_background;
 
+        bool cmd_help = false;
+        bool cmd_list_devices = false;
+        bool cmd_list_clouds = false;
+        String option_nickname = null;
+        String option_cloudserver = null;
+        String option_cloudname = null;
+        String option_password = null;
+        int option_maxnodes = 10;
+        bool option_upnp = false;
+        bool option_advanced_broadcast = false;
+        int option_local_port = 0;
+        IPAddress option_local_ip = null;
+        String option_capture_device = null;
+        OptionSet command_line_option_set;
+
         [System.Runtime.InteropServices.DllImport("kernel32.dll")]
         private static extern bool AllocConsole(); 
 
         public xbs_console_app(xbs_settings settings, String[] args)
         {
+            Console.CancelKeyPress += delegate { handleCancelKeyPress(); };
             if (System.Environment.OSVersion.Platform == PlatformID.Win32NT)
                 AllocConsole();
-
+            WebRequest.DefaultWebProxy = null;
             default_color_text = Console.ForegroundColor;
             default_color_background = Console.BackgroundColor;
             xbs_chat.notify_on_incoming_message = false;
 
-            if (!loadCaptureDeviceList())
-            {
-                String msg;
-                if (System.Environment.OSVersion.Platform == PlatformID.Unix)
-                    msg = Resources.message_no_capture_devices_unix;
-                else if (System.Environment.OSVersion.Platform == PlatformID.Win32NT)
-                    msg = Resources.message_no_capture_devices_startNPF;
-                else
-                    msg = Resources.message_no_capture_devices;
-                xbs_messages.addInfoMessage("!! ERROR: " + msg);
-                close_app(-1);
-            }
+            command_line_option_set = new OptionSet() {
+                { "?|h|help", "show this help message", v => cmd_help = v!=null },
+                { "l|list-devices", "list all available network packet capture devices", v => cmd_list_devices = v != null },
+                { "n|nickname=", "set the nickname", v => option_nickname=v },
+                { "s|cloudserver=", "set cloudserver URL", v => option_cloudserver=v },
+                { "j|list-clouds", "list available clouds on cloudserver", v => cmd_list_clouds = v!=null },
+                { "c|cloudname=", "connect to this cloud", v => option_cloudname=v },
+                { "m|max-nodes=", "maximum clients in cloud. default is 10", (UInt16 v) => option_maxnodes=v },
+                { "w|password=", "set password for cloud", v => option_password=v },
+                { "u|upnp", "use UPnP to forward incoming port", v => option_upnp = v!=null },
+                { "a|advanced-broadcast", "enable advanced forwarding of broadcasts", v => option_advanced_broadcast = v!=null },
+                { "p|port=", "set the incoming port number. default is 31415", (UInt16 v) => option_local_port = v },
+                { "o|source-ip=", "bind to this local ip address.", (String v) => option_local_ip=IPAddress.Parse(v) },
+                { "i|capture-device=", "name of network device for capturing packets", v => option_capture_device = v },
+            };
 
             xbs_settings = settings;
             cloudlist = new xbs_cloudlist();
@@ -104,38 +123,6 @@ namespace XBSlink
 
         private void parse_command_line(String[] args)
         {
-            Console.CancelKeyPress += delegate { handleCancelKeyPress(); };
-            // globally turn off Proxy auto detection
-            WebRequest.DefaultWebProxy = null;
-
-            bool cmd_help = false;
-            bool cmd_list_devices = false;
-            bool cmd_list_clouds = false;
-            String option_nickname = null;
-            String option_cloudserver = null;
-            String option_cloudname = null;
-            String option_password = null;
-            int option_maxnodes = 10;
-            bool option_upnp = false;
-            bool option_advanced_broadcast = false;
-            int option_local_port = 0;
-            IPAddress option_local_ip = null;
-            String option_capture_device = null;
-            OptionSet command_line_option_set = new OptionSet() {
-                { "?|h|help", "show this help message", v => cmd_help = v!=null },
-                { "l|list-devices", "list all available network packet capture devices", v => cmd_list_devices = v != null },
-                { "n|nickname=", "set the nickname", v => option_nickname=v },
-                { "s|cloudserver=", "set cloudserver URL", v => option_cloudserver=v },
-                { "j|list-clouds", "list available clouds on cloudserver", v => cmd_list_clouds = v!=null },
-                { "c|cloudname=", "connect to this cloud", v => option_cloudname=v },
-                { "m|max-nodes=", "maximum clients in cloud. default is 10", (UInt16 v) => option_maxnodes=v },
-                { "w|password=", "set password for cloud", v => option_password=v },
-                { "u|upnp", "use UPnP to forward incoming port", v => option_upnp = v!=null },
-                { "a|advanced-broadcast", "enable advanced forwarding of broadcasts", v => option_advanced_broadcast = v!=null },
-                { "p|port=", "set the incoming port number. default is 31415", (UInt16 v) => option_local_port = v },
-                { "o|source-ip=", "bind to this local ip address.", (String v) => option_local_ip=IPAddress.Parse(v) },
-                { "i|capture-device=", "name of network device for capturing packets", v => option_capture_device = v },
-            };
             try
             {
                 command_line_option_set.Parse(args);
@@ -173,16 +160,22 @@ namespace XBSlink
             start_message_thread();
 
             if (cmd_help)
-                ShowHelp(command_line_option_set);
-            else if (cmd_list_devices)
-                list_Devices(args);
+                ShowHelp();
             else if (cmd_list_clouds)
                 show_cloudlist();
+            else if (cmd_list_devices)
+            {
+                initCaptureDeviceList();
+                list_Devices(args);
+            }
             else
-                start_engine(option_upnp, option_capture_device, option_local_port, option_local_ip, option_nickname, option_advanced_broadcast, option_cloudname, option_cloudserver, option_maxnodes, option_password);
+            {
+                initCaptureDeviceList();
+                start_engine();
+            }
         }
 
-        private void start_engine(bool option_upnp, String option_capture_device, int option_local_port, IPAddress option_local_ip, String option_nickname, bool option_advanced_broadcast, String option_cloudname, String option_cloudserver, int option_maxnodes, String option_password)
+        private void start_engine()
         {
             if (option_upnp)
                 discover_upnp();
@@ -283,6 +276,9 @@ namespace XBSlink
                         case ConsoleKey.U:
                             showConnectedNodes();
                             break;
+                        case ConsoleKey.H:
+                            ShowHelp();
+                            break;
                     }
                 }
             }
@@ -293,7 +289,7 @@ namespace XBSlink
         {
             WriteLine("!! Error parsing command line:");
             WriteLine("!! " + e.Message + Environment.NewLine);
-            ShowHelp(command_line_option_set);
+            ShowHelp();
             Console.ReadLine();
         }
 
@@ -320,7 +316,7 @@ namespace XBSlink
             Console.WriteLine( Environment.NewLine+"XBSlink Version " + xbs_settings.xbslink_version);
         }
 
-        private void ShowHelp(OptionSet command_line_option_set)
+        private void ShowHelp()
         {
             Console.WriteLine("Usage: XBSlink.exe [-h] [-l] [-s CLOUDSERVER] [-c CLOUDNAME] [-u] [-p PORT] -n NICKNAME -o IP -i CAPTURE_DEVICE_NAME");
             command_line_option_set.WriteOptionDescriptions(Console.Out);
@@ -463,12 +459,10 @@ namespace XBSlink
         {
             WriteLine(text, default_color_text, default_color_background);
         }
-
         private void WriteLine(String text, ConsoleColor color_text)
         {
             WriteLine(text, color_text, default_color_background);
         }
-
         private void WriteLine(String text, ConsoleColor color_text, ConsoleColor color_background)
         {
             Console.ForegroundColor = color_text;
@@ -493,7 +487,22 @@ namespace XBSlink
                 else
                     WriteLine(str, ConsoleColor.White);
             }
+        }
 
+        private void initCaptureDeviceList()
+        {
+            if (!loadCaptureDeviceList())
+            {
+                String msg;
+                if (System.Environment.OSVersion.Platform == PlatformID.Unix)
+                    msg = Resources.message_no_capture_devices_unix;
+                else if (System.Environment.OSVersion.Platform == PlatformID.Win32NT)
+                    msg = Resources.message_no_capture_devices_startNPF;
+                else
+                    msg = Resources.message_no_capture_devices;
+                xbs_messages.addInfoMessage("!! ERROR: " + msg);
+                close_app(-1);
+            }
         }
     }
 }

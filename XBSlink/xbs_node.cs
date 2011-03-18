@@ -109,7 +109,6 @@ namespace XBSlink
             }
         }
 
-
         public override string ToString()
         {
             String port2 = (port_sendfrom == port_public) ? "" : "/"+port_sendfrom;
