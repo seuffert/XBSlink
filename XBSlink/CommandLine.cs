@@ -68,7 +68,7 @@ namespace XBSlink
             command_line_option_set = new OptionSet() {
                 { "?|h|help", "show this help message", v => cmd_help = v!=null },
                 { "l|list-devices", "list all available network packet capture devices", v => cmd_list_devices = v != null },
-                { "w|update-check", "check online for program update", v => option_check_for_update = v!=null },
+                { "d|update-check", "check online for program update", v => option_check_for_update = v!=null },
                 { "n|nickname=", "set the nickname", v => option_nickname=v },
                 { "s|cloudserver=", "set cloudserver URL", v => option_cloudserver=v },
                 { "j|list-clouds", "list available clouds on cloudserver", v => cmd_list_clouds = v!=null },
