@@ -1,14 +1,14 @@
 <?php
 /*
  * simple cloud list server script for XBSlink
- * Version v1.6
- * by Oliver Seuffert 2010
+ * Version v1.7
+ * by Oliver Seuffert 2011
  * 
  * php sqlite3 plugin is needed
- * 
- *  Changelog:
  *  
  *  Changelog:
+ *  v1.7
+ *   - send nodelist to client on UPDATE
  *  v1.6.1
  *   - serious bugfix in function joinCloud 
  *  v1.6
@@ -295,7 +295,20 @@ class xbslink_cloudlist_server
 		$ret = $sth->execute( array(':cloud_id'=>$cloud_id, ':lastaction'=>time(), ':uuid'=>$uuid) );		
 		$sth = $this->db->prepare("UPDATE ".TABLE_CLOUDS." SET lastaction=:lastaction WHERE id=:cloud_id");
 		$ret = $sth->execute( array(':cloud_id'=>$cloud_id, ':lastaction'=>time()) );
-		return RETURN_CODE_OK;
+		$nodes = $this->getAllNodesFromCloud($cloud_id);
+		$ret_str = RETURN_CODE_OK.$uuid;
+		if ($nodes!=null)
+		{
+			$nodes_to_send = count($nodes);
+			for ($n=0; $n<$nodes_to_send; $n++)
+			{
+				$ip = $nodes[$n]["ip"];
+				$port = $nodes[$n]["port"];
+				if ($ip!=$node_ip || ( $ip!=$node_ip && $port!=$node_port) )
+					$ret_str .= "\n" . PARAM_NODEIP ."=".urlencode(long2ip($ip))."&". PARAM_NODEPORT . "=".urlencode($port);
+			}
+		}
+		return $ret_str;
 	}
 	
 	private function isPrivateSubnetIP( $ip_long )
