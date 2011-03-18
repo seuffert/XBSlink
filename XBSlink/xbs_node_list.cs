@@ -317,7 +317,7 @@ namespace XBSlink
             if (findNodeInAddingList(new_node.ip_public, new_node.port_public) != null)
             {
 #if DEBUG
-                xbs_messages.addInfoMessage(" + node already in addingList: "+new_node);
+                xbs_messages.addDebugMessage(" + node already in addingList: "+new_node);
 #endif
                 return;
             }
@@ -412,6 +412,14 @@ namespace XBSlink
         public static xbs_node_list getInstance()
         {
             return (FormMain.node_list!=null) ? FormMain.node_list : xbs_console_app.node_list;
+        }
+
+        public int getNodeCount()
+        {
+            int node_count;
+            lock (node_list)
+                node_count = node_list.Count;
+            return node_count;
         }
     }
 }
