@@ -26,6 +26,8 @@ namespace XBSlink
 
         private Thread MessageThread = null;
         volatile bool exiting = false;
+        private DateTime last_program_update_check = new DateTime(0);
+        private DateTime app_start_time = DateTime.Now;
 
         LibPcapLiveDeviceList capture_devices = null;
         WinPcapDeviceList capture_devices_win = null;
@@ -48,6 +50,7 @@ namespace XBSlink
         IPAddress option_local_ip = null;
         String option_capture_device = null;
         OptionSet command_line_option_set;
+        bool option_check_for_update = false;
 
         [System.Runtime.InteropServices.DllImport("kernel32.dll")]
         private static extern bool AllocConsole(); 
@@ -65,6 +68,7 @@ namespace XBSlink
             command_line_option_set = new OptionSet() {
                 { "?|h|help", "show this help message", v => cmd_help = v!=null },
                 { "l|list-devices", "list all available network packet capture devices", v => cmd_list_devices = v != null },
+                { "w|update-check", "check online for program update", v => option_check_for_update = v!=null },
                 { "n|nickname=", "set the nickname", v => option_nickname=v },
                 { "s|cloudserver=", "set cloudserver URL", v => option_cloudserver=v },
                 { "j|list-clouds", "list available clouds on cloudserver", v => cmd_list_clouds = v!=null },
@@ -281,6 +285,10 @@ namespace XBSlink
                             break;
                     }
                 }
+
+                if ((DateTime.Now - app_start_time).TotalSeconds >= 5)
+                    if (option_check_for_update && ((DateTime.Now - last_program_update_check).TotalHours >= xbs_settings.PROGRAM_UPDATE_CHECK_HOURS_INTERVAL))
+                        checkForProgramUpdates();
             }
             close_app(0);
         }
@@ -504,5 +512,22 @@ namespace XBSlink
                 close_app(-1);
             }
         }
+
+        private void checkForProgramUpdates()
+        {
+            last_program_update_check = DateTime.Now;
+            String result = xbs_settings.getOnlineProgramVersion();
+            if (result != null)
+            {
+                int new_version_found = result.CompareTo(xbs_settings.xbslink_version);
+                if (new_version_found > 0)
+                    xbs_messages.addInfoMessage("A new version of XBSlink is available! (v" + result + ")");
+                else if (new_version_found < 0)
+                    xbs_messages.addInfoMessage("Latest XBSlink version found: v" + result);
+                else
+                    xbs_messages.addInfoMessage("You are using the latest XBSlink version.");
+            }
+        }
+
     }
 }

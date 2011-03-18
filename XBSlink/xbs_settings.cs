@@ -32,6 +32,7 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Security.Permissions;
 using Microsoft.Win32;
+using XBSlink.Properties;
 
 namespace XBSlink
 {
@@ -39,6 +40,7 @@ namespace XBSlink
     {
         // Program version
         public static String xbslink_version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        public const int PROGRAM_UPDATE_CHECK_HOURS_INTERVAL = 12;
 
         // Registry
         public const String REG_CAPTURE_DEVICE_NAME = "capture device";
@@ -150,6 +152,37 @@ namespace XBSlink
                     text = xbs_settings.getRegistryValue(value_name);
             if (text!=null)
                 combobox.SelectedItem = text;
+        }
+
+        public static String getOnlineProgramVersion()
+        {
+            WebClient updatecheck_webclient = new WebClient();
+            String url = Resources.url_check_latest_version;
+            if (System.Environment.OSVersion.Platform == PlatformID.MacOSX)
+                url = Resources.url_check_latest_version_mac;
+            else if (System.Environment.OSVersion.Platform == PlatformID.Unix)
+                url = Resources.url_check_latest_version_linux;
+
+            Uri uri = new Uri(url+"?version="+xbs_settings.xbslink_version);
+            String result;
+            updatecheck_webclient.Proxy = null;
+            try
+            {
+                result = updatecheck_webclient.DownloadString(uri);
+            }
+            catch (WebException wex)
+            {
+                xbs_messages.addInfoMessage("!! could not get online update version information: " + wex.Message);
+                return null;
+            }
+
+            if (result.Length != 7)
+            {
+                xbs_messages.addInfoMessage("!! update server returned unknown result: " + result);
+                return null;
+            }
+            else
+                return result;
         }
 
     }

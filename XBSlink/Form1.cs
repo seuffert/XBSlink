@@ -82,8 +82,6 @@ namespace XBSlink
         public static Object askedCloudServerForHelloMessage_locker = new Object();
 
         private DateTime last_update_check = new DateTime(0);
-        private WebClient updatecheck_webclient = null;
-
         private DateTime last_nodelist_update = new DateTime(0);
 
         public FormMain()
@@ -119,7 +117,6 @@ namespace XBSlink
 
             node_list = new xbs_node_list();
             cloudlist = new xbs_cloudlist();
-            updatecheck_webclient = new WebClient();
             natstun = new xbs_natstun();
 
             initializeCloudListView();
@@ -884,7 +881,7 @@ namespace XBSlink
             }
 
             if ((DateTime.Now - app_start_time).TotalSeconds >= 5)
-                if (checkBox_checkForUpdates.Checked && ((DateTime.Now - last_update_check).TotalHours >= 12))
+                if (checkBox_checkForUpdates.Checked && ((DateTime.Now - last_update_check).TotalHours >= xbs_settings.PROGRAM_UPDATE_CHECK_HOURS_INTERVAL))
                     checkForProgramUpdates();
 #if !DEBUG
             }
@@ -1162,28 +1159,9 @@ namespace XBSlink
 
         private void checkForProgramUpdates()
         {
-            String url = Resources.url_check_latest_version;
-            if (System.Environment.OSVersion.Platform == PlatformID.MacOSX)
-                url = Resources.url_check_latest_version_mac;
-            else if (System.Environment.OSVersion.Platform == PlatformID.Unix)
-                url = Resources.url_check_latest_version_linux;
-
-            Uri uri = new Uri(url);
             last_update_check = DateTime.Now;
-            String result;
-            updatecheck_webclient.Proxy = null;
-            try
-            {
-                result = updatecheck_webclient.DownloadString(uri);
-            }
-            catch (WebException wex)
-            {
-                // handle error
-                xbs_messages.addInfoMessage("!! could not get online update version information: " + wex.Message);
-                return;
-            }
-
-            if (result.Length == 7)
+            String result = xbs_settings.getOnlineProgramVersion();
+            if (result != null)
             {
                 int new_version_found = result.CompareTo(xbs_settings.xbslink_version);
                 if (new_version_found > 0)
