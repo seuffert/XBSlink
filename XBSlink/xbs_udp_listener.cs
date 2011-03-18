@@ -276,29 +276,46 @@ namespace XBSlink
             while (count_msgs > 0 || count_msgs_hp > 0)
             {
                 xbs_udp_listener_statistics.increasePacketsIn();
-
-                if (count_msgs_hp > 0)
+                try
                 {
-                    lock (in_msgs_high_prio)
-                        udp_msg = in_msgs_high_prio.Dequeue();
-                    count_msgs_hp--;
+                    if (count_msgs_hp > 0)
+                    {
+                        lock (in_msgs_high_prio)
+                        {
+                            udp_msg = in_msgs_high_prio.Dequeue();
+                            count_msgs_hp = in_msgs_high_prio.Count;
+                        }
+                    }
+                    else
+                    {
+                        lock (in_msgs)
+                        {
+                            udp_msg = in_msgs.Dequeue();
+                            count_msgs = in_msgs.Count;
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    xbs_messages.addDebugMessage("!! ERROR in UDP dispatch_in_qeue(): "+e.Message);
+                }
+
+                if (udp_msg != null)
+                {
+                    dispatch_in_msg(ref udp_msg);
+                    udp_msg = null;
                 }
                 else
-                {
-                    lock (in_msgs)
-                        udp_msg = in_msgs.Dequeue();
-                    count_msgs--;
-                }
-                dispatch_in_msg( ref udp_msg);
+                    xbs_messages.addDebugMessage("!! ERROR in UDP dispatch_in_qeue(): NULL reference in udp_msg ");
+
 
                 // only recheck for new packets if all known packets are delivered
-                if (count_msgs_hp == 0)
+                if (count_msgs_hp == 0 && count_msgs==0)
                 {
                     lock (in_msgs_high_prio)
                         count_msgs_hp = in_msgs_high_prio.Count;
-                    if (count_msgs == 0)
-                        lock (in_msgs)
-                            count_msgs = in_msgs.Count;
+                    lock (in_msgs)
+                        count_msgs = in_msgs.Count;
                 }
             }
         }

@@ -70,15 +70,15 @@ namespace XBSlink
 
         public xbs_node_type node_type;
         public const String CLIENT_VERSION_UNKNOWN = "(unknown)";
-        public String client_version = CLIENT_VERSION_UNKNOWN;
-        public String nickname = "Anonymous";
-        public bool nickname_received = false;
+        public volatile String client_version = CLIENT_VERSION_UNKNOWN;
+        public volatile String nickname = "Anonymous";
+        public volatile bool nickname_received = false;
 
         private List<xbs_xbox> xbox_list;
 
         private static PhysicalAddress broadcast_mac = new PhysicalAddress(new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF });
 
-        public long last_ping_delay_ms = -1;
+        public volatile int last_ping_delay_ms = -1;
         public DateTime lastPingTime = new DateTime(0);
         public DateTime lastPongTime = DateTime.Now;
 
