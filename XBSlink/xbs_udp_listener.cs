@@ -478,7 +478,8 @@ namespace XBSlink
             xbs_sniffer.getInstance().injectRemotePacket(ref udp_msg.data, dstMAC, srcMAC);
             xbs_node node = node_list.findNode(udp_msg.src_ip, (UInt16)udp_msg.src_port);
             if (node != null)
-                node.addXbox(srcMAC);
+                if (node.addXbox(srcMAC))
+                    node_list.listHasJustChanged();
         }
 
         public void dispatcher_out()
