@@ -41,28 +41,52 @@ namespace XBSlink
 
         private void DebugWindows_Load(object sender, EventArgs e)
         {
+            listView.Columns[0].AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
             timer1.Start();
         }
 
         private void add_text(String text)
         {
-            listBox_messages.Items.Add(text);
-            listBox_messages.TopIndex = listBox_messages.Items.Count - (listBox_messages.Height / listBox_messages.ItemHeight);
+            ListViewItem lv_item = new ListViewItem(text);
+            String message = text.Substring(11).Trim();
+            if (message.StartsWith("!!"))
+                lv_item.BackColor = Color.Firebrick;
+            else if (message.StartsWith("%"))
+                lv_item.BackColor = Color.YellowGreen;
+            else if (message.StartsWith("*"))
+                lv_item.BackColor = Color.WhiteSmoke;
+            else if (message.StartsWith("x"))
+                lv_item.BackColor = Color.SkyBlue;
+            else if (message.StartsWith("-"))
+                lv_item.BackColor = Color.Orange;
+            else if (message.StartsWith("@"))
+                lv_item.BackColor = Color.Khaki;
+            else if (message.StartsWith("+"))
+                lv_item.BackColor = Color.Aquamarine;
+            else if (message.StartsWith("~"))
+                lv_item.BackColor = Color.Teal;
+            listView.Items.Add(lv_item);
+            listView.EnsureVisible(listView.Items.Count - 1);
         }
 
         private void button_clear_Click(object sender, EventArgs e)
         {
             lock (DebugWindow.form)
-                listBox_messages.Items.Clear();
+                listView.Items.Clear();
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
             String msg;
-            while (xbs_messages.getDebugMessageCount() > 0)
+            if (xbs_messages.getDebugMessageCount() > 0)
             {
-                msg = xbs_messages.DequeueDebugMessageString();
-                add_text(msg);
+                listView.BeginUpdate();
+                while (xbs_messages.getDebugMessageCount() > 0)
+                {
+                    msg = xbs_messages.DequeueDebugMessageString();
+                    add_text(msg);
+                }
+                listView.EndUpdate();
             }
         }
 
@@ -72,6 +96,11 @@ namespace XBSlink
                 if (timer1.Enabled)
                     timer1.Stop();
             DebugWindow.form = null;
+        }
+
+        private void DebugWindow_SizeChanged(object sender, EventArgs e)
+        {
+            listView.Columns[0].AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
         }
     }
 }
