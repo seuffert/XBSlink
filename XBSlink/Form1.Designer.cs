@@ -94,9 +94,9 @@ namespace XBSlink
             this.textBox_cloudlist = new System.Windows.Forms.TextBox();
             this.label11 = new System.Windows.Forms.Label();
             this.listView_clouds = new System.Windows.Forms.ListView();
-            this.columnHeader_name = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader_nodecount = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader_maxnodes = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader_cloudlistname = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader_cloudlistnodecount = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader_cloudlistmaxnodes = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.tabPage_chat = new System.Windows.Forms.TabPage();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.textBox_chatMessages = new System.Windows.Forms.TextBox();
@@ -211,6 +211,8 @@ namespace XBSlink
             // 
             // comboBox_captureDevice
             // 
+            this.comboBox_captureDevice.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBox_captureDevice.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_captureDevice.FormattingEnabled = true;
             this.comboBox_captureDevice.Location = new System.Drawing.Point(9, 29);
@@ -257,6 +259,7 @@ namespace XBSlink
             // 
             // textBox_remote_port
             // 
+            this.textBox_remote_port.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_remote_port.Location = new System.Drawing.Point(325, 39);
             this.textBox_remote_port.MaxLength = 5;
             this.textBox_remote_port.Name = "textBox_remote_port";
@@ -413,6 +416,8 @@ namespace XBSlink
             this.listView_nodes.TabIndex = 2;
             this.listView_nodes.UseCompatibleStateImageBehavior = false;
             this.listView_nodes.View = System.Windows.Forms.View.Details;
+            this.listView_nodes.ColumnWidthChanged += new System.Windows.Forms.ColumnWidthChangedEventHandler(this.listView_nodes_ColumnWidthChanged);
+            this.listView_nodes.SizeChanged += new System.EventHandler(this.listView_nodes_SizeChanged);
             // 
             // columnHeader_nodeIP
             // 
@@ -476,8 +481,7 @@ namespace XBSlink
             // 
             // button_CloudLeave
             // 
-            this.button_CloudLeave.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_CloudLeave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button_CloudLeave.Enabled = false;
             this.button_CloudLeave.Location = new System.Drawing.Point(270, 363);
             this.button_CloudLeave.Name = "button_CloudLeave";
@@ -489,7 +493,7 @@ namespace XBSlink
             // 
             // button_CloudJoin
             // 
-            this.button_CloudJoin.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button_CloudJoin.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button_CloudJoin.Enabled = false;
             this.button_CloudJoin.Location = new System.Drawing.Point(270, 384);
             this.button_CloudJoin.Name = "button_CloudJoin";
@@ -501,7 +505,7 @@ namespace XBSlink
             // 
             // label14
             // 
-            this.label14.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label14.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label14.AutoSize = true;
             this.label14.Location = new System.Drawing.Point(185, 365);
             this.label14.Name = "label14";
@@ -511,7 +515,7 @@ namespace XBSlink
             // 
             // textBox_CloudPassword
             // 
-            this.textBox_CloudPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.textBox_CloudPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_CloudPassword.Enabled = false;
             this.textBox_CloudPassword.Location = new System.Drawing.Point(188, 381);
             this.textBox_CloudPassword.Name = "textBox_CloudPassword";
@@ -521,7 +525,7 @@ namespace XBSlink
             // 
             // label13
             // 
-            this.label13.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label13.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label13.AutoSize = true;
             this.label13.Location = new System.Drawing.Point(146, 365);
             this.label13.Name = "label13";
@@ -531,7 +535,7 @@ namespace XBSlink
             // 
             // textBox_CloudMaxNodes
             // 
-            this.textBox_CloudMaxNodes.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.textBox_CloudMaxNodes.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_CloudMaxNodes.Enabled = false;
             this.textBox_CloudMaxNodes.Location = new System.Drawing.Point(149, 381);
             this.textBox_CloudMaxNodes.Name = "textBox_CloudMaxNodes";
@@ -552,7 +556,8 @@ namespace XBSlink
             // 
             // textBox_CloudName
             // 
-            this.textBox_CloudName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.textBox_CloudName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_CloudName.Enabled = false;
             this.textBox_CloudName.Location = new System.Drawing.Point(6, 381);
             this.textBox_CloudName.Name = "textBox_CloudName";
@@ -561,6 +566,7 @@ namespace XBSlink
             // 
             // buttonLoadCloudlist
             // 
+            this.buttonLoadCloudlist.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonLoadCloudlist.Location = new System.Drawing.Point(270, 0);
             this.buttonLoadCloudlist.Name = "buttonLoadCloudlist";
             this.buttonLoadCloudlist.Size = new System.Drawing.Size(75, 23);
@@ -571,6 +577,8 @@ namespace XBSlink
             // 
             // textBox_cloudlist
             // 
+            this.textBox_cloudlist.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_cloudlist.Location = new System.Drawing.Point(61, 2);
             this.textBox_cloudlist.Name = "textBox_cloudlist";
             this.textBox_cloudlist.Size = new System.Drawing.Size(203, 20);
@@ -593,33 +601,35 @@ namespace XBSlink
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.listView_clouds.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader_name,
-            this.columnHeader_nodecount,
-            this.columnHeader_maxnodes});
+            this.columnHeader_cloudlistname,
+            this.columnHeader_cloudlistnodecount,
+            this.columnHeader_cloudlistmaxnodes});
             this.listView_clouds.FullRowSelect = true;
             this.listView_clouds.GridLines = true;
-            this.listView_clouds.Location = new System.Drawing.Point(-2, 28);
+            this.listView_clouds.Location = new System.Drawing.Point(0, 28);
             this.listView_clouds.MultiSelect = false;
             this.listView_clouds.Name = "listView_clouds";
             this.listView_clouds.ShowGroups = false;
-            this.listView_clouds.Size = new System.Drawing.Size(350, 334);
+            this.listView_clouds.Size = new System.Drawing.Size(348, 334);
             this.listView_clouds.TabIndex = 0;
             this.listView_clouds.UseCompatibleStateImageBehavior = false;
             this.listView_clouds.View = System.Windows.Forms.View.Details;
+            this.listView_clouds.ColumnWidthChanged += new System.Windows.Forms.ColumnWidthChangedEventHandler(this.listView_clouds_ColumnWidthChanged);
             this.listView_clouds.SelectedIndexChanged += new System.EventHandler(this.listView_clouds_SelectedIndexChanged);
+            this.listView_clouds.SizeChanged += new System.EventHandler(this.listView_clouds_SizeChanged);
             // 
-            // columnHeader_name
+            // columnHeader_cloudlistname
             // 
-            this.columnHeader_name.Text = "Name";
-            this.columnHeader_name.Width = 204;
+            this.columnHeader_cloudlistname.Text = "Name";
+            this.columnHeader_cloudlistname.Width = 204;
             // 
-            // columnHeader_nodecount
+            // columnHeader_cloudlistnodecount
             // 
-            this.columnHeader_nodecount.Text = "Nodes";
+            this.columnHeader_cloudlistnodecount.Text = "Nodes";
             // 
-            // columnHeader_maxnodes
+            // columnHeader_cloudlistmaxnodes
             // 
-            this.columnHeader_maxnodes.Text = "Max";
+            this.columnHeader_cloudlistmaxnodes.Text = "Max";
             // 
             // tabPage_chat
             // 
@@ -705,8 +715,7 @@ namespace XBSlink
             // 
             // button_clearChat
             // 
-            this.button_clearChat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_clearChat.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button_clearChat.Location = new System.Drawing.Point(309, 383);
             this.button_clearChat.Name = "button_clearChat";
             this.button_clearChat.Size = new System.Drawing.Size(39, 21);
@@ -758,6 +767,7 @@ namespace XBSlink
             this.listBox_messages.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.listBox_messages.FormattingEnabled = true;
             this.listBox_messages.HorizontalScrollbar = true;
+            this.listBox_messages.IntegralHeight = false;
             this.listBox_messages.Location = new System.Drawing.Point(3, 36);
             this.listBox_messages.Name = "listBox_messages";
             this.listBox_messages.ScrollAlwaysVisible = true;
@@ -1098,6 +1108,8 @@ namespace XBSlink
             // 
             // comboBox_RemoteHost
             // 
+            this.comboBox_RemoteHost.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBox_RemoteHost.FormattingEnabled = true;
             this.comboBox_RemoteHost.Location = new System.Drawing.Point(86, 39);
             this.comboBox_RemoteHost.Name = "comboBox_RemoteHost";
@@ -1132,7 +1144,6 @@ namespace XBSlink
             this.Controls.Add(this.label5);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(390, 5000);
             this.MinimumSize = new System.Drawing.Size(390, 220);
             this.Name = "FormMain";
             this.Text = "XBSlink";
@@ -1225,9 +1236,9 @@ namespace XBSlink
         private System.Windows.Forms.TextBox textBox_chatMessages;
         private System.Windows.Forms.TabPage tabPage_clouds;
         private System.Windows.Forms.ListView listView_clouds;
-        private System.Windows.Forms.ColumnHeader columnHeader_name;
-        private System.Windows.Forms.ColumnHeader columnHeader_nodecount;
-        private System.Windows.Forms.ColumnHeader columnHeader_maxnodes;
+        private System.Windows.Forms.ColumnHeader columnHeader_cloudlistname;
+        private System.Windows.Forms.ColumnHeader columnHeader_cloudlistnodecount;
+        private System.Windows.Forms.ColumnHeader columnHeader_cloudlistmaxnodes;
         private System.Windows.Forms.Button buttonLoadCloudlist;
         private System.Windows.Forms.TextBox textBox_cloudlist;
         private System.Windows.Forms.Label label11;

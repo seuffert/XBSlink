@@ -1218,6 +1218,8 @@ namespace XBSlink
                 textBox_chatMessages.SelectionStart = textBox_chatMessages.Text.Length;
                 textBox_chatMessages.ScrollToCaret();
             }
+            else if (tabControl1.SelectedTab == tabPage_clouds)
+                resizeCloudListHeader();
         }
 
         private void tabControl1_TabIndexChanged(object sender, EventArgs e)
@@ -1227,6 +1229,32 @@ namespace XBSlink
                 textBox_chatMessages.SelectionStart = textBox_chatMessages.Text.Length;
                 textBox_chatMessages.ScrollToCaret();
             }
+        }
+
+        private void listView_nodes_SizeChanged(object sender, EventArgs e)
+        {
+            columnHeader_nickname.AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
+        }
+
+        private void listView_nodes_ColumnWidthChanged(object sender, ColumnWidthChangedEventArgs e)
+        {
+            columnHeader_nickname.AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
+        }
+
+        private void listView_clouds_SizeChanged(object sender, EventArgs e)
+        {
+            resizeCloudListHeader();
+        }
+
+        private void listView_clouds_ColumnWidthChanged(object sender, ColumnWidthChangedEventArgs e)
+        {
+            resizeCloudListHeader();
+        }
+
+        private void resizeCloudListHeader()
+        {
+            int size = listView_clouds.ClientSize.Width - columnHeader_cloudlistmaxnodes.Width - columnHeader_cloudlistnodecount.Width;
+            columnHeader_cloudlistname.Width = size;
         }
     }
 }
