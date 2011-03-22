@@ -464,6 +464,7 @@ namespace XBSlink
 
         private void engine_stop()
         {
+            button_announce.Enabled = false;
             if (cloudlist!=null)
                 if (cloudlist.part_of_cloud)
                     cloudlist.LeaveCloud();
