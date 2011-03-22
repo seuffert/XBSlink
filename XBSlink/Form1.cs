@@ -668,6 +668,7 @@ namespace XBSlink
 
         private void updateMainInfoListview(List<xbs_node> nodes )
         {
+            listView_nodes.BeginUpdate();
             listView_nodes.Items.Clear();
             foreach (xbs_node node in nodes)
             {
@@ -686,6 +687,7 @@ namespace XBSlink
                     lv_item.BackColor = Color.FromArgb(235, 255, 235);
                 listView_nodes.Items.Add(lv_item);
             }
+            listView_nodes.EndUpdate();
         }
 
         private void updateStatusBar()
