@@ -37,7 +37,7 @@ namespace XBSlink
         private const int ARP_HEADER_SOURCE_OFFSET = 28;
         private const int ARP_HEADER_DESTINATION_OFFSET = 38;
         private static byte[] broadcast_mac_bytes = new byte[6] { 255, 255, 255, 255, 255, 255 };
-        private static PhysicalAddress broadcast_mac = new PhysicalAddress(broadcast_mac_bytes);
+        public static PhysicalAddress broadcast_mac = new PhysicalAddress(broadcast_mac_bytes);
 
         private Queue<IPAddress> ip_pool = new Queue<IPAddress>();
         private IPAddress pool_start = null;

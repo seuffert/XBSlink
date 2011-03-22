@@ -666,28 +666,62 @@ namespace XBSlink
 
         }
 
-        private void updateMainInfoListview(List<xbs_node> nodes )
+        private void updateMainInfoListview(List<xbs_node> nodes)
         {
             listView_nodes.BeginUpdate();
-            listView_nodes.Items.Clear();
             foreach (xbs_node node in nodes)
-            {
-                ListViewItem lv_item = new ListViewItem(node.ip_public.ToString());
-                lv_item.SubItems.Add((node.port_sendfrom == node.port_public) ? node.port_public.ToString() : node.port_public+"/"+node.port_sendfrom );
-                    
-                String ping = (node.last_ping_delay_ms >= 0) ? node.last_ping_delay_ms + "ms" : "N/A";
-                lv_item.SubItems.Add(ping);
-
-                lv_item.SubItems.Add(node.client_version);
-                lv_item.SubItems.Add(node.nickname);
-
-                if (node.get_xbox_count() == 0)
-                    lv_item.BackColor = Color.FromArgb(255,235,235);
-                else
-                    lv_item.BackColor = Color.FromArgb(235, 255, 235);
-                listView_nodes.Items.Add(lv_item);
-            }
+                if (node.lastChangeTime > last_nodelist_update)
+                    updateNodeInMainInfoList(node);
+            if (node_list.getNodeCount() < listView_nodes.Items.Count)
+                purgeDeletedNodesInMainInfo();
             listView_nodes.EndUpdate();
+        }
+
+        private void purgeDeletedNodesInMainInfo()
+        {
+            List<ListViewItem> del_list = new List<ListViewItem>();
+            foreach (ListViewItem lv_item in listView_nodes.Items)
+            {
+                try
+                {
+                    IPAddress ip = IPAddress.Parse(lv_item.Text);
+                    int port = int.Parse(lv_item.SubItems[1].Text.Split('/')[0]);
+                    if (node_list.findNode(ip, port) == null)
+                        del_list.Add(lv_item);
+                }
+                catch (Exception e)
+                {
+                    xbs_messages.addInfoMessage("!! error purging Main Info node list : " + e.Message);
+                }
+            }
+            foreach (ListViewItem lv_item in del_list)
+                listView_nodes.Items.Remove(lv_item);
+        }
+
+        private void updateNodeInMainInfoList(xbs_node node)
+        {
+            ListViewItem lv_item = new ListViewItem(node.ip_public.ToString());
+            
+            lv_item.SubItems.Add((node.port_sendfrom == node.port_public) ? node.port_public.ToString() : node.port_public + "/" + node.port_sendfrom);
+            String ping = (node.last_ping_delay_ms >= 0) ? node.last_ping_delay_ms + "ms" : "N/A";
+            lv_item.SubItems.Add(ping);
+            lv_item.SubItems.Add(node.client_version);
+            lv_item.SubItems.Add(node.nickname);
+            lv_item.BackColor = (node.get_xbox_count() == 0) ? Color.FromArgb(255, 235, 235) : Color.FromArgb(235, 255, 235);
+            lv_item.Name = lv_item.Text + lv_item.SubItems[1];
+
+            int index = listView_nodes.Items.IndexOfKey(lv_item.Name);
+            ListViewItem lv_item_in_list = (index>=0) ? listView_nodes.Items[index] : null;
+            if (lv_item_in_list != null)
+            {
+                for (int i=2; i<=4; i++)
+                    if (lv_item_in_list.SubItems[i].Text != lv_item.SubItems[i].Text)
+                        lv_item_in_list.SubItems[i].Text = lv_item.SubItems[i].Text;
+                if (lv_item.BackColor != lv_item_in_list.BackColor)
+                    lv_item_in_list.BackColor = lv_item.BackColor;
+            }
+            else
+                listView_nodes.Items.Add(lv_item);
         }
 
         private void updateStatusBar()

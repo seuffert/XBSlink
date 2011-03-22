@@ -233,12 +233,11 @@ namespace XBSlink
                 {
                     if (!run_ping_nodes_loop)
                         break;
-                    time_since_last_ping = (int)(now - n.lastPingTime).TotalSeconds;
-                    time_since_last_pong = (int)(now - n.lastPongTime).TotalSeconds;
+                    time_since_last_ping = (int)n.timeSinceLastPing.TotalSeconds;
+                    time_since_last_pong = (int)n.timeSinceLastPong.TotalSeconds;
                     if (time_since_last_ping > xbs_node_list.MIN_PING_DELAY_SECONDS || time_since_last_pong > xbs_node_list.MIN_PING_DELAY_SECONDS)
                     {
                         n.sendPing();
-                        n.lastPingTime = now;
                         if (n.client_version == xbs_node.CLIENT_VERSION_UNKNOWN)
                             n.sendGetClientVersion();
                         if (n.nickname_received == false)
