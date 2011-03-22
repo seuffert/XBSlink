@@ -160,7 +160,7 @@ namespace XBSlink
             sendKnownNodeMessage(node.ip_public, (UInt16)node.port_public);
         }
 
-        public void addXbox(PhysicalAddress mac)
+        public bool addXbox(PhysicalAddress mac)
         {
             int hash = mac.GetHashCode();
             bool xbox_found = false;
@@ -174,6 +174,7 @@ namespace XBSlink
             }
             if (!xbox_found)
                 xbs_messages.addInfoMessage(" ~ added new device " + mac + " for node " + this);
+            return (!xbox_found);
         }
 
         public bool Equals(xbs_node node)

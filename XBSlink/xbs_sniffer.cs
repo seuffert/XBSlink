@@ -59,8 +59,8 @@ namespace XBSlink
         public bool pdev_filter_use_special_macs = true;
         public bool pdev_filter_only_forward_special_macs = true;
 
-        private String pdev_filter = "(udp and ((ip host 0.0.0.1) or (dst port 3074))) ";
-        private String pdev_filter_all_broadcast = "(udp and ((ip host 0.0.0.1) or (dst port 3074)) or (ether host FF:FF:FF:FF:FF:FF and ip dst host 255.255.255.255)) ";
+        private String pdev_filter = "(udp and ((ip host 0.0.0.1) or (dst portrange 3074-3075))) ";
+        private String pdev_filter_all_broadcast = "(udp and ((ip host 0.0.0.1) or (dst portrange 3074-3075)) or (ether host FF:FF:FF:FF:FF:FF and ip dst host 255.255.255.255)) ";
         private List<PhysicalAddress> pdev_filter_known_macs_from_remote_nodes = new List<PhysicalAddress>();
         private List<PhysicalAddress> pdev_filter_special_macs = new List<PhysicalAddress>();
 
@@ -74,6 +74,7 @@ namespace XBSlink
         private List<PhysicalAddress> sniffed_macs = new List<PhysicalAddress>();
 
         private xbs_node_list node_list = null;
+        private xbs_nat nat = new xbs_nat();
 
         public xbs_sniffer(SharpPcap.LibPcap.LibPcapLiveDevice dev, bool sniff_additional_broadcast, bool use_special_mac_filter, bool only_forward_special_macs, xbs_node_list node_list)
         {
@@ -85,6 +86,9 @@ namespace XBSlink
             sniffed_macs.Capacity = 10;
 
             this.node_list = node_list;
+
+            nat.fillIPPool(IPAddress.Parse("192.168.11.210"), IPAddress.Parse("192.168.11.240"));
+            nat.NAT_enabled = true;
 
             this.pdev = dev;
             pdev.OnPacketArrival +=
@@ -212,7 +216,9 @@ namespace XBSlink
             PhysicalAddress srcMAC = new PhysicalAddress(src_mac);
 
 #if DEBUG
-            xbs_messages.addDebugMessage(" - new ethernet packet from "+srcMAC+" => "+dstMAC);
+            //xbs_messages.addDebugMessage(" - new ethernet packet from "+srcMAC+" => "+dstMAC);
+            Packet p = Packet.ParsePacket(rawPacket);
+            xbs_messages.addDebugMessage("s> "+p);
 #endif
 
             // if sniffed packet has MAC of packet we injected, discard
@@ -256,6 +262,21 @@ namespace XBSlink
                     addMacToKnownMacListFromRemoteNodes(srcMAC);
                 }
             }
+
+#if DEBUG
+            Packet p = Packet.Parse(data);
+            xbs_messages.addDebugMessage("i> "+p);
+#endif
+
+            if (nat.NAT_enabled)
+            {
+                nat.NAT_incoming_packet(ref data, dstMAC, srcMAC);
+#if DEBUG                
+                p = Packet.Parse(data);
+                xbs_messages.addDebugMessage("i> " + p);
+#endif
+            }
+
             // inject the packet 
             try
             {
