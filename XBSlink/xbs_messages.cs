@@ -38,6 +38,9 @@ namespace XBSlink
         public static void addInfoMessage(String msg)
         {
             addMessage(msg, messages);
+#if DEBUG
+            addMessage(msg, debug_messages);
+#endif
         }
         public static void addChatMessage(String msg)
         {
