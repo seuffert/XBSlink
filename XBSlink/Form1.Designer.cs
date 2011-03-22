@@ -133,6 +133,26 @@ namespace XBSlink
             this.button_add_MAC = new System.Windows.Forms.Button();
             this.textBox_add_MAC = new System.Windows.Forms.TextBox();
             this.listBox_MAC_list = new System.Windows.Forms.ListBox();
+            this.tabPage_nat = new System.Windows.Forms.TabPage();
+            this.button1 = new System.Windows.Forms.Button();
+            this.textBox_nat_iprange_to = new System.Windows.Forms.TextBox();
+            this.textBox_nat_iprange_from = new System.Windows.Forms.TextBox();
+            this.label20 = new System.Windows.Forms.Label();
+            this.radioButton_nat_ippool_showfree = new System.Windows.Forms.RadioButton();
+            this.radioButton_nat_ippool_showused = new System.Windows.Forms.RadioButton();
+            this.radioButton_nat_ippool_showall = new System.Windows.Forms.RadioButton();
+            this.label19 = new System.Windows.Forms.Label();
+            this.listView1_nat_IPpool = new System.Windows.Forms.ListView();
+            this.columnHeader_nat_ippool_localIP = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader_nat_ippool_device = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader_nat_ippool__originalIP = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader_nat_ippool_node = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.checkBox_nat_useDHCP = new System.Windows.Forms.CheckBox();
+            this.comboBox_nat_broadcast = new System.Windows.Forms.ComboBox();
+            this.label18 = new System.Windows.Forms.Label();
+            this.checkBox_nat_enable = new System.Windows.Forms.CheckBox();
+            this.label17 = new System.Windows.Forms.Label();
             this.tabPage_about = new System.Windows.Forms.TabPage();
             this.richTextBox_about = new System.Windows.Forms.RichTextBox();
             this.timer_messages = new System.Windows.Forms.Timer(this.components);
@@ -152,6 +172,8 @@ namespace XBSlink
             this.tabPage_settings.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            this.tabPage_nat.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.tabPage_about.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -362,6 +384,7 @@ namespace XBSlink
             this.tabControl1.Controls.Add(this.tabPage_chat);
             this.tabControl1.Controls.Add(this.tabPage_messages);
             this.tabControl1.Controls.Add(this.tabPage_settings);
+            this.tabControl1.Controls.Add(this.tabPage_nat);
             this.tabControl1.Controls.Add(this.tabPage_about);
             this.tabControl1.Location = new System.Drawing.Point(10, 65);
             this.tabControl1.Margin = new System.Windows.Forms.Padding(1);
@@ -911,7 +934,6 @@ namespace XBSlink
             this.textBox_chatNickname.Name = "textBox_chatNickname";
             this.textBox_chatNickname.Size = new System.Drawing.Size(140, 20);
             this.textBox_chatNickname.TabIndex = 0;
-            this.textBox_chatNickname.Text = "Anonymous";
             this.toolTip1.SetToolTip(this.textBox_chatNickname, "the nickname will appear in the chat as well as in the node list");
             this.textBox_chatNickname.Leave += new System.EventHandler(this.textBox_chatNickname_Leave);
             // 
@@ -1079,6 +1101,216 @@ namespace XBSlink
             this.listBox_MAC_list.TabIndex = 17;
             this.listBox_MAC_list.SelectedIndexChanged += new System.EventHandler(this.listBox_MAC_list_SelectedIndexChanged);
             // 
+            // tabPage_nat
+            // 
+            this.tabPage_nat.BackColor = System.Drawing.SystemColors.Control;
+            this.tabPage_nat.Controls.Add(this.button1);
+            this.tabPage_nat.Controls.Add(this.textBox_nat_iprange_to);
+            this.tabPage_nat.Controls.Add(this.textBox_nat_iprange_from);
+            this.tabPage_nat.Controls.Add(this.label20);
+            this.tabPage_nat.Controls.Add(this.radioButton_nat_ippool_showfree);
+            this.tabPage_nat.Controls.Add(this.radioButton_nat_ippool_showused);
+            this.tabPage_nat.Controls.Add(this.radioButton_nat_ippool_showall);
+            this.tabPage_nat.Controls.Add(this.label19);
+            this.tabPage_nat.Controls.Add(this.listView1_nat_IPpool);
+            this.tabPage_nat.Controls.Add(this.groupBox3);
+            this.tabPage_nat.Controls.Add(this.label17);
+            this.tabPage_nat.Location = new System.Drawing.Point(4, 22);
+            this.tabPage_nat.Name = "tabPage_nat";
+            this.tabPage_nat.Size = new System.Drawing.Size(348, 404);
+            this.tabPage_nat.TabIndex = 6;
+            this.tabPage_nat.Text = "NAT";
+            // 
+            // button1
+            // 
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button1.Location = new System.Drawing.Point(307, 381);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(39, 20);
+            this.button1.TabIndex = 11;
+            this.button1.Text = "Add";
+            this.button1.UseVisualStyleBackColor = true;
+            // 
+            // textBox_nat_iprange_to
+            // 
+            this.textBox_nat_iprange_to.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.textBox_nat_iprange_to.ForeColor = System.Drawing.Color.LightGray;
+            this.textBox_nat_iprange_to.Location = new System.Drawing.Point(212, 381);
+            this.textBox_nat_iprange_to.Name = "textBox_nat_iprange_to";
+            this.textBox_nat_iprange_to.Size = new System.Drawing.Size(89, 20);
+            this.textBox_nat_iprange_to.TabIndex = 10;
+            this.textBox_nat_iprange_to.Text = "To";
+            this.textBox_nat_iprange_to.TextChanged += new System.EventHandler(this.textBox_nat_iprange_to_TextChanged);
+            this.textBox_nat_iprange_to.Enter += new System.EventHandler(this.textBox_nat_iprange_to_Enter);
+            this.textBox_nat_iprange_to.Leave += new System.EventHandler(this.textBox_nat_iprange_to_Leave);
+            // 
+            // textBox_nat_iprange_from
+            // 
+            this.textBox_nat_iprange_from.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.textBox_nat_iprange_from.ForeColor = System.Drawing.Color.LightGray;
+            this.textBox_nat_iprange_from.Location = new System.Drawing.Point(115, 381);
+            this.textBox_nat_iprange_from.Name = "textBox_nat_iprange_from";
+            this.textBox_nat_iprange_from.Size = new System.Drawing.Size(89, 20);
+            this.textBox_nat_iprange_from.TabIndex = 9;
+            this.textBox_nat_iprange_from.Text = "From";
+            this.textBox_nat_iprange_from.TextChanged += new System.EventHandler(this.textBox_nat_iprange_from_TextChanged);
+            this.textBox_nat_iprange_from.Enter += new System.EventHandler(this.textBox_nat_iprange_from_Enter);
+            this.textBox_nat_iprange_from.Leave += new System.EventHandler(this.textBox_nat_iprange_from_Leave);
+            // 
+            // label20
+            // 
+            this.label20.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(5, 384);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(107, 13);
+            this.label20.TabIndex = 8;
+            this.label20.Text = "Add IP range to pool:";
+            // 
+            // radioButton_nat_ippool_showfree
+            // 
+            this.radioButton_nat_ippool_showfree.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.radioButton_nat_ippool_showfree.AutoSize = true;
+            this.radioButton_nat_ippool_showfree.Location = new System.Drawing.Point(302, 143);
+            this.radioButton_nat_ippool_showfree.Name = "radioButton_nat_ippool_showfree";
+            this.radioButton_nat_ippool_showfree.Size = new System.Drawing.Size(43, 17);
+            this.radioButton_nat_ippool_showfree.TabIndex = 7;
+            this.radioButton_nat_ippool_showfree.Text = "free";
+            this.radioButton_nat_ippool_showfree.UseVisualStyleBackColor = true;
+            // 
+            // radioButton_nat_ippool_showused
+            // 
+            this.radioButton_nat_ippool_showused.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.radioButton_nat_ippool_showused.AutoSize = true;
+            this.radioButton_nat_ippool_showused.Location = new System.Drawing.Point(248, 143);
+            this.radioButton_nat_ippool_showused.Name = "radioButton_nat_ippool_showused";
+            this.radioButton_nat_ippool_showused.Size = new System.Drawing.Size(48, 17);
+            this.radioButton_nat_ippool_showused.TabIndex = 6;
+            this.radioButton_nat_ippool_showused.Text = "used";
+            this.radioButton_nat_ippool_showused.UseVisualStyleBackColor = true;
+            // 
+            // radioButton_nat_ippool_showall
+            // 
+            this.radioButton_nat_ippool_showall.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.radioButton_nat_ippool_showall.AutoSize = true;
+            this.radioButton_nat_ippool_showall.Checked = true;
+            this.radioButton_nat_ippool_showall.Location = new System.Drawing.Point(207, 143);
+            this.radioButton_nat_ippool_showall.Name = "radioButton_nat_ippool_showall";
+            this.radioButton_nat_ippool_showall.Size = new System.Drawing.Size(35, 17);
+            this.radioButton_nat_ippool_showall.TabIndex = 5;
+            this.radioButton_nat_ippool_showall.TabStop = true;
+            this.radioButton_nat_ippool_showall.Text = "all";
+            this.radioButton_nat_ippool_showall.UseVisualStyleBackColor = true;
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(3, 145);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(105, 13);
+            this.label19.TabIndex = 4;
+            this.label19.Text = "NAT IP address pool";
+            // 
+            // listView1_nat_IPpool
+            // 
+            this.listView1_nat_IPpool.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.listView1_nat_IPpool.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader_nat_ippool_localIP,
+            this.columnHeader_nat_ippool_device,
+            this.columnHeader_nat_ippool__originalIP,
+            this.columnHeader_nat_ippool_node});
+            this.listView1_nat_IPpool.Location = new System.Drawing.Point(0, 166);
+            this.listView1_nat_IPpool.Name = "listView1_nat_IPpool";
+            this.listView1_nat_IPpool.Size = new System.Drawing.Size(348, 209);
+            this.listView1_nat_IPpool.TabIndex = 3;
+            this.listView1_nat_IPpool.UseCompatibleStateImageBehavior = false;
+            this.listView1_nat_IPpool.View = System.Windows.Forms.View.Details;
+            this.listView1_nat_IPpool.SizeChanged += new System.EventHandler(this.listView1_nat_IPpool_SizeChanged);
+            // 
+            // columnHeader_nat_ippool_localIP
+            // 
+            this.columnHeader_nat_ippool_localIP.Text = "local IP";
+            this.columnHeader_nat_ippool_localIP.Width = 69;
+            // 
+            // columnHeader_nat_ippool_device
+            // 
+            this.columnHeader_nat_ippool_device.Text = "Device";
+            this.columnHeader_nat_ippool_device.Width = 72;
+            // 
+            // columnHeader_nat_ippool__originalIP
+            // 
+            this.columnHeader_nat_ippool__originalIP.Text = "original IP";
+            // 
+            // columnHeader_nat_ippool_node
+            // 
+            this.columnHeader_nat_ippool_node.Text = "Node";
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox3.Controls.Add(this.checkBox_nat_useDHCP);
+            this.groupBox3.Controls.Add(this.comboBox_nat_broadcast);
+            this.groupBox3.Controls.Add(this.label18);
+            this.groupBox3.Controls.Add(this.checkBox_nat_enable);
+            this.groupBox3.Location = new System.Drawing.Point(6, 27);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(339, 110);
+            this.groupBox3.TabIndex = 2;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "NAT settings";
+            // 
+            // checkBox_nat_useDHCP
+            // 
+            this.checkBox_nat_useDHCP.AutoSize = true;
+            this.checkBox_nat_useDHCP.Enabled = false;
+            this.checkBox_nat_useDHCP.Location = new System.Drawing.Point(6, 42);
+            this.checkBox_nat_useDHCP.Name = "checkBox_nat_useDHCP";
+            this.checkBox_nat_useDHCP.Size = new System.Drawing.Size(256, 17);
+            this.checkBox_nat_useDHCP.TabIndex = 3;
+            this.checkBox_nat_useDHCP.Text = "use local DHCP server to assign NAT IP address";
+            this.toolTip1.SetToolTip(this.checkBox_nat_useDHCP, "not implemented yet, sorry");
+            this.checkBox_nat_useDHCP.UseVisualStyleBackColor = true;
+            // 
+            // comboBox_nat_broadcast
+            // 
+            this.comboBox_nat_broadcast.FormattingEnabled = true;
+            this.comboBox_nat_broadcast.Location = new System.Drawing.Point(6, 80);
+            this.comboBox_nat_broadcast.Name = "comboBox_nat_broadcast";
+            this.comboBox_nat_broadcast.Size = new System.Drawing.Size(139, 21);
+            this.comboBox_nat_broadcast.TabIndex = 2;
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(6, 64);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(83, 13);
+            this.label18.TabIndex = 1;
+            this.label18.Text = "local Broadcast:";
+            // 
+            // checkBox_nat_enable
+            // 
+            this.checkBox_nat_enable.AutoSize = true;
+            this.checkBox_nat_enable.Location = new System.Drawing.Point(6, 19);
+            this.checkBox_nat_enable.Name = "checkBox_nat_enable";
+            this.checkBox_nat_enable.Size = new System.Drawing.Size(131, 17);
+            this.checkBox_nat_enable.TabIndex = 0;
+            this.checkBox_nat_enable.Text = "enable source IP NAT";
+            this.checkBox_nat_enable.UseVisualStyleBackColor = true;
+            this.checkBox_nat_enable.CheckedChanged += new System.EventHandler(this.checkBox_nat_enable_CheckedChanged);
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(3, 9);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(276, 13);
+            this.label17.TabIndex = 1;
+            this.label17.Text = "NAT IP translation rewrites all remote packets to local IPs";
+            // 
             // tabPage_about
             // 
             this.tabPage_about.BackColor = System.Drawing.SystemColors.Control;
@@ -1171,6 +1403,10 @@ namespace XBSlink
             this.groupBox2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.tabPage_nat.ResumeLayout(false);
+            this.tabPage_nat.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.tabPage_about.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -1268,6 +1504,26 @@ namespace XBSlink
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.Label label_num_persons_in_chat;
         private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.TabPage tabPage_nat;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.CheckBox checkBox_nat_useDHCP;
+        private System.Windows.Forms.ComboBox comboBox_nat_broadcast;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.CheckBox checkBox_nat_enable;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.ListView listView1_nat_IPpool;
+        private System.Windows.Forms.RadioButton radioButton_nat_ippool_showfree;
+        private System.Windows.Forms.RadioButton radioButton_nat_ippool_showused;
+        private System.Windows.Forms.RadioButton radioButton_nat_ippool_showall;
+        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.TextBox textBox_nat_iprange_to;
+        private System.Windows.Forms.TextBox textBox_nat_iprange_from;
+        private System.Windows.Forms.ColumnHeader columnHeader_nat_ippool_localIP;
+        private System.Windows.Forms.ColumnHeader columnHeader_nat_ippool_device;
+        private System.Windows.Forms.ColumnHeader columnHeader_nat_ippool__originalIP;
+        private System.Windows.Forms.ColumnHeader columnHeader_nat_ippool_node;
     }
 }
 

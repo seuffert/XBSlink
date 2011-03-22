@@ -64,6 +64,7 @@ namespace XBSlink
         public const String REG_CLOUDLIST_SERVER = "cloudlist server";
         public const String REG_USE_CLOUDLIST_SERVER_TO_CHECK_INCOMING_PORT = "use cloudlist server to check incoming port";
         public const String REG_CHECK4UPDATES = "check for updates";
+        public const String REG_ENABLE_NAT = "enable NAT";
 
         private static Dictionary<String, String> registry_settings = new Dictionary<String, String>();
         private static RegistryKey regkey;

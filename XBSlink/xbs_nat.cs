@@ -42,6 +42,7 @@ namespace XBSlink
         private Queue<IPAddress> ip_pool = new Queue<IPAddress>();
         private IPAddress pool_start = null;
         private IPAddress pool_end = null;
+        public volatile IPAddress local_broadcast = null;
 
         private Dictionary<PhysicalAddress, xbs_nat_entry> NAT_list = new Dictionary<PhysicalAddress, xbs_nat_entry>();
 

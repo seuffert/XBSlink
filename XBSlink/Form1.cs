@@ -50,6 +50,7 @@ namespace XBSlink
         public static xbs_udp_listener udp_listener = null;
         public static xbs_sniffer sniffer = null;
         public static xbs_node_list node_list = null;
+        public static xbs_nat NAT = null;
 
         public DebugWindow debug_window = null;
 
@@ -118,6 +119,7 @@ namespace XBSlink
             node_list = new xbs_node_list();
             cloudlist = new xbs_cloudlist();
             natstun = new xbs_natstun();
+            NAT = new xbs_nat();
 
             initializeCloudListView();
 
@@ -247,12 +249,13 @@ namespace XBSlink
             xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_USE_CLOUDLIST_SERVER_TO_CHECK_INCOMING_PORT, checkBox_useCloudServerForPortCheck);
             xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_CHAT_NICKNAME, textBox_chatNickname);
             xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_CHECK4UPDATES, checkBox_checkForUpdates);
+            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_ENABLE_NAT, checkBox_nat_enable);
 
             if (checkBox_enable_MAC_list.Checked)
                 checkBox_mac_restriction.Enabled = true;
 
-            if (textBox_chatNickname.Text == "Anonymous")
-                textBox_chatNickname.Text = textBox_chatNickname.Text + (new Random().Next(1000, 9999));
+            if (textBox_chatNickname.Text == "")
+                textBox_chatNickname.Text = xbs_chat.STANDARD_NICKNAME;
 
             saveRegistryValues();
         }
@@ -279,6 +282,7 @@ namespace XBSlink
             xbs_settings.setRegistryValue(xbs_settings.REG_NEW_NODE_SOUND_NOTIFICATION, checkBox_newNodeSound.Checked);
             xbs_settings.setRegistryValue(xbs_settings.REG_USE_CLOUDLIST_SERVER_TO_CHECK_INCOMING_PORT, checkBox_useCloudServerForPortCheck.Checked);
             xbs_settings.setRegistryValue(xbs_settings.REG_CHECK4UPDATES, checkBox_checkForUpdates.Checked);
+            xbs_settings.setRegistryValue(xbs_settings.REG_ENABLE_NAT, checkBox_nat_enable.Checked);
         }
 
         // -----------------------------------------------------
@@ -399,7 +403,7 @@ namespace XBSlink
             node_list.local_node = new xbs_node(local_node_ip, udp_listener.udp_socket_port);
             node_list.local_node.nickname = textBox_chatNickname.Text;
 
-            sniffer = new xbs_sniffer(pdev, checkBox_all_broadcasts.Checked, checkBox_enable_MAC_list.Checked, checkBox_mac_restriction.Checked, node_list);
+            sniffer = new xbs_sniffer(pdev, checkBox_all_broadcasts.Checked, checkBox_enable_MAC_list.Checked, checkBox_mac_restriction.Checked, node_list, NAT);
             setSnifferMacList();
             sniffer.start_capture();
 
@@ -1289,6 +1293,56 @@ namespace XBSlink
         {
             int size = listView_clouds.ClientSize.Width - columnHeader_cloudlistmaxnodes.Width - columnHeader_cloudlistnodecount.Width;
             columnHeader_cloudlistname.Width = size;
+        }
+
+        private void textBox_nat_iprange_from_TextChanged(object sender, EventArgs e)
+        {
+            if (textBox_nat_iprange_from.Text == "From")
+                textBox_nat_iprange_from.ForeColor = Color.LightGray;
+            else
+                textBox_nat_iprange_from.ForeColor = SystemColors.WindowText;
+        }
+
+        private void textBox_nat_iprange_from_Enter(object sender, EventArgs e)
+        {
+            if (textBox_nat_iprange_from.Text == "From")
+                textBox_nat_iprange_from.Text = "";
+        }
+
+        private void textBox_nat_iprange_from_Leave(object sender, EventArgs e)
+        {
+            if (textBox_nat_iprange_from.Text == "")
+                textBox_nat_iprange_from.Text = "From";
+        }
+
+        private void textBox_nat_iprange_to_TextChanged(object sender, EventArgs e)
+        {
+            if (textBox_nat_iprange_to.Text == "To")
+                textBox_nat_iprange_to.ForeColor = Color.LightGray;
+            else
+                textBox_nat_iprange_to.ForeColor = SystemColors.WindowText;
+        }
+
+        private void textBox_nat_iprange_to_Enter(object sender, EventArgs e)
+        {
+            if (textBox_nat_iprange_to.Text == "To")
+                textBox_nat_iprange_to.Text = "";
+        }
+
+        private void textBox_nat_iprange_to_Leave(object sender, EventArgs e)
+        {
+            if (textBox_nat_iprange_to.Text == "")
+                textBox_nat_iprange_to.Text = "To";
+        }
+
+        private void listView1_nat_IPpool_SizeChanged(object sender, EventArgs e)
+        {
+            columnHeader_nat_ippool_node.AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
+        }
+
+        private void checkBox_nat_enable_CheckedChanged(object sender, EventArgs e)
+        {
+            NAT.NAT_enabled = checkBox_nat_enable.Checked;
         }
     }
 }

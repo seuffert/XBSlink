@@ -27,7 +27,8 @@ namespace XBSlink
 {
     class xbs_chat
     {
-        public const String STANDARD_NICKNAME = "Anonymous";
+        private const String _STANDARD_NICKNAME = "Anonymous";
+        public static String STANDARD_NICKNAME { get { return _STANDARD_NICKNAME + (new Random().Next(1000, 9999)).ToString(); } }
         public const String INCOMING_MESSAGE_SOUNG = "sounds/incoming_chat_msg.wav";
         public static bool notify_on_incoming_message = true;
 

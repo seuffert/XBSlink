@@ -74,10 +74,11 @@ namespace XBSlink
         private List<PhysicalAddress> sniffed_macs = new List<PhysicalAddress>();
 
         private xbs_node_list node_list = null;
-        private xbs_nat nat = new xbs_nat();
+        private xbs_nat NAT = null;
 
-        public xbs_sniffer(SharpPcap.LibPcap.LibPcapLiveDevice dev, bool sniff_additional_broadcast, bool use_special_mac_filter, bool only_forward_special_macs, xbs_node_list node_list)
+        public xbs_sniffer(SharpPcap.LibPcap.LibPcapLiveDevice dev, bool sniff_additional_broadcast, bool use_special_mac_filter, bool only_forward_special_macs, xbs_node_list node_list, xbs_nat NAT)
         {
+            this.NAT = NAT;
             this.pdev_sniff_additional_broadcast = sniff_additional_broadcast;
             this.pdev_filter_use_special_macs = use_special_mac_filter;
             this.pdev_filter_only_forward_special_macs = only_forward_special_macs;
@@ -86,9 +87,6 @@ namespace XBSlink
             sniffed_macs.Capacity = 10;
 
             this.node_list = node_list;
-
-            nat.fillIPPool(IPAddress.Parse("192.168.11.210"), IPAddress.Parse("192.168.11.240"));
-            nat.NAT_enabled = true;
 
             this.pdev = dev;
             pdev.OnPacketArrival +=
@@ -268,9 +266,9 @@ namespace XBSlink
             xbs_messages.addDebugMessage("i> "+p);
 #endif
 
-            if (nat.NAT_enabled)
+            if (NAT.NAT_enabled)
             {
-                nat.NAT_incoming_packet(ref data, dstMAC, srcMAC);
+                NAT.NAT_incoming_packet(ref data, dstMAC, srcMAC);
 #if DEBUG                
                 p = Packet.Parse(data);
                 xbs_messages.addDebugMessage("i> " + p);

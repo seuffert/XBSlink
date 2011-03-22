@@ -21,6 +21,7 @@ namespace XBSlink
         public static xbs_udp_listener udp_listener = null;
         public static xbs_sniffer sniffer = null;
         public static xbs_node_list node_list = null;
+        public static xbs_nat NAT = null;
         private xbs_natstun natstun = null;
         private xbs_cloudlist cloudlist = null;
 
@@ -190,6 +191,7 @@ namespace XBSlink
                 close_app(-2);
             }
 
+            NAT = new xbs_nat();
             node_list = new xbs_node_list();
             node_list.notify_on_new_node = false;
             if (option_local_port == 0)
@@ -224,7 +226,7 @@ namespace XBSlink
             if (option_nickname!=null)
                 node_list.local_node.nickname = option_nickname;
 
-            sniffer = new xbs_sniffer(pdev, option_advanced_broadcast, false, false, node_list);
+            sniffer = new xbs_sniffer(pdev, option_advanced_broadcast, false, false, node_list, NAT);
             sniffer.start_capture();
 
             if (ExceptionMessage.ABORTING)
