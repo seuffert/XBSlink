@@ -112,7 +112,6 @@ namespace XBSlink
         private bool compare_tmpIP(xbs_nat_entry entry)
         {
             bool ret = (entry.natted_source_ip.Equals(_tmpIP));
-            _tmpIP = null;
             return ret;
         }
 

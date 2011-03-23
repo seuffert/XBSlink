@@ -99,10 +99,15 @@ namespace XBSlink
             lock (registry_settings)
             {
                 foreach (KeyValuePair<string, string> kvp in registry_settings)
-                    regkey.SetValue(kvp.Key, kvp.Value == null ? "" : kvp.Value);
+                    if (kvp.Value != null)
+                        regkey.SetValue(kvp.Key, kvp.Value, RegistryValueKind.String);
+                    else
+                        regkey.DeleteValue(kvp.Key, false);
                 foreach (KeyValuePair<string, byte[]> kvp in registry_settings_binary)
                     if (kvp.Value != null)
-                        regkey.SetValue(kvp.Key, kvp.Value);
+                        regkey.SetValue(kvp.Key, kvp.Value, RegistryValueKind.Binary);
+                    else
+                        regkey.DeleteValue(kvp.Key, false);
             }
         }
 
@@ -147,9 +152,8 @@ namespace XBSlink
         }
         public static void setRegistryValue(String value_name, byte[] value)
         {
-            if (value != null)
-                lock (registry_settings)
-                    registry_settings_binary[value_name] = value;
+            lock (registry_settings)
+                registry_settings_binary[value_name] = value;
         }
 
         public static void initializeRegistrySettingWithControl(String value_name, CheckBox checkbox)

@@ -1456,5 +1456,21 @@ namespace XBSlink
             }
             listView_nat_IPpool.EndUpdate();
         }
+
+        private void button_nat_ippool_del_Click(object sender, EventArgs e)
+        {
+            ListView.SelectedListViewItemCollection items = listView_nat_IPpool.SelectedItems;
+            IPAddress ip;
+            foreach (ListViewItem lv_item in items)
+            {
+                if (IPAddress.TryParse(lv_item.Text, out ip))
+                    NAT.ip_pool.removeIPFromPool(ip);
+#if DEBUG
+                else
+                    xbs_messages.addDebugMessage("!! could not delete NAT IP from pool. Error 0. "+lv_item.Text);
+#endif
+            }
+            updateNATIPPoolListView();
+        }
     }
 }
