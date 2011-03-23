@@ -64,9 +64,12 @@ namespace XBSlink
         public const String REG_CLOUDLIST_SERVER = "cloudlist server";
         public const String REG_USE_CLOUDLIST_SERVER_TO_CHECK_INCOMING_PORT = "use cloudlist server to check incoming port";
         public const String REG_CHECK4UPDATES = "check for updates";
-        public const String REG_ENABLE_NAT = "enable NAT";
+        public const String REG_NAT_ENABLE = "enable NAT";
+        public const String REG_NAT_LOCAL_BROADCAST = "local Broadcast";
+        public const String REG_NAT_IP_POOL = "NAT IP pool";
 
         private static Dictionary<String, String> registry_settings = new Dictionary<String, String>();
+        private static Dictionary<String, byte[]> registry_settings_binary = new Dictionary<String, byte[]>();
         private static RegistryKey regkey;
 
 
@@ -81,7 +84,13 @@ namespace XBSlink
             lock (registry_settings)
             {
                 foreach (String val_name in regkey.GetValueNames())
-                    registry_settings.Add(val_name, (String)regkey.GetValue(val_name));
+                {
+                    RegistryValueKind value_kind = regkey.GetValueKind(val_name);
+                    if (value_kind==RegistryValueKind.String)
+                        registry_settings.Add(val_name, (String)regkey.GetValue(val_name));
+                    else if ( value_kind == RegistryValueKind.Binary )
+                        registry_settings_binary.Add(val_name, (byte[])regkey.GetValue(val_name));
+                }
             }
         }
 
@@ -91,6 +100,9 @@ namespace XBSlink
             {
                 foreach (KeyValuePair<string, string> kvp in registry_settings)
                     regkey.SetValue(kvp.Key, kvp.Value == null ? "" : kvp.Value);
+                foreach (KeyValuePair<string, byte[]> kvp in registry_settings_binary)
+                    if (kvp.Value != null)
+                        regkey.SetValue(kvp.Key, kvp.Value);
             }
         }
 
@@ -102,7 +114,6 @@ namespace XBSlink
                     ret = registry_settings[value_name];
             return ret;
         }
-
         public static bool getRegistryValue(String value_name, bool default_value)
         {
             bool ret = default_value;
@@ -114,18 +125,31 @@ namespace XBSlink
             }
             return ret;
         }
+        public static byte[] getRegistryBinaryValue(String value_name)
+        {
+            lock (registry_settings)
+                if (registry_settings_binary.ContainsKey(value_name))
+                    return registry_settings_binary[value_name];
+            return null;
+        }
+
 
         public static void setRegistryValue(String value_name, String value)
         {
             lock (registry_settings)
                 registry_settings[value_name] = value;
         }
-
         public static void setRegistryValue(String value_name, Object value)
         {
 			if (value!=null)
                 lock (registry_settings)
             	    setRegistryValue( value_name, value.ToString());
+        }
+        public static void setRegistryValue(String value_name, byte[] value)
+        {
+            if (value != null)
+                lock (registry_settings)
+                    registry_settings_binary[value_name] = value;
         }
 
         public static void initializeRegistrySettingWithControl(String value_name, CheckBox checkbox)
@@ -151,8 +175,12 @@ namespace XBSlink
             lock (registry_settings) 
                 if (xbs_settings.getRegistryValue(value_name) != null)
                     text = xbs_settings.getRegistryValue(value_name);
-            if (text!=null)
+            if (text != null)
+            {
+                if (!combobox.Items.Contains(text))
+                    combobox.Items.Add(text);
                 combobox.SelectedItem = text;
+            }
         }
 
         public static String getOnlineProgramVersion()

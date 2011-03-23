@@ -286,5 +286,10 @@ namespace XBSlink
             lastChangeTime = DateTime.Now;
         }
 
+        public xbs_xbox[] getXboxArray()
+        {
+            lock (this)
+                return xbox_list.ToArray();
+        }
     }
 }

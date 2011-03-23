@@ -34,9 +34,11 @@ using System.Security.Permissions;
 using System.Threading;
 using Microsoft.Win32;
 using PacketDotNet;
+using PacketDotNet.Utils;
 using SharpPcap;
 using SharpPcap.LibPcap;
 using SharpPcap.WinPcap;
+using MiscUtil.Conversion;
 using XBSlink.Properties;
 
 
@@ -84,6 +86,7 @@ namespace XBSlink
 
         private DateTime last_update_check = new DateTime(0);
         private DateTime last_nodelist_update = new DateTime(0);
+        private DateTime last_nat_ippool_update = new DateTime(0);
 
         public FormMain()
         {
@@ -204,14 +207,20 @@ namespace XBSlink
             NetworkInterface[] network_interfaces = NetworkInterface.GetAllNetworkInterfaces();
             int local_ip_count = 0;
             int preferred_local_ip = -1;
+            IPInterfaceProperties ip_properties;
+            IPv4InterfaceProperties ipv4_properties;
             foreach (NetworkInterface ni in network_interfaces)
-                foreach (IPAddressInformation uniCast in ni.GetIPProperties().UnicastAddresses)
+            {
+                ip_properties = ni.GetIPProperties();
+                ipv4_properties = ip_properties.GetIPv4Properties();
+                foreach (UnicastIPAddressInformation uniCast in ip_properties.UnicastAddresses)
                     if (!IPAddress.IsLoopback(uniCast.Address) && uniCast.Address.AddressFamily != AddressFamily.InterNetworkV6)
                     {
                         if (uniCast.Address.ToString().Split('.')[0] != "169")
                         {
                             local_ip_count++;
                             comboBox_localIP.Items.Add(uniCast.Address.ToString());
+                            comboBox_nat_broadcast.Items.Add( xbs_nat.calculateBroadcastFromIPandNetmask(uniCast.Address, uniCast.IPv4Mask).ToString() );
                             if (ni.OperationalStatus == OperationalStatus.Up && (ni.GetIPProperties().GatewayAddresses.Count > 0))
                             {
                                 if (!ni.GetIPProperties().GatewayAddresses[0].Address.Equals(new IPAddress(0)))
@@ -219,8 +228,13 @@ namespace XBSlink
                             }
                         }
                     }
+            }
             if (comboBox_localIP.Items.Count > 0)
+            {
                 comboBox_localIP.SelectedIndex = (preferred_local_ip == -1) ? 0 : preferred_local_ip - 1;
+                comboBox_nat_broadcast.SelectedIndex = comboBox_localIP.SelectedIndex;
+            }
+
         }
 
         private void initWithRegistryValues()
@@ -229,6 +243,11 @@ namespace XBSlink
                 setMacListFromString(xbs_settings.getRegistryValue(xbs_settings.REG_SPECIAL_MAC_LIST));
             if (xbs_settings.getRegistryValue(xbs_settings.REG_REMOTE_HOST_HISTORY) != null)
                 setRemoteHostHistoryFromString(xbs_settings.getRegistryValue(xbs_settings.REG_REMOTE_HOST_HISTORY));
+            if (xbs_settings.getRegistryBinaryValue(xbs_settings.REG_NAT_IP_POOL) != null)
+            {
+                setNATIPPoolFromBinaryArray(xbs_settings.getRegistryBinaryValue(xbs_settings.REG_NAT_IP_POOL));
+                updateNATIPPoolListView();
+            }
 
             xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_CAPTURE_DEVICE_NAME, comboBox_captureDevice);
             xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_LOCAL_IP, comboBox_localIP);
@@ -249,7 +268,8 @@ namespace XBSlink
             xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_USE_CLOUDLIST_SERVER_TO_CHECK_INCOMING_PORT, checkBox_useCloudServerForPortCheck);
             xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_CHAT_NICKNAME, textBox_chatNickname);
             xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_CHECK4UPDATES, checkBox_checkForUpdates);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_ENABLE_NAT, checkBox_nat_enable);
+            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_NAT_ENABLE, checkBox_nat_enable);
+            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_NAT_LOCAL_BROADCAST, comboBox_nat_broadcast);
 
             if (checkBox_enable_MAC_list.Checked)
                 checkBox_mac_restriction.Enabled = true;
@@ -282,7 +302,9 @@ namespace XBSlink
             xbs_settings.setRegistryValue(xbs_settings.REG_NEW_NODE_SOUND_NOTIFICATION, checkBox_newNodeSound.Checked);
             xbs_settings.setRegistryValue(xbs_settings.REG_USE_CLOUDLIST_SERVER_TO_CHECK_INCOMING_PORT, checkBox_useCloudServerForPortCheck.Checked);
             xbs_settings.setRegistryValue(xbs_settings.REG_CHECK4UPDATES, checkBox_checkForUpdates.Checked);
-            xbs_settings.setRegistryValue(xbs_settings.REG_ENABLE_NAT, checkBox_nat_enable.Checked);
+            xbs_settings.setRegistryValue(xbs_settings.REG_NAT_ENABLE, checkBox_nat_enable.Checked);
+            xbs_settings.setRegistryValue(xbs_settings.REG_NAT_LOCAL_BROADCAST, comboBox_nat_broadcast.Text);
+            xbs_settings.setRegistryValue(xbs_settings.REG_NAT_IP_POOL, getNATIPPoolBinaryArray());            
         }
 
         // -----------------------------------------------------
@@ -403,6 +425,10 @@ namespace XBSlink
             node_list.local_node = new xbs_node(local_node_ip, udp_listener.udp_socket_port);
             node_list.local_node.nickname = textBox_chatNickname.Text;
 
+            IPAddress local_Broadcast_IP;
+            if (IPAddress.TryParse( comboBox_nat_broadcast.Text, out local_Broadcast_IP ))
+                NAT.setLocalBroadcast( local_Broadcast_IP );
+            comboBox_nat_broadcast.Enabled = false;
             sniffer = new xbs_sniffer(pdev, checkBox_all_broadcasts.Checked, checkBox_enable_MAC_list.Checked, checkBox_mac_restriction.Checked, node_list, NAT);
             setSnifferMacList();
             sniffer.start_capture();
@@ -657,6 +683,17 @@ namespace XBSlink
                 updateChatUserList(nodes);
                 last_nodelist_update = last_change_time;
             }
+
+            last_change_time = NAT.ip_pool.last_update;
+            if (last_change_time > last_nat_ippool_update)
+            {
+#if DEBUG
+                xbs_messages.addDebugMessage("% updating NAT IP Pool ListView");
+#endif
+                updateNATIPPoolListView();
+                last_nat_ippool_update = last_change_time;
+            }
+
         }
 
         private void updateChatUserList( List<xbs_node> nodes )
@@ -838,6 +875,14 @@ namespace XBSlink
                 addMacToMacList(mac);
         }
 
+        private void setNATIPPoolFromBinaryArray(byte[] data)
+        {
+            if (data.Length == 0)
+                return;
+            for (int i=0; i<=data.Length-4; i+=4)
+                NAT.ip_pool.addIPToPool( ref data, i);
+        }
+
         private void setRemoteHostHistoryFromString(String remoteHostList)
         {
             if (remoteHostList.Length == 0)
@@ -853,6 +898,20 @@ namespace XBSlink
             String[] strs = new String[comboBox_RemoteHost.Items.Count];
             comboBox_RemoteHost.Items.CopyTo(strs, 0);
             return String.Join(",", strs);
+        }
+
+        private byte[] getNATIPPoolBinaryArray()
+        {
+            if (listView_nat_IPpool.Items.Count == 0)
+                return null;
+            byte[] ip_bytes = new byte[listView_nat_IPpool.Items.Count * 4];
+            IPAddress ip;
+            for (int i = 0; i < listView_nat_IPpool.Items.Count; i++)
+            {
+                if (IPAddress.TryParse(listView_nat_IPpool.Items[i].Text, out ip))
+                    Buffer.BlockCopy(ip.GetAddressBytes(), 0, ip_bytes, i*4, 4);
+            }
+            return ip_bytes;
         }
 
         private void addMacToMacList(String mac)
@@ -1343,6 +1402,59 @@ namespace XBSlink
         private void checkBox_nat_enable_CheckedChanged(object sender, EventArgs e)
         {
             NAT.NAT_enabled = checkBox_nat_enable.Checked;
+        }
+
+        private void button_nat_add_iprange_Click(object sender, EventArgs e)
+        {
+            IPAddress ip_start;
+            IPAddress ip_end;
+            if (!IPAddress.TryParse(textBox_nat_iprange_from.Text, out ip_start))
+            {
+                MessageBox.Show("Error! Malformed IP address in IP range FROM field.", "XBSlink error", MessageBoxButtons.OK ,MessageBoxIcon.Error);
+                return;
+            }
+            if (!IPAddress.TryParse(textBox_nat_iprange_to.Text, out ip_end))
+            {
+                MessageBox.Show("Error! Malformed IP address in IP range TO field.", "XBSlink error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            byte[] data;
+            data = ip_start.GetAddressBytes();
+            UInt32 range_start = EndianBitConverter.Big.ToUInt32(data, 0);
+            data = ip_end.GetAddressBytes();
+            UInt32 range_stop = EndianBitConverter.Big.ToUInt32(data, 0);
+            if (range_start>range_stop)
+            {
+                MessageBox.Show("Error! IP address range start is higher than IP address range end. ", "XBSlink error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            int count = NAT.ip_pool.addIPRangeToPool(ip_start, ip_end);
+            if (count<=0)
+                MessageBox.Show("Error! could not add IPs to NAT IP pool. please see the messages. ", "XBSlink error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            else
+                toolTip2.Show("Added "+count+" IPs to the pool.", button_nat_add_iprange, 0, -20, 2000);
+            updateNATIPPoolListView();
+        }
+
+        private void updateNATIPPoolListView()
+        {
+            listView_nat_IPpool.BeginUpdate();
+            listView_nat_IPpool.Items.Clear();
+            xbs_nat_entry[] entries = NAT.ip_pool.getEntriesArray();
+            foreach (xbs_nat_entry entry in entries)
+            {
+                ListViewItem lv_item = listView_nat_IPpool.Items.Add(entry.natted_source_ip.ToString());
+                if (entry.original_source_ip!=null)
+                {
+                    lv_item.SubItems.Add(entry.source_mac.ToString());
+                    lv_item.SubItems.Add(entry.original_source_ip.ToString());
+                    xbs_node node = node_list.findNode(entry.source_mac);
+                    if (node != null)
+                        lv_item.SubItems.Add( node.nickname + "("+node.ip_public+":"+node.port_public+")");
+                }
+            }
+            listView_nat_IPpool.EndUpdate();
         }
     }
 }

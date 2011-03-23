@@ -11,20 +11,147 @@ namespace XBSlink
 {
     class xbs_nat_entry
     {
-        public IPAddress original_source_ip;
+        volatile public IPAddress original_source_ip;
         public byte[] original_source_ip_bytes;
-        public IPAddress natted_source_ip;
+        volatile public IPAddress natted_source_ip;
         public byte[] natted_source_ip_bytes;
-        public PhysicalAddress source_mac;
+        volatile public PhysicalAddress source_mac;
+        public DateTime last_change_time = DateTime.Now;
 
         public xbs_nat_entry(PhysicalAddress mac, IPAddress original_ip, IPAddress natted_ip)
         {
             this.original_source_ip = original_ip;
-            this.original_source_ip_bytes = original_ip.GetAddressBytes();
+            if (original_ip!=null)
+                this.original_source_ip_bytes = original_ip.GetAddressBytes();
             this.natted_source_ip = natted_ip;
-            this.natted_source_ip_bytes = natted_ip.GetAddressBytes();
+            if (natted_ip!=null)
+                this.natted_source_ip_bytes = natted_ip.GetAddressBytes();
             this.source_mac = mac;
         }
+    }
+
+    class xbs_nat_ippool
+    {
+        private List<xbs_nat_entry> ip_pool = new List<xbs_nat_entry>();
+        public int Count { get { lock (ip_pool) { return ip_pool.Count; } } }
+        public volatile int CountOfUsedIPs = 0;
+        private IPAddress _tmpIP = null;
+        private DateTime _last_update = DateTime.Now;
+        public DateTime last_update { get { lock (ip_pool) { return _last_update; } } private set { lock (ip_pool) { _last_update = value; } } }
+
+        public xbs_nat_ippool()
+        {
+        }
+
+        public int addIPRangeToPool(IPAddress start, IPAddress end)
+        {
+            byte[] data;
+            data = start.GetAddressBytes();
+            UInt32 range_start = EndianBitConverter.Big.ToUInt32( data, 0 );
+            data = end.GetAddressBytes();
+            UInt32 range_stop = EndianBitConverter.Big.ToUInt32(data, 0);
+            int count = 0;
+            if (range_start <= range_stop)
+            {
+                IPAddress ip;
+                lock (ip_pool)
+                {
+                    for (UInt32 i = range_start; i <= range_stop; i++)
+                    {
+                        ip = new IPAddress(EndianBitConverter.Big.GetBytes(i));
+                        ip_pool.Add(new xbs_nat_entry(null, null, ip));
+                        count++;
+                    }
+                }
+                xbs_messages.addDebugMessage("% NAT IP pool filled with " + count + " ip addresses. Total count of IPs in pool: " + ip_pool.Count);
+            }
+            return count;
+        }
+
+        public void addIPToPool(String IPstr)
+        {
+            IPAddress IP;
+            if (!IPAddress.TryParse(IPstr, out IP))
+                return;
+            ip_pool.Add(new xbs_nat_entry(null, null, IP));
+        }
+
+        public void addIPToPool(ref byte[] data, int index)
+        {
+            byte[] ip_bytes = new byte[4];
+            Buffer.BlockCopy(data, index, ip_bytes, 0, 4);
+            IPAddress IP = new IPAddress(ip_bytes);
+            ip_pool.Add(new xbs_nat_entry(null, null, IP));
+        }
+
+        public xbs_nat_entry requestIP(IPAddress originalIP, PhysicalAddress mac)
+        {
+            xbs_nat_entry entry = null;
+            lock (ip_pool)
+            {
+                if (CountOfUsedIPs == ip_pool.Count)
+                    return null;
+                entry = ip_pool.Find(isFreeEntry);
+                if (entry == null)
+                    return null;
+                entry.original_source_ip = originalIP;
+                entry.original_source_ip_bytes = originalIP.GetAddressBytes();
+                entry.source_mac = mac;
+                entry.last_change_time = DateTime.Now;
+                last_update = entry.last_change_time;
+                CountOfUsedIPs++;
+            }
+            return entry;
+        }
+
+        private bool isFreeEntry(xbs_nat_entry entry)
+        {
+            return (entry.source_mac == null);
+        }
+
+        private bool compare_tmpIP(xbs_nat_entry entry)
+        {
+            bool ret = (entry.natted_source_ip.Equals(_tmpIP));
+            _tmpIP = null;
+            return ret;
+        }
+
+        public void freeIP(xbs_nat_entry entry)
+        {
+            lock (ip_pool)
+            {
+                entry.original_source_ip = null;
+                entry.original_source_ip_bytes = null;
+                entry.source_mac = null;
+                entry.last_change_time = DateTime.Now;
+                last_update = entry.last_change_time;
+                CountOfUsedIPs--;
+            }
+        }
+
+        public bool removeIPFromPool(IPAddress ip)
+        {
+            _tmpIP = ip;
+            lock (ip_pool)
+            {
+                int index = ip_pool.FindIndex(compare_tmpIP);
+                if (index >= 0)
+                {
+                    ip_pool.RemoveAt(index);
+
+                }
+            }
+            return true;
+        }
+
+        public xbs_nat_entry[] getEntriesArray()
+        {
+            xbs_nat_entry[] entries;
+            lock (ip_pool)
+                entries = ip_pool.ToArray();
+            return entries;
+        }
+
     }
 
     class xbs_nat
@@ -38,70 +165,18 @@ namespace XBSlink
         private const int ARP_HEADER_DESTINATION_OFFSET = 38;
         private static byte[] broadcast_mac_bytes = new byte[6] { 255, 255, 255, 255, 255, 255 };
         public static PhysicalAddress broadcast_mac = new PhysicalAddress(broadcast_mac_bytes);
+        private IPAddress ip_zero = new IPAddress(0);
 
-        private Queue<IPAddress> ip_pool = new Queue<IPAddress>();
-        private IPAddress pool_start = null;
-        private IPAddress pool_end = null;
-        public volatile IPAddress local_broadcast = null;
+        public xbs_nat_ippool ip_pool = new xbs_nat_ippool();
+        private IPAddress local_broadcast = null;
+        private byte[] local_broadcast_bytes = new byte[4];
 
         private Dictionary<PhysicalAddress, xbs_nat_entry> NAT_list = new Dictionary<PhysicalAddress, xbs_nat_entry>();
-
+        
         public xbs_nat()
         {
         }
          
-        public void fillIPPool(IPAddress start, IPAddress end)
-        {
-            byte[] data;
-            data = start.GetAddressBytes();
-            UInt32 range_start = EndianBitConverter.Big.ToUInt32( data, 0 );
-            data = end.GetAddressBytes();
-            UInt32 range_stop = EndianBitConverter.Big.ToUInt32(data, 0);
-            if ( range_start <= range_stop)
-            {
-                lock (ip_pool)
-                {
-                    pool_start = start;
-                    pool_end = end;
-                    IPAddress ip;
-                    for (UInt32 count = range_start; count <= range_stop; count++)
-                    {
-                        ip = new IPAddress(EndianBitConverter.Big.GetBytes(count));
-                        ip_pool.Enqueue(ip);
-                    }
-                    xbs_messages.addDebugMessage("% filles NAT IP pool with " + ip_pool.Count + " ip addresses");
-                }
-            }
-        }
-
-        private IPAddress requestNewIpfromPool()
-        {
-            IPAddress ip = null;
-            lock (ip_pool)
-            {
-                if (ip_pool.Count > 0)
-                {
-                    ip = ip_pool.Dequeue();
-#if DEBUG
-                    xbs_messages.addDebugMessage("% assigned new NAT ip from Pool : " + ip + " - " + ip_pool.Count + " left");
-#endif
-                }
-                else
-                {
-#if DEBUG
-                    xbs_messages.addDebugMessage("!! % could not assigned new NAT ip from Pool! no IPs left in pool");
-#endif
-                }
-            }
-            return ip;
-        }
-
-        private void freeRequestedIP(IPAddress ip)
-        {
-            lock (ip_pool)
-                ip_pool.Enqueue(ip);
-        }
-
         public void NAT_incoming_packet(ref byte[] data, PhysicalAddress dstMAC, PhysicalAddress srcMAC)
         {
             if (!NAT_enabled)
@@ -109,15 +184,21 @@ namespace XBSlink
             EthernetPacketType ethernet_packet_type = getEthernetPacketType(ref data);
             if (!isIpOrArpPacket(ethernet_packet_type))
                 return;
-            xbs_nat_entry nat_entry = null;
+            xbs_nat_entry nat_entry;
             lock (NAT_list)
             {
-                if (!NAT_list.ContainsKey(srcMAC))
+                if (!NAT_list.TryGetValue(srcMAC, out nat_entry))
                 {
                     IPAddress sourceIP = getSourceIPFromRawPacketData(ref data, ethernet_packet_type);
+                    if (sourceIP.Equals(ip_zero))
+                        return;
                     IPAddress destinationIP = getDestinationIPFromRawPacketData(ref data, ethernet_packet_type);
-                    IPAddress natted_sourceIP = requestNewIpfromPool();
-                    nat_entry = new xbs_nat_entry(srcMAC, sourceIP, natted_sourceIP);
+                    nat_entry = ip_pool.requestIP( sourceIP, srcMAC );
+                    if (nat_entry == null)
+                    {
+                        xbs_messages.addInfoMessage("!! % out of NAT IPs. Could not nat incoming packet");
+                        return;
+                    }
                     NAT_list.Add(srcMAC, nat_entry);
 #if DEBUG
                     xbs_messages.addDebugMessage("% new device in NAT list: " + srcMAC + " " + nat_entry.original_source_ip + "=>" + nat_entry.natted_source_ip);
@@ -125,13 +206,15 @@ namespace XBSlink
                 }
                 else
                 {
-                    nat_entry = NAT_list[srcMAC];
 #if DEBUG
                     xbs_messages.addDebugMessage("% found device in NAT list: " + srcMAC + " " + nat_entry.original_source_ip + "=>" + nat_entry.natted_source_ip);
 #endif
                 }
             }
             replaceSourceIpWithNATSourceIP(ref data, ethernet_packet_type, ref nat_entry);
+            if (ethernet_packet_type == EthernetPacketType.IpV4)
+                if (dstMAC.Equals(broadcast_mac) && local_broadcast!=null)
+                    replaceBroadcastIPAddress(ref data, ref local_broadcast_bytes);
         }
 
         public void deNAT_outgoing_packet(ref byte[] data, PhysicalAddress dstMAC, PhysicalAddress srcMAC)
@@ -182,8 +265,65 @@ namespace XBSlink
 
         private void replaceDestinationIpWithOriginalIP(ref byte[] data, EthernetPacketType ethernet_packet_type, ref xbs_nat_entry nat_entry)
         {
+            replaceDestinationIP(ref data, ethernet_packet_type, ref nat_entry.natted_source_ip_bytes);
+        }
+
+        private void replaceDestinationIP(ref byte[] data, EthernetPacketType ethernet_packet_type, ref byte[] new_destinationIP)
+        {
             int offset = (ethernet_packet_type == EthernetPacketType.Arp) ? ARP_HEADER_DESTINATION_OFFSET : IP_HEADER_DESTINATION_OFFSET;
-            Buffer.BlockCopy(nat_entry.natted_source_ip_bytes, 0, data, offset, 4);
+            Buffer.BlockCopy(new_destinationIP, 0, data, offset, 4);
+        }
+
+        private void replaceBroadcastIPAddress(ref byte[] data, ref byte[] broadcastIPbytes)
+        {
+            replaceDestinationIP(ref data, EthernetPacketType.IpV4, ref broadcastIPbytes);
+        }
+
+        public static IPAddress calculateBroadcastFromIPandNetmask(IPAddress ip, IPAddress netmask)
+        {
+            IPAddress ip_broadcast = null;
+            byte[] ip_bytes = ip.GetAddressBytes();
+            byte[] netmask_bytes = netmask.GetAddressBytes();
+            byte[] ip_broadcast_bytes = new byte[4];
+            for (int i = 0; i < ip_bytes.Length; i++)
+                ip_broadcast_bytes[i] = (byte)(ip_bytes[i] | (~netmask_bytes[i]));
+            ip_broadcast = new IPAddress(ip_broadcast_bytes);
+            return ip_broadcast;
+        }
+
+        public void setLocalBroadcast(IPAddress broadcast)
+        {
+            this.local_broadcast = broadcast;
+            this.local_broadcast_bytes = broadcast.GetAddressBytes();
+#if DEBUG
+            xbs_messages.addDebugMessage("% set local Broadcast IP address to: "+broadcast);
+#endif
+
+        }
+
+        public void informOfRemovedDevice(PhysicalAddress srcMAC)
+        {
+            xbs_nat_entry nat_entry;
+            lock (NAT_list)
+            {
+                if (!NAT_list.TryGetValue(srcMAC, out nat_entry))
+                {
+#if DEBUG
+                    xbs_messages.addDebugMessage("% removal not needed, device not present in NAT IP pool.  " + srcMAC);
+#endif
+                    return;
+                }
+#if DEBUG
+                xbs_messages.addDebugMessage("% removing device "+srcMAC+" from NAT list, freeing NAT IP "+nat_entry.natted_source_ip);
+#endif
+                NAT_list.Remove(srcMAC);
+                ip_pool.freeIP(nat_entry);
+            }
+        }
+
+        public static xbs_nat getInstance()
+        {
+            return (FormMain.NAT != null) ? FormMain.NAT : xbs_console_app.NAT;
         }
     }
 }

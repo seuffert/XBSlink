@@ -141,6 +141,9 @@ namespace XBSlink
                         break;
                     }
             }
+            if (node.get_xbox_count() > 0)
+                foreach (xbs_xbox xbox in node.getXboxArray())
+                    xbs_nat.getInstance().informOfRemovedDevice(xbox.mac);
         }
 
         public xbs_node delNode(IPAddress ip, UInt16 port)
@@ -166,6 +169,17 @@ namespace XBSlink
                         return n;
                 }
 
+            }
+            return null;
+        }
+
+        public xbs_node findNode(PhysicalAddress mac)
+        {
+            lock (this)
+            {
+                foreach (xbs_node n in node_list)
+                    if (n.has_xbox(mac))
+                        return n;
             }
             return null;
         }
@@ -305,6 +319,10 @@ namespace XBSlink
             {
                 lock (node_list)
                 {
+                    foreach (xbs_node node in node_list)
+                        if (node.get_xbox_count() > 0)
+                            foreach (xbs_xbox xbox in node.getXboxArray())
+                                xbs_nat.getInstance().informOfRemovedDevice(xbox.mac);
                     node_list.Clear();
                 }
             }
