@@ -1335,12 +1335,12 @@ namespace XBSlink
 
         private void listView_nodes_ColumnWidthChanged(object sender, ColumnWidthChangedEventArgs e)
         {
-            columnHeader_nickname.AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
+            //columnHeader_nickname.AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
         }
 
         private void listView_clouds_SizeChanged(object sender, EventArgs e)
         {
-            resizeCloudListHeader();
+            //resizeCloudListHeader();
         }
 
         private void listView_clouds_ColumnWidthChanged(object sender, ColumnWidthChangedEventArgs e)
