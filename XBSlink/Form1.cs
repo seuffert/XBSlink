@@ -220,7 +220,7 @@ namespace XBSlink
                         {
                             local_ip_count++;
                             comboBox_localIP.Items.Add(uniCast.Address.ToString());
-                            comboBox_nat_broadcast.Items.Add( xbs_nat.calculateBroadcastFromIPandNetmask(uniCast.Address, uniCast.IPv4Mask).ToString() );
+                            //comboBox_nat_broadcast.Items.Add( xbs_nat.calculateBroadcastFromIPandNetmask(uniCast.Address, uniCast.IPv4Mask).ToString() );
                             if (ni.OperationalStatus == OperationalStatus.Up && (ni.GetIPProperties().GatewayAddresses.Count > 0))
                             {
                                 if (!ni.GetIPProperties().GatewayAddresses[0].Address.Equals(new IPAddress(0)))
@@ -232,7 +232,7 @@ namespace XBSlink
             if (comboBox_localIP.Items.Count > 0)
             {
                 comboBox_localIP.SelectedIndex = (preferred_local_ip == -1) ? 0 : preferred_local_ip - 1;
-                comboBox_nat_broadcast.SelectedIndex = comboBox_localIP.SelectedIndex;
+                //comboBox_nat_broadcast.SelectedIndex = comboBox_localIP.SelectedIndex;
             }
 
         }
@@ -767,7 +767,7 @@ namespace XBSlink
 
         private void updateStatusBar()
         {
-            UInt32 sniffer_packet_count = xbs_sniffer_statistics.getPacketCount();
+            UInt32 sniffer_packet_count = xbs_sniffer_statistics.packet_count;
             uint pps = sniffer_packet_count - old_sniffer_packet_count;
             toolStripStatusLabel_sniffer_in.Text = pps.ToString();
             old_sniffer_packet_count = sniffer_packet_count;
@@ -1330,7 +1330,7 @@ namespace XBSlink
 
         private void listView_nodes_SizeChanged(object sender, EventArgs e)
         {
-            columnHeader_nickname.AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
+            //columnHeader_nickname.AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
         }
 
         private void listView_nodes_ColumnWidthChanged(object sender, ColumnWidthChangedEventArgs e)
@@ -1396,7 +1396,7 @@ namespace XBSlink
 
         private void listView1_nat_IPpool_SizeChanged(object sender, EventArgs e)
         {
-            columnHeader_nat_ippool_node.AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
+            //columnHeader_nat_ippool_node.AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
         }
 
         private void checkBox_nat_enable_CheckedChanged(object sender, EventArgs e)

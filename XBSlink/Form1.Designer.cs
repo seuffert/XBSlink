@@ -134,6 +134,7 @@ namespace XBSlink
             this.textBox_add_MAC = new System.Windows.Forms.TextBox();
             this.listBox_MAC_list = new System.Windows.Forms.ListBox();
             this.tabPage_nat = new System.Windows.Forms.TabPage();
+            this.button_nat_ippool_del = new System.Windows.Forms.Button();
             this.button_nat_add_iprange = new System.Windows.Forms.Button();
             this.textBox_nat_iprange_to = new System.Windows.Forms.TextBox();
             this.textBox_nat_iprange_from = new System.Windows.Forms.TextBox();
@@ -160,7 +161,6 @@ namespace XBSlink
             this.timer_startEngine = new System.Windows.Forms.Timer(this.components);
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.toolTip2 = new System.Windows.Forms.ToolTip(this.components);
-            this.button_nat_ippool_del = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage_info.SuspendLayout();
@@ -405,7 +405,7 @@ namespace XBSlink
             this.tabPage_info.Location = new System.Drawing.Point(4, 22);
             this.tabPage_info.Name = "tabPage_info";
             this.tabPage_info.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage_info.Size = new System.Drawing.Size(348, 404);
+            this.tabPage_info.Size = new System.Drawing.Size(348, 405);
             this.tabPage_info.TabIndex = 0;
             this.tabPage_info.Text = "Info";
             // 
@@ -451,7 +451,7 @@ namespace XBSlink
             // columnHeader_nodePort
             // 
             this.columnHeader_nodePort.Text = "Port";
-            this.columnHeader_nodePort.Width = 47;
+            this.columnHeader_nodePort.Width = 51;
             // 
             // columnHeader_ping
             // 
@@ -466,7 +466,7 @@ namespace XBSlink
             // columnHeader_nickname
             // 
             this.columnHeader_nickname.Text = "Nickname";
-            this.columnHeader_nickname.Width = 113;
+            this.columnHeader_nickname.Width = 109;
             // 
             // textBox1
             // 
@@ -767,7 +767,7 @@ namespace XBSlink
             this.tabPage_messages.Controls.Add(this.button_clearMessages);
             this.tabPage_messages.Location = new System.Drawing.Point(4, 22);
             this.tabPage_messages.Name = "tabPage_messages";
-            this.tabPage_messages.Size = new System.Drawing.Size(348, 404);
+            this.tabPage_messages.Size = new System.Drawing.Size(348, 405);
             this.tabPage_messages.TabIndex = 2;
             this.tabPage_messages.Text = "Messages";
             // 
@@ -834,7 +834,7 @@ namespace XBSlink
             this.tabPage_settings.Location = new System.Drawing.Point(4, 22);
             this.tabPage_settings.Name = "tabPage_settings";
             this.tabPage_settings.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage_settings.Size = new System.Drawing.Size(348, 404);
+            this.tabPage_settings.Size = new System.Drawing.Size(348, 405);
             this.tabPage_settings.TabIndex = 1;
             this.tabPage_settings.Text = "Settings";
             // 
@@ -1121,6 +1121,17 @@ namespace XBSlink
             this.tabPage_nat.TabIndex = 6;
             this.tabPage_nat.Text = "NAT";
             // 
+            // button_nat_ippool_del
+            // 
+            this.button_nat_ippool_del.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button_nat_ippool_del.Location = new System.Drawing.Point(246, 373);
+            this.button_nat_ippool_del.Name = "button_nat_ippool_del";
+            this.button_nat_ippool_del.Size = new System.Drawing.Size(99, 20);
+            this.button_nat_ippool_del.TabIndex = 12;
+            this.button_nat_ippool_del.Text = "Remove selected";
+            this.button_nat_ippool_del.UseVisualStyleBackColor = true;
+            this.button_nat_ippool_del.Click += new System.EventHandler(this.button_nat_ippool_del_Click);
+            // 
             // button_nat_add_iprange
             // 
             this.button_nat_add_iprange.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -1172,6 +1183,7 @@ namespace XBSlink
             // 
             this.radioButton_nat_ippool_showfree.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.radioButton_nat_ippool_showfree.AutoSize = true;
+            this.radioButton_nat_ippool_showfree.Enabled = false;
             this.radioButton_nat_ippool_showfree.Location = new System.Drawing.Point(302, 143);
             this.radioButton_nat_ippool_showfree.Name = "radioButton_nat_ippool_showfree";
             this.radioButton_nat_ippool_showfree.Size = new System.Drawing.Size(43, 17);
@@ -1183,6 +1195,7 @@ namespace XBSlink
             // 
             this.radioButton_nat_ippool_showused.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.radioButton_nat_ippool_showused.AutoSize = true;
+            this.radioButton_nat_ippool_showused.Enabled = false;
             this.radioButton_nat_ippool_showused.Location = new System.Drawing.Point(248, 143);
             this.radioButton_nat_ippool_showused.Name = "radioButton_nat_ippool_showused";
             this.radioButton_nat_ippool_showused.Size = new System.Drawing.Size(48, 17);
@@ -1321,7 +1334,7 @@ namespace XBSlink
             this.tabPage_about.Controls.Add(this.richTextBox_about);
             this.tabPage_about.Location = new System.Drawing.Point(4, 22);
             this.tabPage_about.Name = "tabPage_about";
-            this.tabPage_about.Size = new System.Drawing.Size(348, 404);
+            this.tabPage_about.Size = new System.Drawing.Size(348, 405);
             this.tabPage_about.TabIndex = 3;
             this.tabPage_about.Text = "About";
             // 
@@ -1364,17 +1377,6 @@ namespace XBSlink
             // toolTip2
             // 
             this.toolTip2.ShowAlways = true;
-            // 
-            // button_nat_ippool_del
-            // 
-            this.button_nat_ippool_del.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_nat_ippool_del.Location = new System.Drawing.Point(246, 373);
-            this.button_nat_ippool_del.Name = "button_nat_ippool_del";
-            this.button_nat_ippool_del.Size = new System.Drawing.Size(99, 20);
-            this.button_nat_ippool_del.TabIndex = 12;
-            this.button_nat_ippool_del.Text = "Remove selected";
-            this.button_nat_ippool_del.UseVisualStyleBackColor = true;
-            this.button_nat_ippool_del.Click += new System.EventHandler(this.button_nat_ippool_del_Click);
             // 
             // FormMain
             // 

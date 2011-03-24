@@ -157,11 +157,17 @@ namespace XBSlink
     {
         public volatile bool NAT_enabled = false;
 
-        private const int HEADER_TYPE_OFFSET = 12;
-        private const int IP_HEADER_SOURCE_OFFSET = 26;
-        private const int IP_HEADER_DESTINATION_OFFSET = 30;
-        private const int ARP_HEADER_SOURCE_OFFSET = 28;
-        private const int ARP_HEADER_DESTINATION_OFFSET = 38;
+        private const int ETHERNET_HEADER_LENGTH            = 14;
+        private const int ETHERNET_HEADER_TYPE_OFFSET       = 12;
+        private const int ARP_HEADER_SOURCE_OFFSET          = ETHERNET_HEADER_LENGTH + 14;
+        private const int ARP_HEADER_DESTINATION_OFFSET     = ETHERNET_HEADER_LENGTH + 24;
+        private const int IP_HEADER_IHL_OFFSET              = ETHERNET_HEADER_LENGTH;
+        private const int IP_HEADER_PROTOCOL_OFFSET         = IP_HEADER_IHL_OFFSET + 9;
+        private const int IP_HEADER_CHECKSUM_OFFSET         = IP_HEADER_IHL_OFFSET + 10;
+        private const int IP_HEADER_SOURCE_OFFSET           = IP_HEADER_IHL_OFFSET + 12;
+        private const int IP_HEADER_DESTINATION_OFFSET      = IP_HEADER_IHL_OFFSET + 16;
+        private const int UDP_HEADER_CHECKSUM_OFFSET        = 6;
+
         private static byte[] broadcast_mac_bytes = new byte[6] { 255, 255, 255, 255, 255, 255 };
         public static PhysicalAddress broadcast_mac = new PhysicalAddress(broadcast_mac_bytes);
         private IPAddress ip_zero = new IPAddress(0);
@@ -176,13 +182,11 @@ namespace XBSlink
         {
         }
          
-        public void NAT_incoming_packet(ref byte[] data, PhysicalAddress dstMAC, PhysicalAddress srcMAC)
+        public EthernetPacketType NAT_incoming_packet(ref byte[] data, PhysicalAddress dstMAC, PhysicalAddress srcMAC)
         {
-            if (!NAT_enabled)
-                return;
             EthernetPacketType ethernet_packet_type = getEthernetPacketType(ref data);
             if (!isIpOrArpPacket(ethernet_packet_type))
-                return;
+                return ethernet_packet_type;
             xbs_nat_entry nat_entry;
             lock (NAT_list)
             {
@@ -190,13 +194,13 @@ namespace XBSlink
                 {
                     IPAddress sourceIP = getSourceIPFromRawPacketData(ref data, ethernet_packet_type);
                     if (sourceIP.Equals(ip_zero))
-                        return;
+                        return ethernet_packet_type;
                     IPAddress destinationIP = getDestinationIPFromRawPacketData(ref data, ethernet_packet_type);
                     nat_entry = ip_pool.requestIP( sourceIP, srcMAC );
                     if (nat_entry == null)
                     {
                         xbs_messages.addInfoMessage("!! % out of NAT IPs. Could not nat incoming packet");
-                        return;
+                        return ethernet_packet_type;
                     }
                     NAT_list.Add(srcMAC, nat_entry);
 #if DEBUG
@@ -212,8 +216,70 @@ namespace XBSlink
             }
             replaceSourceIpWithNATSourceIP(ref data, ethernet_packet_type, ref nat_entry);
             if (ethernet_packet_type == EthernetPacketType.IpV4)
-                if (dstMAC.Equals(broadcast_mac) && local_broadcast!=null)
+            {
+                if (dstMAC.Equals(broadcast_mac) && local_broadcast != null)
                     replaceBroadcastIPAddress(ref data, ref local_broadcast_bytes);
+                updateIPChecksums(ref data);
+            }
+            return ethernet_packet_type;
+        }
+
+        public EthernetPacketType NAT_incoming_packet_PacketDotNet(ref byte[] data, PhysicalAddress dstMAC, PhysicalAddress srcMAC)
+        {
+            EthernetPacket p = (EthernetPacket)EthernetPacket.Parse(data);
+            EthernetPacketType p_type = p.Type;
+            IPv4Packet p_IPV4 = null;
+            ARPPacket p_ARP = null;
+            if (p_type == EthernetPacketType.IpV4)
+                p_IPV4 = (IPv4Packet)p.PayloadPacket;
+            else if (p_type == EthernetPacketType.Arp)
+                p_ARP = (ARPPacket)p.PayloadPacket;
+            else
+                return p_type;
+            xbs_nat_entry nat_entry;
+            lock (NAT_list)
+            {
+                if (!NAT_list.TryGetValue(srcMAC, out nat_entry))
+                {
+                    IPAddress sourceIP = (p_IPV4!=null) ? p_IPV4.SourceAddress : p_ARP.SenderProtocolAddress;
+                    if (sourceIP.Equals(ip_zero))
+                        return p_type;
+                    IPAddress destinationIP = (p_IPV4 != null) ? p_IPV4.DestinationAddress : p_ARP.TargetProtocolAddress;
+                    nat_entry = ip_pool.requestIP(sourceIP, srcMAC);
+                    if (nat_entry == null)
+                    {
+                        xbs_messages.addInfoMessage("!! % out of NAT IPs. Could not nat incoming packet");
+                        return p_type;
+                    }
+                    NAT_list.Add(srcMAC, nat_entry);
+#if DEBUG
+                    xbs_messages.addDebugMessage("% new device in NAT list: " + srcMAC + " " + nat_entry.original_source_ip + "=>" + nat_entry.natted_source_ip);
+#endif
+                }
+                else
+                {
+#if DEBUG
+                    xbs_messages.addDebugMessage("% found device in NAT list: " + srcMAC + " " + nat_entry.original_source_ip + "=>" + nat_entry.natted_source_ip);
+#endif
+                }
+            }
+            if (p_IPV4 != null)
+            {
+                p_IPV4.SourceAddress = nat_entry.natted_source_ip;
+                if (dstMAC.Equals(broadcast_mac) && local_broadcast != null)
+                    p_IPV4.DestinationAddress = local_broadcast;
+                p_IPV4.UpdateIPChecksum();
+                if (p_IPV4.Protocol == IPProtocolType.UDP)
+                    ((UdpPacket)p_IPV4.PayloadPacket).UpdateUDPChecksum();
+                else if (p_IPV4.Protocol == IPProtocolType.TCP)
+                    ((TcpPacket)p_IPV4.PayloadPacket).UpdateTCPChecksum();
+            }
+            else
+            {
+                p_ARP.SenderProtocolAddress = nat_entry.natted_source_ip;
+            }
+            data = p.BytesHighPerformance.ActualBytes();
+            return p_type;
         }
 
         public void deNAT_outgoing_packet(ref byte[] data, PhysicalAddress dstMAC, PhysicalAddress srcMAC)
@@ -231,7 +297,10 @@ namespace XBSlink
             }
 
             if (nat_entry != null)
+            {
                 replaceDestinationIpWithOriginalIP(ref data, ethernet_packet_type, ref nat_entry);
+                updateIPChecksums(ref data);
+            }
         }
 
         private IPAddress getSourceIPFromRawPacketData(ref byte[] data, EthernetPacketType ethernet_packet_type)
@@ -253,7 +322,7 @@ namespace XBSlink
 
         private EthernetPacketType getEthernetPacketType(ref byte[] data)
         {
-            return (EthernetPacketType)EndianBitConverter.Big.ToInt16(data, HEADER_TYPE_OFFSET);
+            return (EthernetPacketType)EndianBitConverter.Big.ToInt16(data, ETHERNET_HEADER_TYPE_OFFSET);
         }
 
         private void replaceSourceIpWithNATSourceIP( ref byte[] data, EthernetPacketType ethernet_packet_type, ref xbs_nat_entry nat_entry)
@@ -323,6 +392,24 @@ namespace XBSlink
         public static xbs_nat getInstance()
         {
             return (FormMain.NAT != null) ? FormMain.NAT : xbs_console_app.NAT;
+        }
+
+        private void updateIPChecksums( ref byte[] data )
+        {
+            int header_len = (data[IP_HEADER_IHL_OFFSET] & 0x0F)*4;
+            //reset the checksum field (checksum is calculated when this field is zeroed)
+            data[IP_HEADER_CHECKSUM_OFFSET] = 0;
+            data[IP_HEADER_CHECKSUM_OFFSET+1] = 0;
+            //calculate the one's complement sum of the ip header
+            var val = (UInt16)ChecksumUtils.OnesComplementSum(data, IP_HEADER_IHL_OFFSET, header_len);
+            EndianBitConverter.Big.CopyBytes(val, data, IP_HEADER_CHECKSUM_OFFSET);
+
+            // disable UDP checksum
+            if (data[IP_HEADER_PROTOCOL_OFFSET] == (byte)IPProtocolType.UDP)
+            {
+                data[IP_HEADER_IHL_OFFSET + header_len + UDP_HEADER_CHECKSUM_OFFSET] = 0;
+                data[IP_HEADER_IHL_OFFSET + header_len + UDP_HEADER_CHECKSUM_OFFSET+1] = 0;
+            }
         }
     }
 }
