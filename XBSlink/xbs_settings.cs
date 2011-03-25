@@ -33,6 +33,7 @@ using System.Reflection;
 using System.Security.Permissions;
 using Microsoft.Win32;
 using XBSlink.Properties;
+using System.Configuration;
 
 namespace XBSlink
 {
@@ -72,11 +73,22 @@ namespace XBSlink
         private static Dictionary<String, byte[]> registry_settings_binary = new Dictionary<String, byte[]>();
         private static RegistryKey regkey;
 
+        private static Settings settings = new Settings();
+        private static Dictionary<String, String> properties = new Dictionary<String, String>();
 
         public xbs_settings()
         {
+            settings.Reload();
+            initRegArray();
             regkey = Registry.CurrentUser.CreateSubKey(@"Software\XBSlink");
             loadRegistryValues();
+            
+        }
+        public void initRegArray()
+        {
+            foreach (FieldInfo fi in typeof(xbs_settings).GetFields())
+                if (fi.Name.StartsWith("REG_"))
+                    xbs_settings.properties[(String)fi.GetValue(this)] = fi.Name;
         }
 
         private void loadRegistryValues()
@@ -94,6 +106,17 @@ namespace XBSlink
             }
         }
 
+        private void loadSettings()
+        {
+            lock (registry_settings)
+            {
+            }
+        }
+        public static void saveSettings()
+        {
+            settings.Save();
+        }
+
         public static void saveRegistryValues()
         {
             lock (registry_settings)
@@ -109,6 +132,7 @@ namespace XBSlink
                     else
                         regkey.DeleteValue(kvp.Key, false);
             }
+            saveSettings();
         }
 
         public static String getRegistryValue(String value_name)
@@ -143,6 +167,8 @@ namespace XBSlink
         {
             lock (registry_settings)
                 registry_settings[value_name] = value;
+            if (settings[properties[value_name]] is String)
+                settings[properties[value_name]] = value;
         }
         public static void setRegistryValue(String value_name, Object value)
         {
