@@ -1328,30 +1328,41 @@ namespace XBSlink
             }
         }
 
-        private void listView_nodes_SizeChanged(object sender, EventArgs e)
+
+        private void listView_nodes_Resize(object sender, EventArgs e)
         {
-            //columnHeader_nickname.AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
+            listView_nodes.BeginUpdate();
+            resizeNodeListHeader();
+            listView_nodes.Refresh();
+            listView_nodes.EndUpdate();
         }
 
-        private void listView_nodes_ColumnWidthChanged(object sender, ColumnWidthChangedEventArgs e)
+        private void resizeNodeListHeader()
         {
-            //columnHeader_nickname.AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
-        }
-
-        private void listView_clouds_SizeChanged(object sender, EventArgs e)
-        {
-            //resizeCloudListHeader();
-        }
-
-        private void listView_clouds_ColumnWidthChanged(object sender, ColumnWidthChangedEventArgs e)
-        {
-            resizeCloudListHeader();
+            int size = listView_nodes.ClientSize.Width - columnHeader_nodeIP.Width - columnHeader_nodePort.Width - columnHeader_nodePing.Width - columnHeader_nodeVersion.Width - 2;
+            if (size > 0 && columnHeader_nodeNickname.Width != size)
+                columnHeader_nodeNickname.Width = size;
         }
 
         private void resizeCloudListHeader()
         {
-            int size = listView_clouds.ClientSize.Width - columnHeader_cloudlistmaxnodes.Width - columnHeader_cloudlistnodecount.Width;
-            columnHeader_cloudlistname.Width = size;
+            int size = listView_clouds.ClientSize.Width - columnHeader_cloudlistmaxnodes.Width - columnHeader_cloudlistnodecount.Width - 2;
+            if (size>0 && columnHeader_cloudlistname.Width != size)
+                columnHeader_cloudlistname.Width = size;
+        }
+
+        private void listView_clouds_Resize(object sender, EventArgs e)
+        {
+            try
+            {
+                listView_clouds.BeginUpdate();
+                resizeCloudListHeader();
+                listView_clouds.Refresh();
+                listView_clouds.EndUpdate();
+            }
+            catch (Exception)
+            {
+            }
         }
 
         private void textBox_nat_iprange_from_TextChanged(object sender, EventArgs e)
@@ -1472,5 +1483,6 @@ namespace XBSlink
             }
             updateNATIPPoolListView();
         }
+
     }
 }

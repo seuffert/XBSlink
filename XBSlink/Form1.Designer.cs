@@ -77,9 +77,9 @@ namespace XBSlink
             this.listView_nodes = new System.Windows.Forms.ListView();
             this.columnHeader_nodeIP = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader_nodePort = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader_ping = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader_Version = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader_nickname = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader_nodePing = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader_nodeVersion = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader_nodeNickname = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.tabPage_clouds = new System.Windows.Forms.TabPage();
             this.button_CloudLeave = new System.Windows.Forms.Button();
@@ -426,9 +426,9 @@ namespace XBSlink
             this.listView_nodes.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader_nodeIP,
             this.columnHeader_nodePort,
-            this.columnHeader_ping,
-            this.columnHeader_Version,
-            this.columnHeader_nickname});
+            this.columnHeader_nodePing,
+            this.columnHeader_nodeVersion,
+            this.columnHeader_nodeNickname});
             this.listView_nodes.GridLines = true;
             this.listView_nodes.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.listView_nodes.LabelWrap = false;
@@ -440,8 +440,7 @@ namespace XBSlink
             this.listView_nodes.TabIndex = 2;
             this.listView_nodes.UseCompatibleStateImageBehavior = false;
             this.listView_nodes.View = System.Windows.Forms.View.Details;
-            this.listView_nodes.ColumnWidthChanged += new System.Windows.Forms.ColumnWidthChangedEventHandler(this.listView_nodes_ColumnWidthChanged);
-            this.listView_nodes.SizeChanged += new System.EventHandler(this.listView_nodes_SizeChanged);
+            this.listView_nodes.Resize += new System.EventHandler(this.listView_nodes_Resize);
             // 
             // columnHeader_nodeIP
             // 
@@ -453,20 +452,20 @@ namespace XBSlink
             this.columnHeader_nodePort.Text = "Port";
             this.columnHeader_nodePort.Width = 51;
             // 
-            // columnHeader_ping
+            // columnHeader_nodePing
             // 
-            this.columnHeader_ping.Text = "Ping";
-            this.columnHeader_ping.Width = 44;
+            this.columnHeader_nodePing.Text = "Ping";
+            this.columnHeader_nodePing.Width = 44;
             // 
-            // columnHeader_Version
+            // columnHeader_nodeVersion
             // 
-            this.columnHeader_Version.Text = "Version";
-            this.columnHeader_Version.Width = 54;
+            this.columnHeader_nodeVersion.Text = "Version";
+            this.columnHeader_nodeVersion.Width = 54;
             // 
-            // columnHeader_nickname
+            // columnHeader_nodeNickname
             // 
-            this.columnHeader_nickname.Text = "Nickname";
-            this.columnHeader_nickname.Width = 109;
+            this.columnHeader_nodeNickname.Text = "Nickname";
+            this.columnHeader_nodeNickname.Width = 109;
             // 
             // textBox1
             // 
@@ -624,6 +623,7 @@ namespace XBSlink
             this.listView_clouds.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.listView_clouds.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.listView_clouds.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader_cloudlistname,
             this.columnHeader_cloudlistnodecount,
@@ -636,9 +636,8 @@ namespace XBSlink
             this.listView_clouds.TabIndex = 0;
             this.listView_clouds.UseCompatibleStateImageBehavior = false;
             this.listView_clouds.View = System.Windows.Forms.View.Details;
-            this.listView_clouds.ColumnWidthChanged += new System.Windows.Forms.ColumnWidthChangedEventHandler(this.listView_clouds_ColumnWidthChanged);
             this.listView_clouds.SelectedIndexChanged += new System.EventHandler(this.listView_clouds_SelectedIndexChanged);
-            this.listView_clouds.SizeChanged += new System.EventHandler(this.listView_clouds_SizeChanged);
+            this.listView_clouds.Resize += new System.EventHandler(this.listView_clouds_Resize);
             // 
             // columnHeader_cloudlistname
             // 
@@ -1513,9 +1512,9 @@ namespace XBSlink
         private System.Windows.Forms.ListView listView_nodes;
         private System.Windows.Forms.ColumnHeader columnHeader_nodeIP;
         private System.Windows.Forms.ColumnHeader columnHeader_nodePort;
-        private System.Windows.Forms.ColumnHeader columnHeader_ping;
-        private System.Windows.Forms.ColumnHeader columnHeader_Version;
-        private System.Windows.Forms.ColumnHeader columnHeader_nickname;
+        private System.Windows.Forms.ColumnHeader columnHeader_nodePing;
+        private System.Windows.Forms.ColumnHeader columnHeader_nodeVersion;
+        private System.Windows.Forms.ColumnHeader columnHeader_nodeNickname;
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.ListBox listBox_chatUserList;
         private System.Windows.Forms.Label label16;
