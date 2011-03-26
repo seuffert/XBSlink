@@ -239,72 +239,79 @@ namespace XBSlink
 
         private void initWithRegistryValues()
         {
-            if (xbs_settings.getRegistryValue(xbs_settings.REG_SPECIAL_MAC_LIST) != null)
-                setMacListFromString(xbs_settings.getRegistryValue(xbs_settings.REG_SPECIAL_MAC_LIST));
-            if (xbs_settings.getRegistryValue(xbs_settings.REG_REMOTE_HOST_HISTORY) != null)
-                setRemoteHostHistoryFromString(xbs_settings.getRegistryValue(xbs_settings.REG_REMOTE_HOST_HISTORY));
+            Settings s = xbs_settings.settings;
+
+            if (s.REG_SPECIAL_MAC_LIST != null && s.REG_SPECIAL_MAC_LIST.Length>0)
+                setMacListFromString( s.REG_SPECIAL_MAC_LIST );
+            if (s.REG_REMOTE_HOST_HISTORY != null && s.REG_REMOTE_HOST_HISTORY.Length>0)
+                setRemoteHostHistoryFromString( s.REG_REMOTE_HOST_HISTORY );
+            /*
             if (xbs_settings.getRegistryBinaryValue(xbs_settings.REG_NAT_IP_POOL) != null)
             {
                 setNATIPPoolFromBinaryArray(xbs_settings.getRegistryBinaryValue(xbs_settings.REG_NAT_IP_POOL));
                 updateNATIPPoolListView();
             }
-
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_CAPTURE_DEVICE_NAME, comboBox_captureDevice);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_LOCAL_IP, comboBox_localIP);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_LOCAL_PORT, textBox_local_Port);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_REMOTE_HOST, comboBox_RemoteHost);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_REMOTE_PORT, textBox_remote_port);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_USE_UPNP, checkbox_UPnP);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_ADVANCED_BROADCAST_FORWARDING, checkBox_all_broadcasts);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_ENABLE_SPECIAL_MAC_LIST, checkBox_enable_MAC_list);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_ONLY_FORWARD_SPECIAL_MACS, checkBox_mac_restriction);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_ENABLE_STUN_SERVER, checkBox_useStunServer);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_STUN_SERVER_HOSTNAME, textBox_stunServerHostname);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_STUN_SERVER_PORT, textBox_stunServerPort);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_CHAT_AUTOSWITCH, checkBox_chatAutoSwitch);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_CHAT_SOUND_NOTIFICATION, checkBox_chat_notify);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_NEW_NODE_SOUND_NOTIFICATION, checkBox_newNodeSound);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_CLOUDLIST_SERVER, textBox_cloudlist);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_USE_CLOUDLIST_SERVER_TO_CHECK_INCOMING_PORT, checkBox_useCloudServerForPortCheck);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_CHAT_NICKNAME, textBox_chatNickname);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_CHECK4UPDATES, checkBox_checkForUpdates);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_NAT_ENABLE, checkBox_nat_enable);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_NAT_LOCAL_BROADCAST, comboBox_nat_broadcast);
+            */
+            comboBox_captureDevice.Text = s.REG_CAPTURE_DEVICE_NAME;
+            comboBox_localIP.Text = s.REG_LOCAL_IP;
+            textBox_local_Port.Text = s.REG_LOCAL_PORT.ToString();
+            comboBox_RemoteHost.Text = s.REG_REMOTE_HOST;
+            textBox_remote_port.Text = s.REG_REMOTE_PORT.ToString();
+            checkbox_UPnP.Checked = s.REG_USE_UPNP;
+            checkBox_all_broadcasts.Checked = s.REG_ADVANCED_BROADCAST_FORWARDING;
+            checkBox_enable_MAC_list.Checked = s.REG_ENABLE_SPECIAL_MAC_LIST;
+            checkBox_mac_restriction.Checked = s.REG_ONLY_FORWARD_SPECIAL_MACS;
+            checkBox_useStunServer.Checked = s.REG_ENABLE_STUN_SERVER;
+            textBox_stunServerHostname.Text = s.REG_STUN_SERVER_HOSTNAME;
+            textBox_stunServerPort.Text = s.REG_STUN_SERVER_PORT.ToString();
+            checkBox_chatAutoSwitch.Checked = s.REG_CHAT_AUTOSWITCH;
+            checkBox_chat_notify.Checked = s.REG_CHAT_SOUND_NOTIFICATION;
+            checkBox_newNodeSound.Checked = s.REG_NEW_NODE_SOUND_NOTIFICATION;
+            textBox_cloudlist.Text = s.REG_CLOUDLIST_SERVER;
+            checkBox_useCloudServerForPortCheck.Checked = s.REG_USE_CLOUDLIST_SERVER_TO_CHECK_INCOMING_PORT;
+            textBox_chatNickname.Text = s.REG_CHAT_NICKNAME;
+            checkBox_checkForUpdates.Checked = s.REG_CHECK4UPDATES;
+            checkBox_nat_enable.Checked = s.REG_NAT_ENABLE;
+            comboBox_nat_broadcast.Text = s.REG_NAT_LOCAL_BROADCAST;
 
             if (checkBox_enable_MAC_list.Checked)
                 checkBox_mac_restriction.Enabled = true;
 
             if (textBox_chatNickname.Text == "")
                 textBox_chatNickname.Text = xbs_chat.STANDARD_NICKNAME;
-
-            saveRegistryValues();
         }
        
         private void saveRegistryValues()
         {
-            xbs_settings.setRegistryValue(xbs_settings.REG_CAPTURE_DEVICE_NAME, comboBox_captureDevice.SelectedItem);
-            xbs_settings.setRegistryValue(xbs_settings.REG_LOCAL_IP, comboBox_localIP.SelectedItem);
-            xbs_settings.setRegistryValue(xbs_settings.REG_LOCAL_PORT, textBox_local_Port.Text);
-            xbs_settings.setRegistryValue(xbs_settings.REG_REMOTE_HOST, comboBox_RemoteHost.Text);
-            xbs_settings.setRegistryValue(xbs_settings.REG_REMOTE_PORT, textBox_remote_port.Text);
-            xbs_settings.setRegistryValue(xbs_settings.REG_USE_UPNP, checkbox_UPnP.Checked);
-            xbs_settings.setRegistryValue(xbs_settings.REG_ADVANCED_BROADCAST_FORWARDING, checkBox_all_broadcasts.Checked);
-            xbs_settings.setRegistryValue(xbs_settings.REG_ENABLE_SPECIAL_MAC_LIST, checkBox_enable_MAC_list.Checked);
-            xbs_settings.setRegistryValue(xbs_settings.REG_ONLY_FORWARD_SPECIAL_MACS, checkBox_mac_restriction.Checked);
-            xbs_settings.setRegistryValue(xbs_settings.REG_SPECIAL_MAC_LIST, getMacListString());
-            xbs_settings.setRegistryValue(xbs_settings.REG_REMOTE_HOST_HISTORY, getRemoteHostHistoryString());
-            xbs_settings.setRegistryValue(xbs_settings.REG_ENABLE_STUN_SERVER, checkBox_useStunServer.Checked);
-            xbs_settings.setRegistryValue(xbs_settings.REG_STUN_SERVER_HOSTNAME, textBox_stunServerHostname.Text);
-            xbs_settings.setRegistryValue(xbs_settings.REG_STUN_SERVER_PORT, textBox_stunServerPort.Text);
-            xbs_settings.setRegistryValue(xbs_settings.REG_CHAT_NICKNAME, textBox_chatNickname.Text);
-            xbs_settings.setRegistryValue(xbs_settings.REG_CHAT_AUTOSWITCH, checkBox_chatAutoSwitch.Checked);
-            xbs_settings.setRegistryValue(xbs_settings.REG_CHAT_SOUND_NOTIFICATION, checkBox_chat_notify.Checked);
-            xbs_settings.setRegistryValue(xbs_settings.REG_NEW_NODE_SOUND_NOTIFICATION, checkBox_newNodeSound.Checked);
-            xbs_settings.setRegistryValue(xbs_settings.REG_USE_CLOUDLIST_SERVER_TO_CHECK_INCOMING_PORT, checkBox_useCloudServerForPortCheck.Checked);
-            xbs_settings.setRegistryValue(xbs_settings.REG_CHECK4UPDATES, checkBox_checkForUpdates.Checked);
-            xbs_settings.setRegistryValue(xbs_settings.REG_NAT_ENABLE, checkBox_nat_enable.Checked);
-            xbs_settings.setRegistryValue(xbs_settings.REG_NAT_LOCAL_BROADCAST, comboBox_nat_broadcast.Text);
-            xbs_settings.setRegistryValue(xbs_settings.REG_NAT_IP_POOL, getNATIPPoolBinaryArray());            
+            Settings s = xbs_settings.settings;
+            int out_int;
+            s.REG_CAPTURE_DEVICE_NAME = comboBox_captureDevice.SelectedItem.ToString();
+            s.REG_LOCAL_IP = comboBox_localIP.SelectedItem.ToString();
+            if (int.TryParse(textBox_local_Port.Text, out out_int)) 
+                s.REG_LOCAL_PORT = out_int;
+            s.REG_REMOTE_HOST = comboBox_RemoteHost.Text;
+            if (int.TryParse(textBox_remote_port.Text, out out_int)) 
+                s.REG_REMOTE_PORT = out_int;            
+            s.REG_USE_UPNP = checkbox_UPnP.Checked;
+            s.REG_ADVANCED_BROADCAST_FORWARDING = checkBox_all_broadcasts.Checked;
+            s.REG_ENABLE_SPECIAL_MAC_LIST = checkBox_enable_MAC_list.Checked;
+            s.REG_ONLY_FORWARD_SPECIAL_MACS = checkBox_mac_restriction.Checked;
+            s.REG_SPECIAL_MAC_LIST = getMacListString();
+            s.REG_REMOTE_HOST_HISTORY = getRemoteHostHistoryString();
+            s.REG_ENABLE_STUN_SERVER = checkBox_useStunServer.Checked;
+            s.REG_STUN_SERVER_HOSTNAME = textBox_stunServerHostname.Text;
+            if (int.TryParse(textBox_stunServerPort.Text, out out_int))
+                s.REG_STUN_SERVER_PORT = out_int;
+            s.REG_CHAT_NICKNAME = textBox_chatNickname.Text;
+            s.REG_CHAT_AUTOSWITCH = checkBox_chatAutoSwitch.Checked;
+            s.REG_CHAT_SOUND_NOTIFICATION = checkBox_chat_notify.Checked;
+            s.REG_NEW_NODE_SOUND_NOTIFICATION = checkBox_newNodeSound.Checked;
+            s.REG_USE_CLOUDLIST_SERVER_TO_CHECK_INCOMING_PORT = checkBox_useCloudServerForPortCheck.Checked;
+            s.REG_CHECK4UPDATES = checkBox_checkForUpdates.Checked;
+            s.REG_NAT_ENABLE = checkBox_nat_enable.Checked;
+            s.REG_NAT_LOCAL_BROADCAST = comboBox_nat_broadcast.Text;
+            //s.REG_NAT_IP_POOL = getNATIPPoolBinaryArray();
+            s.Save();
         }
 
         // -----------------------------------------------------
@@ -500,7 +507,7 @@ namespace XBSlink
                     cloudlist.LeaveCloud();
             timer1.Stop();
             //timer_messages.Stop();
-            xbs_settings.saveRegistryValues();
+            xbs_settings.settings.Save();
             if (sniffer != null)
             {
                 sniffer.close();
@@ -798,7 +805,6 @@ namespace XBSlink
         private void button_save_settings_Click(object sender, EventArgs e)
         {
             saveRegistryValues();
-            xbs_settings.saveRegistryValues();
             toolTip2.Show("settings saved.", button_save_settings, 0, -20, 2000);
         }
 
@@ -1137,7 +1143,7 @@ namespace XBSlink
                 else
                     toolTip2.Show("no clouds available on server.", buttonLoadCloudlist, 0, -20, 2000);
 
-                xbs_settings.setRegistryValue(xbs_settings.REG_CLOUDLIST_SERVER, textBox_cloudlist.Text);
+                xbs_settings.settings.REG_CLOUDLIST_SERVER = textBox_cloudlist.Text;
             }
         }
 
