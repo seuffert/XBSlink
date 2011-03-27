@@ -220,7 +220,8 @@ namespace XBSlink
                         {
                             local_ip_count++;
                             comboBox_localIP.Items.Add(uniCast.Address.ToString());
-                            //comboBox_nat_broadcast.Items.Add( xbs_nat.calculateBroadcastFromIPandNetmask(uniCast.Address, uniCast.IPv4Mask).ToString() );
+                            if (uniCast.IPv4Mask!=null)
+                                comboBox_nat_broadcast.Items.Add( xbs_nat.calculateBroadcastFromIPandNetmask(uniCast.Address, uniCast.IPv4Mask).ToString() );
                             if (ni.OperationalStatus == OperationalStatus.Up && (ni.GetIPProperties().GatewayAddresses.Count > 0))
                             {
                                 if (!ni.GetIPProperties().GatewayAddresses[0].Address.Equals(new IPAddress(0)))
@@ -232,7 +233,8 @@ namespace XBSlink
             if (comboBox_localIP.Items.Count > 0)
             {
                 comboBox_localIP.SelectedIndex = (preferred_local_ip == -1) ? 0 : preferred_local_ip - 1;
-                //comboBox_nat_broadcast.SelectedIndex = comboBox_localIP.SelectedIndex;
+                if (comboBox_nat_broadcast.Items.Count > comboBox_localIP.SelectedIndex)
+                    comboBox_nat_broadcast.SelectedIndex = comboBox_localIP.SelectedIndex;
             }
 
         }
