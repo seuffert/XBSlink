@@ -68,12 +68,13 @@ namespace XBSlink
             return count;
         }
 
-        public void addIPToPool(String IPstr)
+        public bool addIPToPool(String IPstr)
         {
             IPAddress IP;
             if (!IPAddress.TryParse(IPstr, out IP))
-                return;
+                return false;
             ip_pool.Add(new xbs_nat_entry(null, null, IP));
+            return true;
         }
 
         public void addIPToPool(ref byte[] data, int index)

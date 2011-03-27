@@ -1241,7 +1241,7 @@ namespace XBSlink
             this.listView_nat_IPpool.TabIndex = 3;
             this.listView_nat_IPpool.UseCompatibleStateImageBehavior = false;
             this.listView_nat_IPpool.View = System.Windows.Forms.View.Details;
-            this.listView_nat_IPpool.SizeChanged += new System.EventHandler(this.listView1_nat_IPpool_SizeChanged);
+            this.listView_nat_IPpool.Resize += new System.EventHandler(this.listView_nat_IPpool_Resize);
             // 
             // columnHeader_nat_ippool_localIP
             // 
