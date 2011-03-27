@@ -544,6 +544,7 @@ namespace XBSlink
             button_CloudLeave.Enabled = false;
             textBox_chatNickname.ReadOnly = false;
             listView_nodes.Items.Clear();
+            updateNATIPPoolListView();
         }
 
         private IPAddress Resolver(string Hostname)
