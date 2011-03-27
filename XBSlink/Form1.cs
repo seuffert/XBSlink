@@ -266,7 +266,8 @@ namespace XBSlink
             checkBox_chatAutoSwitch.Checked = s.REG_CHAT_AUTOSWITCH;
             checkBox_chat_notify.Checked = s.REG_CHAT_SOUND_NOTIFICATION;
             checkBox_newNodeSound.Checked = s.REG_NEW_NODE_SOUND_NOTIFICATION;
-            textBox_cloudlist.Text = s.REG_CLOUDLIST_SERVER;
+            if (s.REG_CLOUDLIST_SERVER.Length!=0)
+                textBox_cloudlist.Text = s.REG_CLOUDLIST_SERVER;
             checkBox_useCloudServerForPortCheck.Checked = s.REG_USE_CLOUDLIST_SERVER_TO_CHECK_INCOMING_PORT;
             textBox_chatNickname.Text = s.REG_CHAT_NICKNAME;
             checkBox_checkForUpdates.Checked = s.REG_CHECK4UPDATES;
