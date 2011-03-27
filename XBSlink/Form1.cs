@@ -188,7 +188,18 @@ namespace XBSlink
             }
 
             foreach (LibPcapLiveDevice dev in devices)
+            {
                 comboBox_captureDevice.Items.Add(dev.Interface.FriendlyName + " (" + dev.Interface.Description + ")");
+                try
+                {
+                    foreach (PcapAddress padr in dev.Addresses)
+                        if (padr.Addr != null && padr.Netmask != null)
+                            comboBox_nat_broadcast.Items.Add(xbs_nat.calculateBroadcastFromIPandNetmask(padr.Addr.ipAddress, padr.Netmask.ipAddress).ToString());
+                }
+                catch (Exception)
+                {
+                }
+            }
             if (comboBox_captureDevice.Items.Count > 0)
                 comboBox_captureDevice.SelectedIndex = 0;
             else
@@ -220,8 +231,6 @@ namespace XBSlink
                         {
                             local_ip_count++;
                             comboBox_localIP.Items.Add(uniCast.Address.ToString());
-                            if (uniCast.IPv4Mask!=null)
-                                comboBox_nat_broadcast.Items.Add( xbs_nat.calculateBroadcastFromIPandNetmask(uniCast.Address, uniCast.IPv4Mask).ToString() );
                             if (ni.OperationalStatus == OperationalStatus.Up && (ni.GetIPProperties().GatewayAddresses.Count > 0))
                             {
                                 if (!ni.GetIPProperties().GatewayAddresses[0].Address.Equals(new IPAddress(0)))
@@ -233,8 +242,6 @@ namespace XBSlink
             if (comboBox_localIP.Items.Count > 0)
             {
                 comboBox_localIP.SelectedIndex = (preferred_local_ip == -1) ? 0 : preferred_local_ip - 1;
-                if (comboBox_nat_broadcast.Items.Count > comboBox_localIP.SelectedIndex)
-                    comboBox_nat_broadcast.SelectedIndex = comboBox_localIP.SelectedIndex;
             }
 
         }
