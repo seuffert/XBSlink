@@ -88,6 +88,10 @@ namespace XBSlink
         private DateTime last_nodelist_update = new DateTime(0);
         private DateTime last_nat_ippool_update = new DateTime(0);
 
+        private DateTime last_resizeNATIPPoolHeaderHeader = DateTime.Now;
+        private DateTime last_resizeCloudListHeader = DateTime.Now;
+        private DateTime last_resizeNodeListHeader = DateTime.Now;
+        
         public FormMain()
         {
 #if DEBUG
@@ -192,9 +196,11 @@ namespace XBSlink
                 comboBox_captureDevice.Items.Add(dev.Interface.FriendlyName + " (" + dev.Interface.Description + ")");
                 try
                 {
+                    /*
                     foreach (PcapAddress padr in dev.Addresses)
                         if (padr.Addr != null && padr.Netmask != null)
                             comboBox_nat_broadcast.Items.Add(xbs_nat.calculateBroadcastFromIPandNetmask(padr.Addr.ipAddress, padr.Netmask.ipAddress).ToString());
+                     */
                 }
                 catch (Exception)
                 {
@@ -281,7 +287,6 @@ namespace XBSlink
             textBox_chatNickname.Text = s.REG_CHAT_NICKNAME;
             checkBox_checkForUpdates.Checked = s.REG_CHECK4UPDATES;
             checkBox_nat_enable.Checked = s.REG_NAT_ENABLE;
-            comboBox_nat_broadcast.Text = s.REG_NAT_LOCAL_BROADCAST;
 
             if (checkBox_enable_MAC_list.Checked)
                 checkBox_mac_restriction.Enabled = true;
@@ -318,7 +323,6 @@ namespace XBSlink
             s.REG_USE_CLOUDLIST_SERVER_TO_CHECK_INCOMING_PORT = checkBox_useCloudServerForPortCheck.Checked;
             s.REG_CHECK4UPDATES = checkBox_checkForUpdates.Checked;
             s.REG_NAT_ENABLE = checkBox_nat_enable.Checked;
-            s.REG_NAT_LOCAL_BROADCAST = comboBox_nat_broadcast.Text;
             s.REG_NAT_IP_POOL = getNATIPPoolString();
             s.Save();
         }
@@ -441,10 +445,6 @@ namespace XBSlink
             node_list.local_node = new xbs_node(local_node_ip, udp_listener.udp_socket_port);
             node_list.local_node.nickname = textBox_chatNickname.Text;
 
-            IPAddress local_Broadcast_IP;
-            if (IPAddress.TryParse( comboBox_nat_broadcast.Text, out local_Broadcast_IP ))
-                NAT.setLocalBroadcast( local_Broadcast_IP );
-            comboBox_nat_broadcast.Enabled = false;
             sniffer = new xbs_sniffer(pdev, checkBox_all_broadcasts.Checked, checkBox_enable_MAC_list.Checked, checkBox_mac_restriction.Checked, node_list, NAT);
             setSnifferMacList();
             sniffer.start_capture();
@@ -890,22 +890,18 @@ namespace XBSlink
                 addMacToMacList(mac);
         }
 
-        private void setNATIPPoolFromBinaryArray(byte[] data)
-        {
-            if (data.Length == 0)
-                return;
-            for (int i=0; i<=data.Length-4; i+=4)
-                NAT.ip_pool.addIPToPool( ref data, i);
-        }
-
         private void setNATIPPoolFromString(String data)
         {
             if (data.Length == 0)
                 return;
-            
-        foreach ( String ip_str in data.Split(';') )
-            if (ip_str.Length>=7)
-                NAT.ip_pool.addIPToPool( ip_str );
+
+            foreach (String ip_str in data.Split(';'))
+                if (ip_str.Length >= 15)
+                {
+                    String[] ip_mask = ip_str.Split('/');
+                    if (ip_mask.Length == 2)
+                        NAT.ip_pool.addIPToPool(ip_mask[0], ip_mask[1]);
+                }
         }
 
         private void setRemoteHostHistoryFromString(String remoteHostList)
@@ -925,26 +921,14 @@ namespace XBSlink
             return String.Join(",", strs);
         }
 
-        private byte[] getNATIPPoolBinaryArray()
-        {
-            if (listView_nat_IPpool.Items.Count == 0)
-                return null;
-            byte[] ip_bytes = new byte[listView_nat_IPpool.Items.Count * 4];
-            IPAddress ip;
-            for (int i = 0; i < listView_nat_IPpool.Items.Count; i++)
-            {
-                if (IPAddress.TryParse(listView_nat_IPpool.Items[i].Text, out ip))
-                    Buffer.BlockCopy(ip.GetAddressBytes(), 0, ip_bytes, i*4, 4);
-            }
-            return ip_bytes;
-        }
         private String getNATIPPoolString()
         {
-            if (listView_nat_IPpool.Items.Count == 0)
+            xbs_nat_entry[] items = NAT.ip_pool.getEntriesArray();
+            if (items.Length == 0)
                 return null;
             String ip_str = "";
-            for (int i = 0; i < listView_nat_IPpool.Items.Count; i++)
-                ip_str += listView_nat_IPpool.Items[i].Text + ";";
+            for (int i = 0; i < items.Length; i++)
+                ip_str += items[i].natted_source_ip + "/" + items[i].natted_source_ip_netmask + ";";
             return ip_str;
         }
 
@@ -1364,6 +1348,9 @@ namespace XBSlink
 
         private void resizeNodeListHeader()
         {
+            if ((DateTime.Now - last_resizeNodeListHeader).TotalMilliseconds < 100)
+                return;
+            last_resizeNodeListHeader = DateTime.Now;
             int size = listView_nodes.ClientSize.Width - columnHeader_nodeIP.Width - columnHeader_nodePort.Width - columnHeader_nodePing.Width - columnHeader_nodeVersion.Width - 2;
             if (size > 0 && columnHeader_nodeNickname.Width != size)
                 columnHeader_nodeNickname.Width = size;
@@ -1371,6 +1358,9 @@ namespace XBSlink
 
         private void resizeCloudListHeader()
         {
+            if ((DateTime.Now - last_resizeCloudListHeader).TotalMilliseconds < 100)
+                return;
+            last_resizeCloudListHeader = DateTime.Now;
             int size = listView_clouds.ClientSize.Width - columnHeader_cloudlistmaxnodes.Width - columnHeader_cloudlistnodecount.Width - 2;
             if (size>0 && columnHeader_cloudlistname.Width != size)
                 columnHeader_cloudlistname.Width = size;
@@ -1378,6 +1368,9 @@ namespace XBSlink
 
         private void resizeNATIPPoolHeaderHeader()
         {
+            if ((DateTime.Now - last_resizeNATIPPoolHeaderHeader).TotalMilliseconds < 100)
+                return;
+            last_resizeNATIPPoolHeaderHeader = DateTime.Now;
             int size = listView_nat_IPpool.ClientSize.Width - columnHeader_nat_ippool_localIP.Width - columnHeader_nat_ippool_device.Width - columnHeader_nat_ippool__originalIP.Width - 2;
             if (size > 0 && columnHeader_nat_ippool_node.Width != size)
                 columnHeader_nat_ippool_node.Width = size;
@@ -1457,7 +1450,7 @@ namespace XBSlink
         private void textBox_nat_iprange_to_Enter(object sender, EventArgs e)
         {
             if (textBox_nat_iprange_to.Text == "To")
-                textBox_nat_iprange_to.Text = "";
+                textBox_nat_iprange_to.Text = (textBox_nat_iprange_from.Text.Length >= 7) ? textBox_nat_iprange_from.Text : "";
         }
 
         private void textBox_nat_iprange_to_Leave(object sender, EventArgs e)
@@ -1475,6 +1468,7 @@ namespace XBSlink
         {
             IPAddress ip_start;
             IPAddress ip_end;
+            IPAddress ip_netmask;
             if (!IPAddress.TryParse(textBox_nat_iprange_from.Text, out ip_start))
             {
                 MessageBox.Show("Error! Malformed IP address in IP range FROM field.", "XBSlink error", MessageBoxButtons.OK ,MessageBoxIcon.Error);
@@ -1483,6 +1477,11 @@ namespace XBSlink
             if (!IPAddress.TryParse(textBox_nat_iprange_to.Text, out ip_end))
             {
                 MessageBox.Show("Error! Malformed IP address in IP range TO field.", "XBSlink error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            if (!IPAddress.TryParse(comboBox_nat_netmask.Text, out ip_netmask))
+            {
+                MessageBox.Show("Error! Malformed address in IP netmask field.", "XBSlink error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -1496,9 +1495,9 @@ namespace XBSlink
                 MessageBox.Show("Error! IP address range start is higher than IP address range end. ", "XBSlink error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            int count = NAT.ip_pool.addIPRangeToPool(ip_start, ip_end);
+            int count = NAT.ip_pool.addIPRangeToPool(ip_start, ip_end, ip_netmask);
             if (count<=0)
-                MessageBox.Show("Error! could not add IPs to NAT IP pool. please see the messages. ", "XBSlink error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error! could not add IPs to NAT IP pool.", "XBSlink error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             else
                 toolTip2.Show("Added "+count+" IPs to the pool.", button_nat_add_iprange, 0, -20, 2000);
             updateNATIPPoolListView();
@@ -1511,7 +1510,7 @@ namespace XBSlink
             xbs_nat_entry[] entries = NAT.ip_pool.getEntriesArray();
             foreach (xbs_nat_entry entry in entries)
             {
-                ListViewItem lv_item = listView_nat_IPpool.Items.Add(entry.natted_source_ip.ToString());
+                ListViewItem lv_item = listView_nat_IPpool.Items.Add(entry.natted_source_ip.ToString() + "/" + entry.natted_source_ip_netmask.ToString());
                 if (entry.original_source_ip!=null)
                 {
                     lv_item.SubItems.Add(entry.source_mac.ToString());
@@ -1527,10 +1526,12 @@ namespace XBSlink
         private void button_nat_ippool_del_Click(object sender, EventArgs e)
         {
             ListView.SelectedListViewItemCollection items = listView_nat_IPpool.SelectedItems;
+            if (items == null || items.Count <= 0)
+                return;
             IPAddress ip;
             foreach (ListViewItem lv_item in items)
             {
-                if (IPAddress.TryParse(lv_item.Text, out ip))
+                if (IPAddress.TryParse(lv_item.Text.Split('/')[0], out ip))
                     NAT.ip_pool.removeIPFromPool(ip);
 #if DEBUG
                 else

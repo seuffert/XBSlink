@@ -290,18 +290,6 @@ namespace XBSlink.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string REG_NAT_LOCAL_BROADCAST {
-            get {
-                return ((string)(this["REG_NAT_LOCAL_BROADCAST"]));
-            }
-            set {
-                this["REG_NAT_LOCAL_BROADCAST"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string REG_NAT_IP_POOL {
             get {
                 return ((string)(this["REG_NAT_IP_POOL"]));

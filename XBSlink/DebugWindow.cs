@@ -32,6 +32,7 @@ namespace XBSlink
     public partial class DebugWindow : Form
     {
         private static DebugWindow form = null;
+        private DateTime last_resize = DateTime.Now;
 
         public DebugWindow()
         {
@@ -132,6 +133,9 @@ namespace XBSlink
 
         private void listView_Resize(object sender, EventArgs e)
         {
+            if ((DateTime.Now - last_resize).TotalMilliseconds < 100)
+                return;
+            last_resize = DateTime.Now;
             resizeMessagesListViewHeaders();
         }
     }

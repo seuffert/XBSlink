@@ -15,10 +15,14 @@ namespace XBSlink
         public byte[] original_source_ip_bytes;
         volatile public IPAddress natted_source_ip;
         public byte[] natted_source_ip_bytes;
+        volatile public IPAddress natted_source_ip_netmask;
+        public byte[] natted_source_ip_netmask_bytes;
         volatile public PhysicalAddress source_mac;
         public DateTime last_change_time = DateTime.Now;
+        volatile public IPAddress natted_broadcast;
+        public byte[] natted_broadcast_bytes;
 
-        public xbs_nat_entry(PhysicalAddress mac, IPAddress original_ip, IPAddress natted_ip)
+        public xbs_nat_entry(PhysicalAddress mac, IPAddress original_ip, IPAddress natted_ip, IPAddress netmask)
         {
             this.original_source_ip = original_ip;
             if (original_ip!=null)
@@ -26,7 +30,15 @@ namespace XBSlink
             this.natted_source_ip = natted_ip;
             if (natted_ip!=null)
                 this.natted_source_ip_bytes = natted_ip.GetAddressBytes();
+            this.natted_source_ip_netmask = netmask;
+            if (netmask != null)
+                this.natted_source_ip_netmask_bytes = netmask.GetAddressBytes();
             this.source_mac = mac;
+            if (netmask != null && natted_ip != null)
+            {
+                this.natted_broadcast = xbs_nat.calculateBroadcastFromIPandNetmask(natted_ip, netmask);
+                this.natted_broadcast_bytes = this.natted_broadcast.GetAddressBytes();
+            }
         }
     }
 
@@ -43,7 +55,7 @@ namespace XBSlink
         {
         }
 
-        public int addIPRangeToPool(IPAddress start, IPAddress end)
+        public int addIPRangeToPool(IPAddress start, IPAddress end, IPAddress netmask)
         {
             byte[] data;
             data = start.GetAddressBytes();
@@ -59,8 +71,11 @@ namespace XBSlink
                     for (UInt32 i = range_start; i <= range_stop; i++)
                     {
                         ip = new IPAddress(EndianBitConverter.Big.GetBytes(i));
-                        ip_pool.Add(new xbs_nat_entry(null, null, ip));
-                        count++;
+                        if (!hasNattedIP(ip))
+                        {
+                            ip_pool.Add(new xbs_nat_entry(null, null, ip, netmask));
+                            count++;
+                        }
                     }
                 }
                 xbs_messages.addDebugMessage("% NAT IP pool filled with " + count + " ip addresses. Total count of IPs in pool: " + ip_pool.Count);
@@ -68,21 +83,17 @@ namespace XBSlink
             return count;
         }
 
-        public bool addIPToPool(String IPstr)
+        public bool addIPToPool(String IPstr, String NetmaskString)
         {
             IPAddress IP;
+            IPAddress netmask;
             if (!IPAddress.TryParse(IPstr, out IP))
                 return false;
-            ip_pool.Add(new xbs_nat_entry(null, null, IP));
+            if (!IPAddress.TryParse(NetmaskString, out netmask))
+                return false;
+            if (!hasNattedIP(IP))
+                ip_pool.Add(new xbs_nat_entry(null, null, IP, netmask));
             return true;
-        }
-
-        public void addIPToPool(ref byte[] data, int index)
-        {
-            byte[] ip_bytes = new byte[4];
-            Buffer.BlockCopy(data, index, ip_bytes, 0, 4);
-            IPAddress IP = new IPAddress(ip_bytes);
-            ip_pool.Add(new xbs_nat_entry(null, null, IP));
         }
 
         public xbs_nat_entry requestIP(IPAddress originalIP, PhysicalAddress mac)
@@ -152,6 +163,17 @@ namespace XBSlink
             return entries;
         }
 
+        public bool hasNattedIP(IPAddress ip)
+        {
+            lock (ip_pool)
+            {
+                foreach (xbs_nat_entry entry in ip_pool)
+                    if (entry.natted_source_ip.Equals(ip))
+                        return true;
+            }
+            return false;
+        }
+
     }
 
     class xbs_nat
@@ -172,11 +194,7 @@ namespace XBSlink
         private static byte[] broadcast_mac_bytes = new byte[6] { 255, 255, 255, 255, 255, 255 };
         public static PhysicalAddress broadcast_mac = new PhysicalAddress(broadcast_mac_bytes);
         private IPAddress ip_zero = new IPAddress(0);
-
         public xbs_nat_ippool ip_pool = new xbs_nat_ippool();
-        private IPAddress local_broadcast = null;
-        private byte[] local_broadcast_bytes = new byte[4];
-
         private Dictionary<PhysicalAddress, xbs_nat_entry> NAT_list = new Dictionary<PhysicalAddress, xbs_nat_entry>();
         
         public xbs_nat()
@@ -218,8 +236,8 @@ namespace XBSlink
             replaceSourceIpWithNATSourceIP(ref data, ethernet_packet_type, ref nat_entry);
             if (ethernet_packet_type == EthernetPacketType.IpV4)
             {
-                if (dstMAC.Equals(broadcast_mac) && local_broadcast != null)
-                    replaceBroadcastIPAddress(ref data, ref local_broadcast_bytes);
+                if (dstMAC.Equals(broadcast_mac) && nat_entry.natted_broadcast!=null)
+                    replaceBroadcastIPAddress(ref data, ref nat_entry.natted_broadcast_bytes);
                 updateIPChecksums(ref data);
             }
             return ethernet_packet_type;
@@ -267,8 +285,8 @@ namespace XBSlink
             if (p_IPV4 != null)
             {
                 p_IPV4.SourceAddress = nat_entry.natted_source_ip;
-                if (dstMAC.Equals(broadcast_mac) && local_broadcast != null)
-                    p_IPV4.DestinationAddress = local_broadcast;
+                if (dstMAC.Equals(broadcast_mac) && nat_entry.natted_broadcast != null)
+                    p_IPV4.DestinationAddress = nat_entry.natted_broadcast;
                 p_IPV4.UpdateIPChecksum();
                 if (p_IPV4.Protocol == IPProtocolType.UDP)
                     ((UdpPacket)p_IPV4.PayloadPacket).UpdateUDPChecksum();
@@ -358,16 +376,6 @@ namespace XBSlink
                 ip_broadcast_bytes[i] = (byte)(ip_bytes[i] | (~netmask_bytes[i]));
             ip_broadcast = new IPAddress(ip_broadcast_bytes);
             return ip_broadcast;
-        }
-
-        public void setLocalBroadcast(IPAddress broadcast)
-        {
-            this.local_broadcast = broadcast;
-            this.local_broadcast_bytes = broadcast.GetAddressBytes();
-#if DEBUG
-            xbs_messages.addDebugMessage("% set local Broadcast IP address to: "+broadcast);
-#endif
-
         }
 
         public void informOfRemovedDevice(PhysicalAddress srcMAC)

@@ -68,9 +68,6 @@
     <Setting Name="REG_NAT_ENABLE" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="REG_NAT_LOCAL_BROADCAST" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
     <Setting Name="REG_NAT_IP_POOL" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
