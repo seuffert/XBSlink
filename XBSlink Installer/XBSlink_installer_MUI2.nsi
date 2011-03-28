@@ -105,9 +105,9 @@ SectionEnd
 ;--------------------------------
 Section "WinPCap Capture Library" WinPCap
   SetOutPath $TEMP
-  File "winpcap_setup.exe"
-  ExecWait '"$TEMP\winpcap_setup.exe"'
-  Delete "$TEMP\winpcap_setup.exe"
+  File "WinPcap_4_1_2.exe"
+  ExecWait '"$TEMP\WinPcap_4_1_2.exe"'
+  Delete "$TEMP\WinPcap_4_1_2.exe"
 SectionEnd
 ;--------------------------------
 ;Uninstaller Section
