@@ -149,7 +149,9 @@ namespace XBSlink
         private void ShowVersionInfoMessages()
         {
             this.Text += " - Version " + xbs_settings.xbslink_version;
+            xbs_messages.addInfoMessage("using pcap version : " + SharpPcap.Pcap.Version);
 #if DEBUG
+            xbs_messages.addInfoMessage(".NET version : " + Environment.Version.ToString());
             xbs_messages.addInfoMessage("using PacketDotNet version " + System.Reflection.Assembly.GetAssembly(typeof(PacketDotNet.IpPacket)).GetName().Version.ToString());
             xbs_messages.addInfoMessage("using SharpPcap version " + SharpPcap.Version.VersionString);
             xbs_messages.addInfoMessage("using Mono.NAT version " + System.Reflection.Assembly.GetAssembly(typeof(Mono.Nat.NatUtility)).GetName().Version.ToString());
