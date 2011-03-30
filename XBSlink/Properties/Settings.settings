@@ -57,7 +57,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="REG_CLOUDLIST_SERVER" Type="System.String" Scope="User">
-      <Value Profile="(Default)">http://www.secudb.de/~seuffert/xbslink/cloudlist_test/</Value>
+      <Value Profile="(Default)">http://www.secudb.de/~seuffert/xbslink/cloudlist/</Value>
     </Setting>
     <Setting Name="REG_USE_CLOUDLIST_SERVER_TO_CHECK_INCOMING_PORT" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>

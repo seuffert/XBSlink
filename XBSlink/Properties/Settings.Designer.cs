@@ -241,7 +241,7 @@ namespace XBSlink.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://www.secudb.de/~seuffert/xbslink/cloudlist_test/")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://www.secudb.de/~seuffert/xbslink/cloudlist/")]
         public string REG_CLOUDLIST_SERVER {
             get {
                 return ((string)(this["REG_CLOUDLIST_SERVER"]));
