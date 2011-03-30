@@ -344,10 +344,10 @@ namespace XBSlink
 
         public void setPdevFilter()
         {
-            String filter_known_macs_from_remote_nodes = "";
-            String filter_exclude_injected_packets = "";
-            String filter_special_macs = "";
-            String filter_discovered_devices = "";
+            String filter_known_macs_from_remote_nodes = String.Empty;
+            String filter_exclude_injected_packets = String.Empty;
+            String filter_special_macs = String.Empty;
+            String filter_discovered_devices = String.Empty;
             lock (pdev_filter_known_macs_from_remote_nodes)
             {
                 if (pdev_filter_known_macs_from_remote_nodes.Count > 0)

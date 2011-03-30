@@ -110,6 +110,7 @@ namespace XBSlink
             this.listBox_messages = new System.Windows.Forms.ListBox();
             this.button_clearMessages = new System.Windows.Forms.Button();
             this.tabPage_settings = new System.Windows.Forms.TabPage();
+            this.button_reset_settings = new System.Windows.Forms.Button();
             this.checkBox_checkForUpdates = new System.Windows.Forms.CheckBox();
             this.checkBox_useCloudServerForPortCheck = new System.Windows.Forms.CheckBox();
             this.checkBox_newNodeSound = new System.Windows.Forms.CheckBox();
@@ -602,11 +603,11 @@ namespace XBSlink
             // 
             this.textBox_cloudlist.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox_cloudlist.Enabled = false;
             this.textBox_cloudlist.Location = new System.Drawing.Point(61, 2);
             this.textBox_cloudlist.Name = "textBox_cloudlist";
             this.textBox_cloudlist.Size = new System.Drawing.Size(203, 20);
             this.textBox_cloudlist.TabIndex = 2;
-            this.textBox_cloudlist.Text = "http://www.secudb.de/~seuffert/xbslink/cloudlist/";
             this.textBox_cloudlist.Leave += new System.EventHandler(this.textBox_cloudlist_Leave);
             // 
             // label11
@@ -809,6 +810,7 @@ namespace XBSlink
             // 
             this.tabPage_settings.AutoScroll = true;
             this.tabPage_settings.BackColor = System.Drawing.SystemColors.Control;
+            this.tabPage_settings.Controls.Add(this.button_reset_settings);
             this.tabPage_settings.Controls.Add(this.checkBox_checkForUpdates);
             this.tabPage_settings.Controls.Add(this.checkBox_useCloudServerForPortCheck);
             this.tabPage_settings.Controls.Add(this.checkBox_newNodeSound);
@@ -836,6 +838,16 @@ namespace XBSlink
             this.tabPage_settings.Size = new System.Drawing.Size(348, 405);
             this.tabPage_settings.TabIndex = 1;
             this.tabPage_settings.Text = "Settings";
+            // 
+            // button_reset_settings
+            // 
+            this.button_reset_settings.Location = new System.Drawing.Point(120, 375);
+            this.button_reset_settings.Name = "button_reset_settings";
+            this.button_reset_settings.Size = new System.Drawing.Size(55, 23);
+            this.button_reset_settings.TabIndex = 34;
+            this.button_reset_settings.Text = "reset";
+            this.button_reset_settings.UseVisualStyleBackColor = true;
+            this.button_reset_settings.Click += new System.EventHandler(this.button_reset_settings_Click);
             // 
             // checkBox_checkForUpdates
             // 
@@ -1034,7 +1046,6 @@ namespace XBSlink
             this.checkBox_mac_restriction.AutoSize = true;
             this.checkBox_mac_restriction.Checked = true;
             this.checkBox_mac_restriction.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_mac_restriction.Enabled = false;
             this.checkBox_mac_restriction.Location = new System.Drawing.Point(6, 42);
             this.checkBox_mac_restriction.Name = "checkBox_mac_restriction";
             this.checkBox_mac_restriction.Size = new System.Drawing.Size(152, 17);
@@ -1401,7 +1412,7 @@ namespace XBSlink
             this.MaximizeBox = false;
             this.MinimumSize = new System.Drawing.Size(390, 220);
             this.Name = "FormMain";
-            this.Text = "XBSlink";
+            this.Text = "XBSlink PS3 Test";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.SizeChanged += new System.EventHandler(this.Form1_SizeChanged);
@@ -1548,6 +1559,7 @@ namespace XBSlink
         private System.Windows.Forms.Button button_nat_ippool_del;
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.ComboBox comboBox_nat_netmask;
+        private System.Windows.Forms.Button button_reset_settings;
     }
 }
 

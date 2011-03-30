@@ -30,7 +30,7 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="REG_ONLY_FORWARD_SPECIAL_MACS" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="REG_SPECIAL_MAC_LIST" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
@@ -45,7 +45,7 @@
       <Value Profile="(Default)">3478</Value>
     </Setting>
     <Setting Name="REG_CHAT_NICKNAME" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Anonymous</Value>
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="REG_CHAT_AUTOSWITCH" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
@@ -57,7 +57,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="REG_CLOUDLIST_SERVER" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">http://www.secudb.de/~seuffert/xbslink/cloudlist_test/</Value>
     </Setting>
     <Setting Name="REG_USE_CLOUDLIST_SERVER_TO_CHECK_INCOMING_PORT" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
@@ -66,7 +66,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="REG_NAT_ENABLE" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="REG_NAT_IP_POOL" Type="System.String" Scope="User">
       <Value Profile="(Default)" />

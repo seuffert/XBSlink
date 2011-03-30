@@ -81,7 +81,7 @@ namespace XBSlink
 
     class xbs_cloudlist
     {
-        public const String DEFAULT_CLOUDLIST_SERVER = "http://www.secudb.de/~seuffert/xbslink/cloudlist";
+        public const String DEFAULT_CLOUDLIST_SERVER = "http://www.secudb.de/~seuffert/xbslink/cloudlist_test/";
         public const int MIN_CLOUDNAME_LENGTH = 3;
         public const int UPDATE_INTERVAL_SECONDS = 29;
 

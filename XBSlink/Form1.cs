@@ -149,7 +149,7 @@ namespace XBSlink
         private void ShowVersionInfoMessages()
         {
             this.Text += " - Version " + xbs_settings.xbslink_version;
-            xbs_messages.addInfoMessage("using pcap version : " + SharpPcap.Pcap.Version);
+            xbs_messages.addInfoMessage("using pcap lib version : " + SharpPcap.Pcap.Version);
 #if DEBUG
             xbs_messages.addInfoMessage(".NET version : " + Environment.Version.ToString());
             xbs_messages.addInfoMessage("using PacketDotNet version " + System.Reflection.Assembly.GetAssembly(typeof(PacketDotNet.IpPacket)).GetName().Version.ToString());
@@ -258,11 +258,11 @@ namespace XBSlink
         {
             Settings s = xbs_settings.settings;
 
-            if (s.REG_SPECIAL_MAC_LIST != null && s.REG_SPECIAL_MAC_LIST.Length>0)
+            if (s.REG_SPECIAL_MAC_LIST != null)
                 setMacListFromString( s.REG_SPECIAL_MAC_LIST );
-            if (s.REG_REMOTE_HOST_HISTORY != null && s.REG_REMOTE_HOST_HISTORY.Length>0)
+            if (s.REG_REMOTE_HOST_HISTORY != null)
                 setRemoteHostHistoryFromString( s.REG_REMOTE_HOST_HISTORY );
-            if (s.REG_NAT_IP_POOL != null && s.REG_NAT_IP_POOL.Length>0)
+            if (s.REG_NAT_IP_POOL != null)
             {
                 setNATIPPoolFromString( s.REG_NAT_IP_POOL );
                 updateNATIPPoolListView();
@@ -283,10 +283,9 @@ namespace XBSlink
             checkBox_chatAutoSwitch.Checked = s.REG_CHAT_AUTOSWITCH;
             checkBox_chat_notify.Checked = s.REG_CHAT_SOUND_NOTIFICATION;
             checkBox_newNodeSound.Checked = s.REG_NEW_NODE_SOUND_NOTIFICATION;
-            if (s.REG_CLOUDLIST_SERVER.Length!=0)
-                textBox_cloudlist.Text = s.REG_CLOUDLIST_SERVER;
+            textBox_cloudlist.Text = (s.REG_CLOUDLIST_SERVER.Length!=0) ? s.REG_CLOUDLIST_SERVER : xbs_cloudlist.DEFAULT_CLOUDLIST_SERVER;
             checkBox_useCloudServerForPortCheck.Checked = s.REG_USE_CLOUDLIST_SERVER_TO_CHECK_INCOMING_PORT;
-            textBox_chatNickname.Text = s.REG_CHAT_NICKNAME;
+            textBox_chatNickname.Text = (s.REG_CHAT_NICKNAME.Length!=0) ? s.REG_CHAT_NICKNAME : xbs_chat.STANDARD_NICKNAME;
             checkBox_checkForUpdates.Checked = s.REG_CHECK4UPDATES;
             checkBox_nat_enable.Checked = s.REG_NAT_ENABLE;
 
@@ -468,7 +467,7 @@ namespace XBSlink
                 return;
 
             timer1.Enabled = true;
-            button_announce.Enabled = true;
+            button_announce.Enabled = false;
             saveRegistryValues();
             xbs_messages.addInfoMessage("engine ready. waiting for incoming requests.");
             switch_tab = tabPage_info;
@@ -508,6 +507,7 @@ namespace XBSlink
             timer_startEngine.Start();
             button_start_engine.Enabled = false;
             textBox_chatNickname.ReadOnly = true;
+            button_reset_settings.Enabled = false;
         }
 
         private void engine_stop()
@@ -545,6 +545,7 @@ namespace XBSlink
             button_CloudJoin.Enabled = false;
             button_CloudLeave.Enabled = false;
             textBox_chatNickname.ReadOnly = false;
+            button_reset_settings.Enabled = true;
             listView_nodes.Items.Clear();
             updateNATIPPoolListView();
         }
@@ -886,6 +887,7 @@ namespace XBSlink
 
         private void setMacListFromString(String mac_list)
         {
+            listBox_MAC_list.Items.Clear();
             if (mac_list.Length==0)
                 return;
             String[] macs = mac_list.Split(',');
@@ -895,6 +897,8 @@ namespace XBSlink
 
         private void setNATIPPoolFromString(String data)
         {
+            listView_nat_IPpool.Items.Clear();
+            NAT.ip_pool.Clear();
             if (data.Length == 0)
                 return;
 
@@ -909,6 +913,7 @@ namespace XBSlink
 
         private void setRemoteHostHistoryFromString(String remoteHostList)
         {
+            comboBox_RemoteHost.Items.Clear();
             if (remoteHostList.Length == 0)
                 return;
             foreach (String remoteHost in remoteHostList.Split(','))
@@ -962,8 +967,6 @@ namespace XBSlink
                 sniffer.pdev_filter_use_special_macs = checkBox_enable_MAC_list.Checked;
                 sniffer.setPdevFilter();
             }
-            checkBox_mac_restriction.Checked = (listBox_MAC_list.Items.Count > 0) ? checkBox_mac_restriction.Checked : false;
-            checkBox_mac_restriction.Enabled = checkBox_enable_MAC_list.Checked;
         }
 
         private void button_clearMessages_Click(object sender, EventArgs e)
@@ -1316,12 +1319,6 @@ namespace XBSlink
 
         private void checkBox_mac_restriction_CheckedChanged(object sender, EventArgs e)
         {
-            if (listBox_MAC_list.Items.Count < 1 && checkBox_mac_restriction.Checked)
-            {
-                MessageBox.Show("you need to enter at least one MAC address to enable this option.", "XBSlink info", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                checkBox_mac_restriction.Checked = false;
-            }
-
             if (sniffer != null)
             {
                 sniffer.pdev_filter_only_forward_special_macs = checkBox_mac_restriction.Checked;
@@ -1542,6 +1539,18 @@ namespace XBSlink
 #endif
             }
             updateNATIPPoolListView();
+        }
+
+        private void button_reset_settings_Click(object sender, EventArgs e)
+        {
+            if (engine_started)
+                return;
+            if (MessageBox.Show("Do you really want to discard your personal settings and reset to default values?", "XBSlink", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+            {
+                xbs_settings.settings.Reset();
+                initWithRegistryValues();
+                xbs_messages.addInfoMessage("settings have been reset to default values.");
+            }
         }
 
     }

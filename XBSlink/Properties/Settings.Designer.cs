@@ -133,7 +133,7 @@ namespace XBSlink.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool REG_ONLY_FORWARD_SPECIAL_MACS {
             get {
                 return ((bool)(this["REG_ONLY_FORWARD_SPECIAL_MACS"]));
@@ -193,7 +193,7 @@ namespace XBSlink.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Anonymous")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string REG_CHAT_NICKNAME {
             get {
                 return ((string)(this["REG_CHAT_NICKNAME"]));
@@ -241,7 +241,7 @@ namespace XBSlink.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://www.secudb.de/~seuffert/xbslink/cloudlist_test/")]
         public string REG_CLOUDLIST_SERVER {
             get {
                 return ((string)(this["REG_CLOUDLIST_SERVER"]));
@@ -277,7 +277,7 @@ namespace XBSlink.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool REG_NAT_ENABLE {
             get {
                 return ((bool)(this["REG_NAT_ENABLE"]));

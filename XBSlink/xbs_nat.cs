@@ -174,6 +174,12 @@ namespace XBSlink
             return false;
         }
 
+        public void Clear()
+        {
+            lock (ip_pool)
+                ip_pool.Clear();
+        }
+
     }
 
     class xbs_nat
