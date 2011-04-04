@@ -293,7 +293,8 @@ namespace XBSlink
         {
             Settings s = xbs_settings.settings;
             int out_int;
-            s.REG_CAPTURE_DEVICE_NAME = comboBox_captureDevice.SelectedItem.ToString();
+			if (comboBox_captureDevice.SelectedItem!=null)
+            	s.REG_CAPTURE_DEVICE_NAME = comboBox_captureDevice.SelectedItem.ToString();
             s.REG_LOCAL_IP = comboBox_localIP.SelectedItem.ToString();
             if (int.TryParse(textBox_local_Port.Text, out out_int)) 
                 s.REG_LOCAL_PORT = out_int;
