@@ -105,10 +105,12 @@ namespace XBSlink
                 this.MinimumSize = new System.Drawing.Size(this.MaximumSize.Width, this.MinimumSize.Height);
             }
 
-            /*
+            
             if (!initializeCaptureDeviceList())
-                throw new ApplicationException("no capture devices found");
-             */
+            {
+                //throw new ApplicationException("no capture devices found");
+            }
+
             app_start_time = DateTime.Now;
         }
 
