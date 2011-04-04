@@ -105,8 +105,10 @@ namespace XBSlink
                 this.MinimumSize = new System.Drawing.Size(this.MaximumSize.Width, this.MinimumSize.Height);
             }
 
+            /*
             if (!initializeCaptureDeviceList())
                 throw new ApplicationException("no capture devices found");
+             */
             app_start_time = DateTime.Now;
         }
 
@@ -194,20 +196,8 @@ namespace XBSlink
             }
 
             foreach (LibPcapLiveDevice dev in devices)
-            {
                 comboBox_captureDevice.Items.Add(dev.Interface.FriendlyName + " (" + dev.Interface.Description + ")");
-                try
-                {
-                    /*
-                    foreach (PcapAddress padr in dev.Addresses)
-                        if (padr.Addr != null && padr.Netmask != null)
-                            comboBox_nat_broadcast.Items.Add(xbs_nat.calculateBroadcastFromIPandNetmask(padr.Addr.ipAddress, padr.Netmask.ipAddress).ToString());
-                     */
-                }
-                catch (Exception)
-                {
-                }
-            }
+
             if (comboBox_captureDevice.Items.Count > 0)
                 comboBox_captureDevice.SelectedIndex = 0;
             else
