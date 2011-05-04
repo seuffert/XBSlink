@@ -37,6 +37,8 @@ namespace XBSlink
         private static Object _locker = new Object();
         public static UInt64 NAT_timeInCode = 0;
         public static UInt32 NAT_callCount = 0;
+        public static UInt64 deNAT_timeInCode = 0;
+        public static UInt32 deNAT_callCount = 0;
     }
 
     class xbs_sniffer
@@ -194,6 +196,7 @@ namespace XBSlink
         {
             byte[] src_mac = new byte[6];
             byte[] dst_mac = new byte[6];
+            byte[] packet_data = rawPacket.Data;
 
             // copy source and destination MAC addresses from sniffed packet
             Buffer.BlockCopy(rawPacket.Data, 0, dst_mac, 0, 6);
@@ -213,12 +216,37 @@ namespace XBSlink
                 is_injected_packet = injected_macs_hash.Contains(srcMAC.GetHashCode());
             if (is_injected_packet) 
                 return;
-            
+
+            if (NAT.NAT_enabled)
+            {
+#if DEBUG
+                System.Diagnostics.Stopwatch stopWatch = new System.Diagnostics.Stopwatch();
+                stopWatch.Start();
+#endif
+                EthernetPacketType p_type = NAT.deNAT_outgoing_packet_PacketDotNet(ref packet_data, dstMAC, srcMAC);
+#if DEBUG
+                stopWatch.Stop();
+                if (p_type == EthernetPacketType.IpV4)
+                {
+                    xbs_sniffer_statistics.deNAT_callCount++;
+                    if (xbs_sniffer_statistics.deNAT_callCount > 1)
+                    {
+                        xbs_sniffer_statistics.deNAT_timeInCode += (UInt64)stopWatch.ElapsedTicks;
+                        UInt32 average = (UInt32)(xbs_sniffer_statistics.deNAT_timeInCode / (xbs_sniffer_statistics.deNAT_callCount - 1));
+                        double average_ms = new TimeSpan(average).TotalMilliseconds;
+                        xbs_messages.addDebugMessage("- deNAT time: " + stopWatch.ElapsedTicks + " deNAT count: " + (xbs_sniffer_statistics.deNAT_callCount - 1) + " Total Time: " + xbs_sniffer_statistics.deNAT_timeInCode + "=> " + average + " / " + average_ms + "ms");
+                    }
+                }
+                p = Packet.Parse(packet_data);
+                xbs_messages.addDebugMessage("i> " + p);
+#endif
+            }
+
             // count the sniffed packets from local xboxs
             xbs_sniffer_statistics.packet_count++;
 
             // find node with destination MAC Address in network and send packet
-            node_list.distributeDataPacket(dstMAC, rawPacket.Data);
+            node_list.distributeDataPacket(dstMAC, packet_data);
 
             int srcMac_hash = srcMAC.GetHashCode();
             bool pdevfilter_needs_change = false;
@@ -260,7 +288,7 @@ namespace XBSlink
                 System.Diagnostics.Stopwatch stopWatch = new System.Diagnostics.Stopwatch();
                 stopWatch.Start();
 #endif
-                EthernetPacketType p_type = NAT.NAT_incoming_packet(ref data, dstMAC, srcMAC);
+                EthernetPacketType p_type = NAT.NAT_incoming_packet_PacketDotNet(ref data, dstMAC, srcMAC);
 #if DEBUG
                 stopWatch.Stop();
                 if (p_type == EthernetPacketType.IpV4)

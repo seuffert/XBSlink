@@ -307,13 +307,11 @@ namespace XBSlink
             return p_type;
         }
 
-        public void deNAT_outgoing_packet(ref byte[] data, PhysicalAddress dstMAC, PhysicalAddress srcMAC)
+        public EthernetPacketType deNAT_outgoing_packet(ref byte[] data, PhysicalAddress dstMAC, PhysicalAddress srcMAC)
         {
-            if (!NAT_enabled)
-                return;
             EthernetPacketType ethernet_packet_type = getEthernetPacketType(ref data);
             if (!isIpOrArpPacket(ethernet_packet_type))
-                return;
+                return ethernet_packet_type;
             xbs_nat_entry nat_entry = null;
             lock (NAT_list)
             {
@@ -326,6 +324,42 @@ namespace XBSlink
                 replaceDestinationIpWithOriginalIP(ref data, ethernet_packet_type, ref nat_entry);
                 updateIPChecksums(ref data);
             }
+            return ethernet_packet_type;
+        }
+
+        public EthernetPacketType deNAT_outgoing_packet_PacketDotNet(ref byte[] data, PhysicalAddress dstMAC, PhysicalAddress srcMAC)
+        {
+            EthernetPacketType ethernet_packet_type = getEthernetPacketType(ref data);
+            if (!isIpOrArpPacket(ethernet_packet_type))
+                return ethernet_packet_type;
+            xbs_nat_entry nat_entry = null;
+            lock (NAT_list)
+            {
+                if (NAT_list.ContainsKey(dstMAC))
+                    nat_entry = NAT_list[dstMAC];
+            }
+
+            if (nat_entry != null)
+            {
+                EthernetPacket p = (EthernetPacket)EthernetPacket.Parse(data);
+                IPv4Packet p_IPV4 = null;
+                ARPPacket p_ARP = null;
+                if (ethernet_packet_type == EthernetPacketType.IpV4)
+                {
+                    p_IPV4 = (IPv4Packet)p.PayloadPacket;
+                    p_IPV4.DestinationAddress = nat_entry.original_source_ip;
+                    if (p_IPV4.Protocol == IPProtocolType.UDP)
+                        ((UdpPacket)p_IPV4.PayloadPacket).UpdateUDPChecksum();
+                    else if (p_IPV4.Protocol == IPProtocolType.TCP)
+                        ((TcpPacket)p_IPV4.PayloadPacket).UpdateTCPChecksum();
+                }
+                else if (ethernet_packet_type == EthernetPacketType.Arp)
+                {
+                    p_ARP = (ARPPacket)p.PayloadPacket;
+                    p_ARP.TargetProtocolAddress = nat_entry.original_source_ip;
+                }
+            }
+            return ethernet_packet_type;
         }
 
         private IPAddress getSourceIPFromRawPacketData(ref byte[] data, EthernetPacketType ethernet_packet_type)
@@ -358,7 +392,7 @@ namespace XBSlink
 
         private void replaceDestinationIpWithOriginalIP(ref byte[] data, EthernetPacketType ethernet_packet_type, ref xbs_nat_entry nat_entry)
         {
-            replaceDestinationIP(ref data, ethernet_packet_type, ref nat_entry.natted_source_ip_bytes);
+            replaceDestinationIP(ref data, ethernet_packet_type, ref nat_entry.original_source_ip_bytes);
         }
 
         private void replaceDestinationIP(ref byte[] data, EthernetPacketType ethernet_packet_type, ref byte[] new_destinationIP)
@@ -425,6 +459,34 @@ namespace XBSlink
                 data[IP_HEADER_IHL_OFFSET + header_len + UDP_HEADER_CHECKSUM_OFFSET] = 0;
                 data[IP_HEADER_IHL_OFFSET + header_len + UDP_HEADER_CHECKSUM_OFFSET+1] = 0;
             }
+        }
+
+        ushort GetTCPChecksum_org(byte[] IPHeader, byte[] TCPHeader)
+        {
+            uint sum = 0;
+            // TCP Header
+            for (int x = 0; x < TCPHeader.Length; x += 2)
+                sum += ntoh(BitConverter.ToUInt16(TCPHeader, x));
+            // Pseudo header - Source Address
+            sum += ntoh(BitConverter.ToUInt16(IPHeader, 12));
+            sum += ntoh(BitConverter.ToUInt16(IPHeader, 14));
+            // Pseudo header - Dest Address
+            sum += ntoh(BitConverter.ToUInt16(IPHeader, 16));
+            sum += ntoh(BitConverter.ToUInt16(IPHeader, 18));
+            // Pseudo header - Protocol
+            sum += ntoh(BitConverter.ToUInt16(new byte[] { 0, IPHeader[9] }, 0));
+            // Pseudo header - TCP Header length
+            sum += (UInt16)TCPHeader.Length;
+            // 16 bit 1's compliment
+            while ((sum >> 16) != 0) { sum = ((sum & 0xFFFF) + (sum >> 16)); }
+            sum = ~sum;
+            return (ushort)ntoh((UInt16)sum);
+        }
+
+        private ushort ntoh(UInt16 In)
+        {
+            int x = IPAddress.NetworkToHostOrder(In);
+            return (ushort)(x >> 16);
         }
     }
 }
