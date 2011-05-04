@@ -328,8 +328,11 @@ namespace XBSlink
                         {
                             xbs_messages.addInfoMessage("!! could not updated status on cloudlist server. Error: "+wex.Message);
                         }
-
-                        if (!result.StartsWith(xbs_cloudlist_returncode.RETURN_CODE_OK))
+                        if (result==null || !(result is String))
+                        {
+                            
+                        }
+                        else if (!result.StartsWith(xbs_cloudlist_returncode.RETURN_CODE_OK))
                             xbs_messages.addInfoMessage("!! cloudlist server returned error on update");
                         else
                         {
