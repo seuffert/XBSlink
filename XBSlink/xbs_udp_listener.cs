@@ -322,13 +322,6 @@ namespace XBSlink
 
         public void dispatch_in_msg(ref xbs_udp_message udp_msg)
         {
-            // be as fast as possible for DATA messages!
-            if (udp_msg.msg_type == xbs_node_message_type.DATA)
-            {
-                dispatch_DATA_message(ref udp_msg);
-                return;
-            }
-
             xbs_node tmp_node = null;
             xbs_node sending_node = node_list.findNode(udp_msg.src_ip, udp_msg.src_port);
 # if DEBUG
@@ -341,7 +334,7 @@ namespace XBSlink
             switch (udp_msg.msg_type)
             {
                 case xbs_node_message_type.DATA:
-                    dispatch_DATA_message(ref udp_msg);
+                    dispatch_DATA_message(ref udp_msg, ref sending_node);
                     break;
 
                 case xbs_node_message_type.ANNOUNCE:
@@ -470,7 +463,7 @@ namespace XBSlink
             }
         }
 
-        private void dispatch_DATA_message(ref xbs_udp_message udp_msg)
+        private void dispatch_DATA_message(ref xbs_udp_message udp_msg, ref xbs_node sending_node)
         {
             byte[] src_mac = new byte[6];
             byte[] dst_mac = new byte[6];
@@ -479,13 +472,11 @@ namespace XBSlink
             Buffer.BlockCopy(udp_msg.data, 6, src_mac, 0, 6);
             PhysicalAddress srcMAC = new PhysicalAddress(src_mac);
 #if DEBUG
-            xbs_node sending_node = node_list.findNode(udp_msg.src_ip, udp_msg.src_port);
-            xbs_messages.addDebugMessage(" * DATA (" + udp_msg.data.Length + ") from "+sending_node+" \""+sending_node.nickname+"\" | "+ srcMAC + " => " + dstMAC);
+            xbs_messages.addDebugMessage(" * DATA (" + udp_msg.data.Length + ") | "+ srcMAC + " => " + dstMAC);
 #endif
             xbs_sniffer.getInstance().injectRemotePacket(ref udp_msg.data, dstMAC, srcMAC);
-            xbs_node node = node_list.findNode(udp_msg.src_ip, (UInt16)udp_msg.src_port);
-            if (node != null)
-                if (node.addXbox(srcMAC))
+            if (sending_node != null)
+                if (sending_node.addXbox(srcMAC))
                     node_list.listHasJustChanged();
         }
 
