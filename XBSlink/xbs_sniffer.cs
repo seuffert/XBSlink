@@ -299,7 +299,7 @@ namespace XBSlink
                         xbs_sniffer_statistics.NAT_timeInCode += (UInt64)stopWatch.ElapsedTicks;
                         UInt32 average = (UInt32)(xbs_sniffer_statistics.NAT_timeInCode / (xbs_sniffer_statistics.NAT_callCount - 1));
                         double average_ms = new TimeSpan(average).TotalMilliseconds;
-                        xbs_messages.addDebugMessage("- NAT time: " + stopWatch.ElapsedTicks + " NAT count: " + (xbs_sniffer_statistics.NAT_callCount - 1) + " Total Time: " + xbs_sniffer_statistics.NAT_timeInCode + "=> " + average + " / " + average_ms+"ms");
+                        xbs_messages.addDebugMessage("- NAT time: " + stopWatch.ElapsedTicks+"t/"+stopWatch.ElapsedMilliseconds + "ms | NAT count: " + (xbs_sniffer_statistics.NAT_callCount - 1) + " Total Time: " + xbs_sniffer_statistics.NAT_timeInCode + "t=> Average " + average + "t / " + average_ms+"ms");
                     }
                 }
                 p = Packet.Parse(data);
