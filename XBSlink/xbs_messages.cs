@@ -55,10 +55,8 @@ namespace XBSlink
 
         private static int getMessageCount(Queue<xbs_message> queue)
         {
-            int ret;
             lock (queue)
-                ret = queue.Count;
-            return ret;
+                return queue.Count;
         }
         public static int getInfoMessageCount()
         {
@@ -81,6 +79,17 @@ namespace XBSlink
                 str = String.Format("{0:00}", msg.time_added.Hour) + ":" + String.Format("{0:00}", msg.time_added.Minute) + ":" + String.Format("{0:00}", msg.time_added.Second) + " : " + msg.text;
             return str;
         }
+        private static String[] DequeueMessageStringArray(Queue<xbs_message> queue)
+        {
+            xbs_message[] messages = DequeueMessageArray(queue);
+            if (messages == null) 
+                return null; 
+            String[] str_array = new String[messages.Length];
+            for (int i=0; i<messages.Length; i++)
+                str_array[i] = String.Format("{0:00}", messages[i].time_added.Hour) + ":" + String.Format("{0:00}", messages[i].time_added.Minute) + ":" + String.Format("{0:00}", messages[i].time_added.Second) + " : " + messages[i].text;
+            return str_array;
+        }
+
         public static String DequeueInfoMessageString()
         {
             return DequeueMessageString(messages);
@@ -93,6 +102,10 @@ namespace XBSlink
         {
             return DequeueMessageString(debug_messages);
         }
+        public static String[] DequeueDebugMessageStringArray()
+        {
+            return DequeueMessageStringArray(debug_messages);
+        }
 
         private static xbs_message DequeueMessage(Queue<xbs_message> queue)
         {
@@ -102,6 +115,18 @@ namespace XBSlink
                     msg = queue.Dequeue();
             return msg;
         }
+        private static xbs_message[] DequeueMessageArray(Queue<xbs_message> queue)
+        {
+            xbs_message[] messages = null;
+            lock (queue)
+                if (queue.Count > 0)
+                {
+                    messages = queue.ToArray();
+                    queue.Clear();
+                }
+            return messages;
+        }
+
         public static xbs_message DequeueInfoMessage()
         {
             return DequeueMessage(messages);
@@ -113,6 +138,11 @@ namespace XBSlink
         public static xbs_message DequeueDebugMessage()
         {
             return DequeueMessage(debug_messages);
+        }
+
+        public static xbs_message[] DequeueDebugMessageArray()
+        {
+            return DequeueMessageArray(debug_messages);
         }
     }
 }

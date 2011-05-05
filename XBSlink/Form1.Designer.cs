@@ -142,9 +142,6 @@ namespace XBSlink
             this.textBox_nat_iprange_to = new System.Windows.Forms.TextBox();
             this.textBox_nat_iprange_from = new System.Windows.Forms.TextBox();
             this.label20 = new System.Windows.Forms.Label();
-            this.radioButton_nat_ippool_showfree = new System.Windows.Forms.RadioButton();
-            this.radioButton_nat_ippool_showused = new System.Windows.Forms.RadioButton();
-            this.radioButton_nat_ippool_showall = new System.Windows.Forms.RadioButton();
             this.label19 = new System.Windows.Forms.Label();
             this.listView_nat_IPpool = new System.Windows.Forms.ListView();
             this.columnHeader_nat_ippool_localIP = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -1120,9 +1117,6 @@ namespace XBSlink
             this.tabPage_nat.Controls.Add(this.textBox_nat_iprange_to);
             this.tabPage_nat.Controls.Add(this.textBox_nat_iprange_from);
             this.tabPage_nat.Controls.Add(this.label20);
-            this.tabPage_nat.Controls.Add(this.radioButton_nat_ippool_showfree);
-            this.tabPage_nat.Controls.Add(this.radioButton_nat_ippool_showused);
-            this.tabPage_nat.Controls.Add(this.radioButton_nat_ippool_showall);
             this.tabPage_nat.Controls.Add(this.label19);
             this.tabPage_nat.Controls.Add(this.listView_nat_IPpool);
             this.tabPage_nat.Controls.Add(this.groupBox3);
@@ -1215,43 +1209,6 @@ namespace XBSlink
             this.label20.TabIndex = 8;
             this.label20.Text = "Add IP range to pool:";
             // 
-            // radioButton_nat_ippool_showfree
-            // 
-            this.radioButton_nat_ippool_showfree.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.radioButton_nat_ippool_showfree.AutoSize = true;
-            this.radioButton_nat_ippool_showfree.Enabled = false;
-            this.radioButton_nat_ippool_showfree.Location = new System.Drawing.Point(302, 96);
-            this.radioButton_nat_ippool_showfree.Name = "radioButton_nat_ippool_showfree";
-            this.radioButton_nat_ippool_showfree.Size = new System.Drawing.Size(43, 17);
-            this.radioButton_nat_ippool_showfree.TabIndex = 7;
-            this.radioButton_nat_ippool_showfree.Text = "free";
-            this.radioButton_nat_ippool_showfree.UseVisualStyleBackColor = true;
-            // 
-            // radioButton_nat_ippool_showused
-            // 
-            this.radioButton_nat_ippool_showused.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.radioButton_nat_ippool_showused.AutoSize = true;
-            this.radioButton_nat_ippool_showused.Enabled = false;
-            this.radioButton_nat_ippool_showused.Location = new System.Drawing.Point(248, 96);
-            this.radioButton_nat_ippool_showused.Name = "radioButton_nat_ippool_showused";
-            this.radioButton_nat_ippool_showused.Size = new System.Drawing.Size(48, 17);
-            this.radioButton_nat_ippool_showused.TabIndex = 6;
-            this.radioButton_nat_ippool_showused.Text = "used";
-            this.radioButton_nat_ippool_showused.UseVisualStyleBackColor = true;
-            // 
-            // radioButton_nat_ippool_showall
-            // 
-            this.radioButton_nat_ippool_showall.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.radioButton_nat_ippool_showall.AutoSize = true;
-            this.radioButton_nat_ippool_showall.Checked = true;
-            this.radioButton_nat_ippool_showall.Location = new System.Drawing.Point(207, 96);
-            this.radioButton_nat_ippool_showall.Name = "radioButton_nat_ippool_showall";
-            this.radioButton_nat_ippool_showall.Size = new System.Drawing.Size(35, 17);
-            this.radioButton_nat_ippool_showall.TabIndex = 5;
-            this.radioButton_nat_ippool_showall.TabStop = true;
-            this.radioButton_nat_ippool_showall.Text = "all";
-            this.radioButton_nat_ippool_showall.UseVisualStyleBackColor = true;
-            // 
             // label19
             // 
             this.label19.AutoSize = true;
@@ -1330,9 +1287,9 @@ namespace XBSlink
             this.checkBox_nat_enable.AutoSize = true;
             this.checkBox_nat_enable.Location = new System.Drawing.Point(6, 19);
             this.checkBox_nat_enable.Name = "checkBox_nat_enable";
-            this.checkBox_nat_enable.Size = new System.Drawing.Size(131, 17);
+            this.checkBox_nat_enable.Size = new System.Drawing.Size(202, 17);
             this.checkBox_nat_enable.TabIndex = 0;
-            this.checkBox_nat_enable.Text = "enable source IP NAT";
+            this.checkBox_nat_enable.Text = "enable source IP NAT (experimental!)";
             this.checkBox_nat_enable.UseVisualStyleBackColor = true;
             this.checkBox_nat_enable.CheckedChanged += new System.EventHandler(this.checkBox_nat_enable_CheckedChanged);
             // 
@@ -1412,7 +1369,7 @@ namespace XBSlink
             this.MaximizeBox = false;
             this.MinimumSize = new System.Drawing.Size(390, 220);
             this.Name = "FormMain";
-            this.Text = "XBSlink PS3 Test";
+            this.Text = "XBSlink";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.SizeChanged += new System.EventHandler(this.Form1_SizeChanged);
@@ -1544,9 +1501,6 @@ namespace XBSlink
         private System.Windows.Forms.CheckBox checkBox_nat_enable;
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.ListView listView_nat_IPpool;
-        private System.Windows.Forms.RadioButton radioButton_nat_ippool_showfree;
-        private System.Windows.Forms.RadioButton radioButton_nat_ippool_showused;
-        private System.Windows.Forms.RadioButton radioButton_nat_ippool_showall;
         private System.Windows.Forms.Label label19;
         private System.Windows.Forms.Label label20;
         private System.Windows.Forms.Button button_nat_add_iprange;

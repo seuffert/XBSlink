@@ -275,8 +275,8 @@ namespace XBSlink
             checkBox_chatAutoSwitch.Checked = s.REG_CHAT_AUTOSWITCH;
             checkBox_chat_notify.Checked = s.REG_CHAT_SOUND_NOTIFICATION;
             checkBox_newNodeSound.Checked = s.REG_NEW_NODE_SOUND_NOTIFICATION;
-            //textBox_cloudlist.Text = (s.REG_CLOUDLIST_SERVER.Length!=0) ? s.REG_CLOUDLIST_SERVER : xbs_cloudlist.DEFAULT_CLOUDLIST_SERVER;
-            textBox_cloudlist.Text = "http://www.secudb.de/~seuffert/xbslink/cloudlist_test/";
+            textBox_cloudlist.Text = (s.REG_CLOUDLIST_SERVER.Length!=0) ? s.REG_CLOUDLIST_SERVER : xbs_cloudlist.DEFAULT_CLOUDLIST_SERVER;
+            //textBox_cloudlist.Text = "http://www.secudb.de/~seuffert/xbslink/cloudlist_test/";
             checkBox_useCloudServerForPortCheck.Checked = s.REG_USE_CLOUDLIST_SERVER_TO_CHECK_INCOMING_PORT;
             textBox_chatNickname.Text = (s.REG_CHAT_NICKNAME.Length!=0) ? s.REG_CHAT_NICKNAME : xbs_chat.STANDARD_NICKNAME;
             checkBox_checkForUpdates.Checked = s.REG_CHECK4UPDATES;
@@ -461,7 +461,7 @@ namespace XBSlink
                 return;
 
             timer1.Enabled = true;
-            button_announce.Enabled = false;
+            button_announce.Enabled = true;
             saveRegistryValues();
             xbs_messages.addInfoMessage("engine ready. waiting for incoming requests.");
             switch_tab = tabPage_info;
@@ -511,7 +511,6 @@ namespace XBSlink
                 if (cloudlist.part_of_cloud)
                     cloudlist.LeaveCloud();
             timer1.Stop();
-            //timer_messages.Stop();
             xbs_settings.settings.Save();
             if (sniffer != null)
             {
