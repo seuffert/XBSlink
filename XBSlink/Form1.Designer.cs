@@ -600,7 +600,6 @@ namespace XBSlink
             // 
             this.textBox_cloudlist.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_cloudlist.Enabled = false;
             this.textBox_cloudlist.Location = new System.Drawing.Point(61, 2);
             this.textBox_cloudlist.Name = "textBox_cloudlist";
             this.textBox_cloudlist.Size = new System.Drawing.Size(203, 20);
