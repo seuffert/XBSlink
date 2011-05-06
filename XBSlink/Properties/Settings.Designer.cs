@@ -262,5 +262,17 @@ namespace XBSlink.Properties {
                 this["REG_NAT_IP_POOL"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool REG_FILTER_WELLKNOWN_PORTS {
+            get {
+                return ((bool)(this["REG_FILTER_WELLKNOWN_PORTS"]));
+            }
+            set {
+                this["REG_FILTER_WELLKNOWN_PORTS"] = value;
+            }
+        }
     }
 }

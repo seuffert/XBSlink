@@ -180,6 +180,20 @@ namespace XBSlink
                 ip_pool.Clear();
         }
 
+        public void freeAllIPs()
+        {
+            if (CountOfUsedIPs == 0)
+                return;
+#if DEBUG
+            xbs_messages.addDebugMessage("% freeing remaining NAT IPs");
+#endif
+            lock (ip_pool)
+            {
+                for (int i = 0; i < ip_pool.Count; i++)
+                    if (ip_pool[i].source_mac != null)
+                        freeIP(ip_pool[i]);
+            }
+        }
     }
 
     class xbs_nat

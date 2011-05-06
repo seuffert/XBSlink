@@ -111,7 +111,7 @@ namespace XBSlink
 
         private Color getBackColor( string str )
         {
-            String message = str.Substring(11).Trim();
+            String message = str.Substring(str.IndexOf(" : ")+2).Trim();
             Color c = listBox_messages.BackColor;
             if (message.StartsWith("!!"))
                 c = Color.Firebrick;

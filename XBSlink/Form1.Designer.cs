@@ -110,6 +110,7 @@ namespace XBSlink
             this.listBox_messages = new System.Windows.Forms.ListBox();
             this.button_clearMessages = new System.Windows.Forms.Button();
             this.tabPage_settings = new System.Windows.Forms.TabPage();
+            this.checkBox_filter_wellknown_ports = new System.Windows.Forms.CheckBox();
             this.button_reset_settings = new System.Windows.Forms.Button();
             this.checkBox_checkForUpdates = new System.Windows.Forms.CheckBox();
             this.checkBox_useCloudServerForPortCheck = new System.Windows.Forms.CheckBox();
@@ -153,7 +154,6 @@ namespace XBSlink
             this.timer_startEngine = new System.Windows.Forms.Timer(this.components);
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.toolTip2 = new System.Windows.Forms.ToolTip(this.components);
-            this.checkBox_filter_wellknown_ports = new System.Windows.Forms.CheckBox();
             this.statusStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage_info.SuspendLayout();
@@ -290,9 +290,9 @@ namespace XBSlink
             this.button_announce.Enabled = false;
             this.button_announce.Location = new System.Drawing.Point(103, 12);
             this.button_announce.Name = "button_announce";
-            this.button_announce.Size = new System.Drawing.Size(145, 23);
+            this.button_announce.Size = new System.Drawing.Size(162, 23);
             this.button_announce.TabIndex = 9;
-            this.button_announce.Text = "connect directly to remote host";
+            this.button_announce.Text = "directly connect to remote host";
             this.button_announce.UseVisualStyleBackColor = true;
             this.button_announce.Click += new System.EventHandler(this.button_announce_Click);
             // 
@@ -362,9 +362,9 @@ namespace XBSlink
             this.checkBox_all_broadcasts.AutoSize = true;
             this.checkBox_all_broadcasts.Location = new System.Drawing.Point(9, 156);
             this.checkBox_all_broadcasts.Name = "checkBox_all_broadcasts";
-            this.checkBox_all_broadcasts.Size = new System.Drawing.Size(193, 17);
+            this.checkBox_all_broadcasts.Size = new System.Drawing.Size(267, 17);
             this.checkBox_all_broadcasts.TabIndex = 16;
-            this.checkBox_all_broadcasts.Text = "advanced forwarding of broadcasts";
+            this.checkBox_all_broadcasts.Text = "unconditional forwarding of broadcasts (be careful!)";
             this.toolTip1.SetToolTip(this.checkBox_all_broadcasts, "this helps with some games. might also forward some unrelated broadcast packets.");
             this.checkBox_all_broadcasts.UseVisualStyleBackColor = true;
             this.checkBox_all_broadcasts.CheckedChanged += new System.EventHandler(this.checkBox_all_broadcasts_CheckedChanged);
@@ -826,6 +826,21 @@ namespace XBSlink
             this.tabPage_settings.TabIndex = 1;
             this.tabPage_settings.Text = "Settings";
             // 
+            // checkBox_filter_wellknown_ports
+            // 
+            this.checkBox_filter_wellknown_ports.AutoSize = true;
+            this.checkBox_filter_wellknown_ports.Checked = true;
+            this.checkBox_filter_wellknown_ports.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_filter_wellknown_ports.Location = new System.Drawing.Point(9, 179);
+            this.checkBox_filter_wellknown_ports.Name = "checkBox_filter_wellknown_ports";
+            this.checkBox_filter_wellknown_ports.Size = new System.Drawing.Size(236, 17);
+            this.checkBox_filter_wellknown_ports.TabIndex = 35;
+            this.checkBox_filter_wellknown_ports.Text = "filter packets from well known ports (p<1024)";
+            this.toolTip1.SetToolTip(this.checkBox_filter_wellknown_ports, "This security feature prevents XBSlink from accidently forwarding packets of loca" +
+                    "l services.");
+            this.checkBox_filter_wellknown_ports.UseVisualStyleBackColor = true;
+            this.checkBox_filter_wellknown_ports.CheckedChanged += new System.EventHandler(this.checkBox_filter_wellknown_ports_CheckedChanged);
+            // 
             // button_reset_settings
             // 
             this.button_reset_settings.Location = new System.Drawing.Point(120, 375);
@@ -1283,18 +1298,6 @@ namespace XBSlink
             // toolTip2
             // 
             this.toolTip2.ShowAlways = true;
-            // 
-            // checkBox_filter_wellknown_ports
-            // 
-            this.checkBox_filter_wellknown_ports.AutoSize = true;
-            this.checkBox_filter_wellknown_ports.Location = new System.Drawing.Point(9, 179);
-            this.checkBox_filter_wellknown_ports.Name = "checkBox_filter_wellknown_ports";
-            this.checkBox_filter_wellknown_ports.Size = new System.Drawing.Size(236, 17);
-            this.checkBox_filter_wellknown_ports.TabIndex = 35;
-            this.checkBox_filter_wellknown_ports.Text = "filter packets from well known ports (p<1024)";
-            this.toolTip1.SetToolTip(this.checkBox_filter_wellknown_ports, "This security feature prevents XBSlink from accidently forwarding packets of loca" +
-                    "l services.");
-            this.checkBox_filter_wellknown_ports.UseVisualStyleBackColor = true;
             // 
             // FormMain
             // 

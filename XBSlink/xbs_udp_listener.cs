@@ -188,7 +188,7 @@ namespace XBSlink
                         {
                             msg.data = new byte[bytes - 3];
                             Buffer.BlockCopy(data, 3, msg.data, 0, bytes - 3);
-                            msg.data_len = (UInt16)(bytes - 3); // TODO: FIXME
+                            msg.data_len = (UInt16)(bytes - 3); // TODO: FIXME?
                         }
                         else
                             msg.data_len = 0;
@@ -196,6 +196,9 @@ namespace XBSlink
                         msg.src_ip = remote_endpoint.Address;
                         msg.src_port = remote_endpoint.Port;
 
+#if DEBUG
+                        //xbs_messages.addDebugMessage(" * added UDP packet size "+msg.data_len+" command "+msg.msg_type);
+#endif
                         lock (_locker)
                         {
                             if (command == xbs_node_message_type.DATA)
@@ -214,6 +217,9 @@ namespace XBSlink
             {
                 ExceptionMessage.ShowExceptionDialog("udp_receiver service", ex);
             }
+#endif
+#if DEBUG
+                xbs_messages.addDebugMessage(" * udp receiver thread stopped");
 #endif
         }
 
@@ -260,6 +266,9 @@ namespace XBSlink
             {
                 ExceptionMessage.ShowExceptionDialog("udp dispatcher service", ex);
             }
+#endif
+#if DEBUG
+                xbs_messages.addDebugMessage(" * udp listener dispatcher thread stopped.");
 #endif
         }
 

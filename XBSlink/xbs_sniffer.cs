@@ -48,6 +48,7 @@ namespace XBSlink
         public bool pdev_sniff_additional_broadcast = true;
         public bool pdev_filter_use_special_macs = true;
         public bool pdev_filter_only_forward_special_macs = true;
+        public bool pdev_filter_wellknown_ports = true;
 
         private String pdev_filter = "(udp and ((ip host 0.0.0.1) or (dst portrange 3074-3075))) ";
         private String pdev_filter_all_broadcast = "(udp and ((ip host 0.0.0.1) or (dst portrange 3074-3075)) or (ether host FF:FF:FF:FF:FF:FF and ip dst host 255.255.255.255)) ";
@@ -411,7 +412,8 @@ namespace XBSlink
                 if (pdev_filter_use_special_macs && pdev_filter_only_forward_special_macs && filter_special_macs.Length>0)
                     f = filter_special_macs;
 
-                f += " and not (ip and dst portrange 1-1023)";
+                if (pdev_filter_wellknown_ports)
+                    f += " and not (ip and (dst portrange 1-1023 or src portrange 1-1023) )";
 #if DEBUG
                 xbs_messages.addInfoMessage("- pdev filter: " + f);
 #endif

@@ -2,13 +2,25 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace XBSlink
 {
+    /*
+    enum xbs_message_type : byte
+    {
+        GENERAL = 0x00,
+        SNIFFER = 0x01,
+        UDP_LISTENER = 0x02
+    }
+    */
+
     class xbs_message
     {
         public DateTime time_added;
         public String text;
+        public String ThreadName = Thread.CurrentThread.Name;
+        public int ThreadID = Thread.CurrentThread.ManagedThreadId;
 
         public xbs_message(String txt, DateTime time)
         {
@@ -20,6 +32,16 @@ namespace XBSlink
         {
             time_added = DateTime.Now;
             text = txt;
+        }
+
+        public override string ToString()
+        {
+            //return String.Format("{0:00}", msg.time_added.Hour) + ":" + String.Format("{0:00}", msg.time_added.Minute) + ":" + String.Format("{0:00}", msg.time_added.Second) + " : " + msg.text;
+#if DEBUG
+            return String.Format("[{4}] {0:00}:{1:00}:{2:00} : {3}", this.time_added.Hour, this.time_added.Minute, this.time_added.Second, this.text, this.ThreadID);
+#else
+            return String.Format("{0:00}:{1:00}:{2:00} : {3}", this.time_added.Hour, this.time_added.Minute, this.time_added.Second, this.text);
+#endif
         }
 
     }
@@ -39,7 +61,7 @@ namespace XBSlink
         {
             addMessage(msg, messages);
 #if DEBUG
-            addMessage(msg, debug_messages);
+            addDebugMessage(msg);
 #endif
         }
         public static void addChatMessage(String msg)
@@ -75,8 +97,8 @@ namespace XBSlink
         {
             String str = null;
             xbs_message msg = DequeueMessage(queue);
-            if (msg!=null)
-                str = String.Format("{0:00}", msg.time_added.Hour) + ":" + String.Format("{0:00}", msg.time_added.Minute) + ":" + String.Format("{0:00}", msg.time_added.Second) + " : " + msg.text;
+            if (msg != null)
+                str = msg.ToString();
             return str;
         }
         private static String[] DequeueMessageStringArray(Queue<xbs_message> queue)
@@ -85,8 +107,8 @@ namespace XBSlink
             if (messages == null) 
                 return null; 
             String[] str_array = new String[messages.Length];
-            for (int i=0; i<messages.Length; i++)
-                str_array[i] = String.Format("{0:00}", messages[i].time_added.Hour) + ":" + String.Format("{0:00}", messages[i].time_added.Minute) + ":" + String.Format("{0:00}", messages[i].time_added.Second) + " : " + messages[i].text;
+            for (int i = 0; i < messages.Length; i++)
+                str_array[i] = messages[i].ToString();
             return str_array;
         }
 

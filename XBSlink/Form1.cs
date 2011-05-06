@@ -277,6 +277,7 @@ namespace XBSlink
             textBox_chatNickname.Text = (s.REG_CHAT_NICKNAME.Length!=0) ? s.REG_CHAT_NICKNAME : xbs_chat.STANDARD_NICKNAME;
             checkBox_checkForUpdates.Checked = s.REG_CHECK4UPDATES;
             checkBox_nat_enable.Checked = s.REG_NAT_ENABLE;
+            checkBox_filter_wellknown_ports.Checked = s.REG_FILTER_WELLKNOWN_PORTS;
 
             if (checkBox_enable_MAC_list.Checked)
                 checkBox_mac_restriction.Enabled = true;
@@ -311,6 +312,7 @@ namespace XBSlink
             s.REG_CHECK4UPDATES = checkBox_checkForUpdates.Checked;
             s.REG_NAT_ENABLE = checkBox_nat_enable.Checked;
             s.REG_NAT_IP_POOL = getNATIPPoolString();
+            s.REG_FILTER_WELLKNOWN_PORTS = checkBox_filter_wellknown_ports.Checked;
             s.Save();
         }
 
@@ -506,6 +508,11 @@ namespace XBSlink
             }
             engine_started = false;
             xbs_messages.addInfoMessage("Engine stopped.");
+
+            listView_nodes.Items.Clear();
+            NAT.ip_pool.freeAllIPs();
+            updateNATIPPoolListView();
+
             button_start_engine.Text = "Start Engine";
             textBox1.Text = "Engine not started.";
             textBox_chatEntry.ReadOnly = true;
@@ -517,8 +524,6 @@ namespace XBSlink
             button_CloudLeave.Enabled = false;
             textBox_chatNickname.ReadOnly = false;
             button_reset_settings.Enabled = true;
-            listView_nodes.Items.Clear();
-            updateNATIPPoolListView();
         }
 
         private IPAddress Resolver(string Hostname)
@@ -1465,7 +1470,7 @@ namespace XBSlink
                     lv_item.SubItems.Add(entry.original_source_ip.ToString());
                     xbs_node node = node_list.findNode(entry.source_mac);
                     if (node != null)
-                        lv_item.SubItems.Add( node.nickname + "("+node.ip_public+":"+node.port_public+")");
+                        lv_item.SubItems.Add( node.nickname + " | "+node.ip_public+":"+node.port_public);
                 }
             }
             listView_nat_IPpool.EndUpdate();
@@ -1498,6 +1503,16 @@ namespace XBSlink
                 xbs_settings.settings.Reset();
                 initWithRegistryValues();
                 xbs_messages.addInfoMessage("settings have been reset to default values.");
+            }
+        }
+
+        private void checkBox_filter_wellknown_ports_CheckedChanged(object sender, EventArgs e)
+        {
+            if (sniffer != null)
+            {
+                sniffer.pdev_filter_wellknown_ports = checkBox_filter_wellknown_ports.Checked;
+                if (engine_started)
+                    sniffer.setPdevFilter();
             }
         }
 

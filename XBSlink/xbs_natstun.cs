@@ -161,7 +161,9 @@ namespace XBSlink
 
         private void upnp_unhandled_exception(object sender, UnhandledExceptionEventArgs args)
         {
-            xbs_messages.addInfoMessage(" @ UPnP error: " + args.ExceptionObject.ToString());
+#if DEBUG
+            xbs_messages.addDebugMessage(" @ UPnP error: " + args.ExceptionObject.ToString());
+#endif
         }
 
         public IPAddress upnp_getPublicIP()

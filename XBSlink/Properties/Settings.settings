@@ -62,5 +62,8 @@
     <Setting Name="REG_NAT_IP_POOL" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="REG_FILTER_WELLKNOWN_PORTS" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
