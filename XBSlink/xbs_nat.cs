@@ -251,7 +251,7 @@ namespace XBSlink
 
         public EthernetPacketType NAT_incoming_packet_PacketDotNet(ref byte[] data, PhysicalAddress dstMAC, PhysicalAddress srcMAC)
         {
-            EthernetPacket p = (EthernetPacket)EthernetPacket.Parse(data);
+            EthernetPacket p = (EthernetPacket)EthernetPacket.ParsePacket(LinkLayers.Ethernet, data);
             EthernetPacketType p_type = p.Type;
             IPv4Packet p_IPV4 = null;
             ARPPacket p_ARP = null;
@@ -341,7 +341,7 @@ namespace XBSlink
 
             if (nat_entry != null)
             {
-                EthernetPacket p = (EthernetPacket)EthernetPacket.Parse(data);
+                EthernetPacket p = (EthernetPacket)EthernetPacket.ParsePacket(LinkLayers.Ethernet, data);
                 IPv4Packet p_IPV4 = null;
                 ARPPacket p_ARP = null;
                 if (ethernet_packet_type == EthernetPacketType.IpV4)

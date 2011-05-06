@@ -57,7 +57,7 @@ namespace XBSlink
         private Thread dispatcher_thread = null;
         private volatile bool exiting = false;
 
-        public static Queue<RawPacket> packets = new Queue<RawPacket>();
+        public static Queue<SharpPcap.RawCapture> packets = new Queue<SharpPcap.RawCapture>();
 
         private List<int> injected_macs_hash = new List<int>();
         private List<int> sniffed_macs_hash = new List<int>();
@@ -156,7 +156,7 @@ namespace XBSlink
         {
             xbs_messages.addInfoMessage(" - sniffer dispatcher thread starting...");
             int count = 0;
-            RawPacket p = null;
+            RawCapture p = null;
 
 #if !DEBUG
             try
@@ -192,7 +192,7 @@ namespace XBSlink
 #endif
         }
 
-        public void dispatch_packet(ref RawPacket rawPacket)
+        public void dispatch_packet(ref RawCapture rawPacket)
         {
             byte[] src_mac = new byte[6];
             byte[] dst_mac = new byte[6];
@@ -206,7 +206,7 @@ namespace XBSlink
 
 #if DEBUG
             //xbs_messages.addDebugMessage(" - new ethernet packet from "+srcMAC+" => "+dstMAC);
-            Packet p = Packet.ParsePacket(rawPacket);
+            Packet p = Packet.ParsePacket(rawPacket.LinkLayerType, rawPacket.Data);
             xbs_messages.addDebugMessage("s> "+p);
 #endif
 
@@ -237,7 +237,7 @@ namespace XBSlink
                         xbs_messages.addDebugMessage("- deNAT time: " + stopWatch.ElapsedTicks + " deNAT count: " + (xbs_sniffer_statistics.deNAT_callCount - 1) + " Total Time: " + xbs_sniffer_statistics.deNAT_timeInCode + "=> " + average + " / " + average_ms + "ms");
                     }
                 }
-                p = Packet.Parse(packet_data);
+                p = Packet.ParsePacket(rawPacket.LinkLayerType, packet_data);
                 xbs_messages.addDebugMessage("i> " + p);
 #endif
             }
@@ -278,7 +278,7 @@ namespace XBSlink
             }
 
 #if DEBUG
-            Packet p = Packet.Parse(data);
+            Packet p = Packet.ParsePacket(LinkLayers.Ethernet, data);
             xbs_messages.addDebugMessage("i> "+p);
 #endif
 
@@ -302,7 +302,7 @@ namespace XBSlink
                         xbs_messages.addDebugMessage("- NAT time: " + stopWatch.ElapsedTicks+"t/"+stopWatch.ElapsedMilliseconds + "ms | NAT count: " + (xbs_sniffer_statistics.NAT_callCount - 1) + " Total Time: " + xbs_sniffer_statistics.NAT_timeInCode + "t=> Average " + average + "t / " + average_ms+"ms");
                     }
                 }
-                p = Packet.Parse(data);
+                p = Packet.ParsePacket(LinkLayers.Ethernet, data);
                 xbs_messages.addDebugMessage("i> " + p);
 #endif
             }
