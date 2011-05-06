@@ -524,8 +524,11 @@ namespace XBSlink
                 udp_listener = null;
             }
             if (natstun != null)
+            {
                 if (natstun.isUPnPavailable())
                     natstun.upnp_deleteAllPortMappings();
+                natstun.upnp_stopDiscovery();
+            }
             engine_started = false;
             xbs_messages.addInfoMessage("Engine stopped.");
             button_start_engine.Text = "Start Engine";

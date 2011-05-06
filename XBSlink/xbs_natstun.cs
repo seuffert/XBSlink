@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Text;
 using System.Net;
@@ -39,6 +40,7 @@ namespace XBSlink
         private INatDevice device = null;
         private IPAddress public_ip = null;
         private List<Mapping> my_PortMappings = new List<Mapping>();
+        private bool upnp_discovery_started = false;
 
         // STUN variables
         public const int STUN_SERVER_DEFAULT_PORT = 3478;
@@ -54,8 +56,23 @@ namespace XBSlink
         // External IP Service
         private const String EXTERNAL_IP_WEB_SERVICE = "http://www.whatismyip.com/automation/n09230945.asp";
 
+#if DEBUG
+        class UPnPlogger : StringWriter
+        {
+            public override void WriteLine(string format, params object[] arg)
+            {
+                base.WriteLine(format, arg);
+                TextReader stringReader = new StringReader(this.ToString());
+                String[] s = stringReader.ReadToEnd().Split(Environment.NewLine.ToCharArray());
+                //for (int i = 0; i < s.Length; i++) if (s[i].Trim().Length > 0) xbs_messages.addDebugMessage(" @ UPnP log: " + s[i].Trim());
+            }
+        }
+#endif
         public xbs_natstun()
         {
+#if DEBUG
+            NatUtility.Logger = new UPnPlogger();
+#endif
             NatUtility.DeviceFound += upnp_device_found;
             NatUtility.UnhandledException += upnp_unhandled_exception;
         }
@@ -68,6 +85,16 @@ namespace XBSlink
             {
                 xbs_messages.addInfoMessage(" @ UPnP device discovery started");
                 NatUtility.StartDiscovery();
+                upnp_discovery_started = true;
+            }
+        }
+
+        public void upnp_stopDiscovery()
+        {
+            if (upnp_discovery_started)
+            {
+                xbs_messages.addDebugMessage(" @ UPnP device discovery stopped");
+                NatUtility.StopDiscovery();
             }
         }
 
@@ -113,7 +140,7 @@ namespace XBSlink
                 }
                 lock (this)
                     my_PortMappings.Add(port_mapping);
-                xbs_messages.addInfoMessage(" @ UPnP port mapped from " + public_ip+":"+port_mapping.PublicPort);
+                xbs_messages.addInfoMessage(" @ UPnP port mapped from " + public_ip + ":" + port_mapping.PublicPort);
                 return true;
             }
             return false;
@@ -132,7 +159,10 @@ namespace XBSlink
                 try
                 {
                     foreach (Mapping pm in mappings)
+                    {
                         device.DeletePortMap(pm);
+                        xbs_messages.addInfoMessage(" @ UPnP port mapping removed " + public_ip + ":" + pm.PublicPort);
+                    }
                 }
                 catch (Exception)
                 {
@@ -152,10 +182,8 @@ namespace XBSlink
 
         public bool isUPnPavailable()
         {
-            bool ret = false;
             lock (this)
-                ret = (this.device != null);
-            return ret;
+                return (this.device != null);
         }
         #endregion
 
