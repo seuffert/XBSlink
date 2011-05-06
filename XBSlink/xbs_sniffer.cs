@@ -392,8 +392,8 @@ namespace XBSlink
                 {
                     if (pdev_filter_special_macs.Count > 0)
                     {
-                        filter_special_macs = (pdev_filter_only_forward_special_macs == false) ? " or ether src " : "ether src ";
-                        filter_special_macs += String.Join(" or ether src ", pdev_filter_special_macs.ConvertAll<string>(delegate(PhysicalAddress pa) { return PhysicalAddressToString(pa); }).ToArray());
+                        filter_special_macs = (pdev_filter_only_forward_special_macs == false) ? " or (ether src " : "(ether src ";
+                        filter_special_macs += String.Join(" or ether src ", pdev_filter_special_macs.ConvertAll<string>(delegate(PhysicalAddress pa) { return PhysicalAddressToString(pa); }).ToArray()) + ")";
                     }
                 }
             }
@@ -404,11 +404,14 @@ namespace XBSlink
                     filter_discovered_devices = " or ( ether src " + String.Join(" or ether src ", sniffed_macs.ConvertAll<string>(delegate(PhysicalAddress pa) { return PhysicalAddressToString(pa); }).ToArray()) + " )";
                 }
             }
+
             try
             {
                 String f = (pdev_sniff_additional_broadcast ? pdev_filter_all_broadcast : pdev_filter) + filter_special_macs + filter_known_macs_from_remote_nodes + filter_discovered_devices + filter_exclude_injected_packets;
                 if (pdev_filter_use_special_macs && pdev_filter_only_forward_special_macs && filter_special_macs.Length>0)
                     f = filter_special_macs;
+
+                f += " and not (ip and dst portrange 1-1023)";
 #if DEBUG
                 xbs_messages.addInfoMessage("- pdev filter: " + f);
 #endif
