@@ -119,12 +119,6 @@ namespace XBSlink
             this.checkBox_chatAutoSwitch = new System.Windows.Forms.CheckBox();
             this.label10 = new System.Windows.Forms.Label();
             this.textBox_chatNickname = new System.Windows.Forms.TextBox();
-            this.checkBox_useStunServer = new System.Windows.Forms.CheckBox();
-            this.label9 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.textBox_stunServerPort = new System.Windows.Forms.TextBox();
-            this.textBox_stunServerHostname = new System.Windows.Forms.TextBox();
             this.button_save_settings = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -159,6 +153,7 @@ namespace XBSlink
             this.timer_startEngine = new System.Windows.Forms.Timer(this.components);
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.toolTip2 = new System.Windows.Forms.ToolTip(this.components);
+            this.checkBox_filter_wellknown_ports = new System.Windows.Forms.CheckBox();
             this.statusStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage_info.SuspendLayout();
@@ -269,7 +264,7 @@ namespace XBSlink
             // 
             // textBox_local_Port
             // 
-            this.textBox_local_Port.Location = new System.Drawing.Point(257, 59);
+            this.textBox_local_Port.Location = new System.Drawing.Point(209, 74);
             this.textBox_local_Port.MaxLength = 5;
             this.textBox_local_Port.Name = "textBox_local_Port";
             this.textBox_local_Port.Size = new System.Drawing.Size(36, 20);
@@ -297,7 +292,7 @@ namespace XBSlink
             this.button_announce.Name = "button_announce";
             this.button_announce.Size = new System.Drawing.Size(145, 23);
             this.button_announce.TabIndex = 9;
-            this.button_announce.Text = "Announce to Remote Host";
+            this.button_announce.Text = "connect directly to remote host";
             this.button_announce.UseVisualStyleBackColor = true;
             this.button_announce.Click += new System.EventHandler(this.button_announce_Click);
             // 
@@ -305,7 +300,7 @@ namespace XBSlink
             // 
             this.comboBox_localIP.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_localIP.FormattingEnabled = true;
-            this.comboBox_localIP.Location = new System.Drawing.Point(58, 59);
+            this.comboBox_localIP.Location = new System.Drawing.Point(9, 74);
             this.comboBox_localIP.Name = "comboBox_localIP";
             this.comboBox_localIP.Size = new System.Drawing.Size(184, 21);
             this.comboBox_localIP.TabIndex = 10;
@@ -316,7 +311,7 @@ namespace XBSlink
             this.checkbox_UPnP.AutoSize = true;
             this.checkbox_UPnP.Checked = true;
             this.checkbox_UPnP.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkbox_UPnP.Location = new System.Drawing.Point(9, 140);
+            this.checkbox_UPnP.Location = new System.Drawing.Point(9, 110);
             this.checkbox_UPnP.Name = "checkbox_UPnP";
             this.checkbox_UPnP.Size = new System.Drawing.Size(227, 17);
             this.checkbox_UPnP.TabIndex = 11;
@@ -332,21 +327,22 @@ namespace XBSlink
             this.label2.Size = new System.Drawing.Size(261, 13);
             this.label2.TabIndex = 12;
             this.label2.Text = "Capture Device (connected to same network as xbox)";
-            this.toolTip1.SetToolTip(this.label2, "select the network device thats connected to the same network as your Xbox360");
+            this.toolTip1.SetToolTip(this.label2, "select the network device thats connected to the same network as your Xbox360. Wi" +
+                    "reless adpaters will most likely NOT work!");
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(3, 62);
+            this.label3.Location = new System.Drawing.Point(3, 58);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(52, 13);
+            this.label3.Size = new System.Drawing.Size(195, 13);
             this.label3.TabIndex = 13;
-            this.label3.Text = "Local IP :";
+            this.label3.Text = "Bind to IP and port (for Internet access):";
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(245, 62);
+            this.label4.Location = new System.Drawing.Point(197, 77);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(10, 13);
             this.label4.TabIndex = 14;
@@ -364,7 +360,7 @@ namespace XBSlink
             // checkBox_all_broadcasts
             // 
             this.checkBox_all_broadcasts.AutoSize = true;
-            this.checkBox_all_broadcasts.Location = new System.Drawing.Point(9, 186);
+            this.checkBox_all_broadcasts.Location = new System.Drawing.Point(9, 156);
             this.checkBox_all_broadcasts.Name = "checkBox_all_broadcasts";
             this.checkBox_all_broadcasts.Size = new System.Drawing.Size(193, 17);
             this.checkBox_all_broadcasts.TabIndex = 16;
@@ -806,17 +802,12 @@ namespace XBSlink
             // 
             this.tabPage_settings.AutoScroll = true;
             this.tabPage_settings.BackColor = System.Drawing.SystemColors.Control;
+            this.tabPage_settings.Controls.Add(this.checkBox_filter_wellknown_ports);
             this.tabPage_settings.Controls.Add(this.button_reset_settings);
             this.tabPage_settings.Controls.Add(this.checkBox_checkForUpdates);
             this.tabPage_settings.Controls.Add(this.checkBox_useCloudServerForPortCheck);
             this.tabPage_settings.Controls.Add(this.checkBox_newNodeSound);
             this.tabPage_settings.Controls.Add(this.groupBox2);
-            this.tabPage_settings.Controls.Add(this.checkBox_useStunServer);
-            this.tabPage_settings.Controls.Add(this.label9);
-            this.tabPage_settings.Controls.Add(this.label8);
-            this.tabPage_settings.Controls.Add(this.label7);
-            this.tabPage_settings.Controls.Add(this.textBox_stunServerPort);
-            this.tabPage_settings.Controls.Add(this.textBox_stunServerHostname);
             this.tabPage_settings.Controls.Add(this.button_save_settings);
             this.tabPage_settings.Controls.Add(this.label6);
             this.tabPage_settings.Controls.Add(this.groupBox1);
@@ -863,7 +854,7 @@ namespace XBSlink
             this.checkBox_useCloudServerForPortCheck.AutoSize = true;
             this.checkBox_useCloudServerForPortCheck.Checked = true;
             this.checkBox_useCloudServerForPortCheck.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_useCloudServerForPortCheck.Location = new System.Drawing.Point(9, 163);
+            this.checkBox_useCloudServerForPortCheck.Location = new System.Drawing.Point(9, 133);
             this.checkBox_useCloudServerForPortCheck.Name = "checkBox_useCloudServerForPortCheck";
             this.checkBox_useCloudServerForPortCheck.Size = new System.Drawing.Size(215, 17);
             this.checkBox_useCloudServerForPortCheck.TabIndex = 32;
@@ -876,7 +867,7 @@ namespace XBSlink
             this.checkBox_newNodeSound.AutoSize = true;
             this.checkBox_newNodeSound.Checked = true;
             this.checkBox_newNodeSound.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_newNodeSound.Location = new System.Drawing.Point(9, 209);
+            this.checkBox_newNodeSound.Location = new System.Drawing.Point(9, 202);
             this.checkBox_newNodeSound.Name = "checkBox_newNodeSound";
             this.checkBox_newNodeSound.Size = new System.Drawing.Size(189, 17);
             this.checkBox_newNodeSound.TabIndex = 31;
@@ -943,64 +934,6 @@ namespace XBSlink
             this.toolTip1.SetToolTip(this.textBox_chatNickname, "the nickname will appear in the chat as well as in the node list");
             this.textBox_chatNickname.Leave += new System.EventHandler(this.textBox_chatNickname_Leave);
             // 
-            // checkBox_useStunServer
-            // 
-            this.checkBox_useStunServer.AutoSize = true;
-            this.checkBox_useStunServer.Location = new System.Drawing.Point(9, 117);
-            this.checkBox_useStunServer.Name = "checkBox_useStunServer";
-            this.checkBox_useStunServer.Size = new System.Drawing.Size(213, 17);
-            this.checkBox_useStunServer.TabIndex = 29;
-            this.checkBox_useStunServer.Text = "use STUN Server to discover NAT type";
-            this.checkBox_useStunServer.UseVisualStyleBackColor = true;
-            this.checkBox_useStunServer.CheckedChanged += new System.EventHandler(this.checkBox_useStunServer_CheckedChanged);
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(299, 89);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(26, 13);
-            this.label9.TabIndex = 28;
-            this.label9.Text = "Port";
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(245, 89);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(10, 13);
-            this.label8.TabIndex = 27;
-            this.label8.Text = ":";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(12, 89);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(43, 13);
-            this.label7.TabIndex = 26;
-            this.label7.Text = "STUN :";
-            // 
-            // textBox_stunServerPort
-            // 
-            this.textBox_stunServerPort.Location = new System.Drawing.Point(257, 86);
-            this.textBox_stunServerPort.MaxLength = 5;
-            this.textBox_stunServerPort.Name = "textBox_stunServerPort";
-            this.textBox_stunServerPort.Size = new System.Drawing.Size(36, 20);
-            this.textBox_stunServerPort.TabIndex = 25;
-            this.textBox_stunServerPort.Text = "3478";
-            this.textBox_stunServerPort.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox_stunServerPort_KeyPress);
-            this.textBox_stunServerPort.Leave += new System.EventHandler(this.textBox_stunServerPort_Leave);
-            // 
-            // textBox_stunServerHostname
-            // 
-            this.textBox_stunServerHostname.Location = new System.Drawing.Point(58, 86);
-            this.textBox_stunServerHostname.Name = "textBox_stunServerHostname";
-            this.textBox_stunServerHostname.Size = new System.Drawing.Size(184, 20);
-            this.textBox_stunServerHostname.TabIndex = 24;
-            this.textBox_stunServerHostname.Text = "stun.sipgate.net";
-            this.textBox_stunServerHostname.Leave += new System.EventHandler(this.textBox_stunServerHostname_Leave);
-            // 
             // button_save_settings
             // 
             this.button_save_settings.Location = new System.Drawing.Point(9, 375);
@@ -1014,7 +947,7 @@ namespace XBSlink
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(299, 62);
+            this.label6.Location = new System.Drawing.Point(251, 77);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(26, 13);
             this.label6.TabIndex = 22;
@@ -1351,6 +1284,18 @@ namespace XBSlink
             // 
             this.toolTip2.ShowAlways = true;
             // 
+            // checkBox_filter_wellknown_ports
+            // 
+            this.checkBox_filter_wellknown_ports.AutoSize = true;
+            this.checkBox_filter_wellknown_ports.Location = new System.Drawing.Point(9, 179);
+            this.checkBox_filter_wellknown_ports.Name = "checkBox_filter_wellknown_ports";
+            this.checkBox_filter_wellknown_ports.Size = new System.Drawing.Size(236, 17);
+            this.checkBox_filter_wellknown_ports.TabIndex = 35;
+            this.checkBox_filter_wellknown_ports.Text = "filter packets from well known ports (p<1024)";
+            this.toolTip1.SetToolTip(this.checkBox_filter_wellknown_ports, "This security feature prevents XBSlink from accidently forwarding packets of loca" +
+                    "l services.");
+            this.checkBox_filter_wellknown_ports.UseVisualStyleBackColor = true;
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1444,12 +1389,6 @@ namespace XBSlink
         private System.Windows.Forms.RichTextBox richTextBox_about;
         private System.Windows.Forms.Timer timer_messages;
         private System.Windows.Forms.ComboBox comboBox_RemoteHost;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.TextBox textBox_stunServerPort;
-        private System.Windows.Forms.TextBox textBox_stunServerHostname;
-        private System.Windows.Forms.CheckBox checkBox_useStunServer;
-        private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Timer timer_startEngine;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.GroupBox groupBox2;
@@ -1513,6 +1452,7 @@ namespace XBSlink
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.ComboBox comboBox_nat_netmask;
         private System.Windows.Forms.Button button_reset_settings;
+        private System.Windows.Forms.CheckBox checkBox_filter_wellknown_ports;
     }
 }
 

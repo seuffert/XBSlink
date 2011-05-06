@@ -173,10 +173,6 @@
       <Project>{24262E52-1304-4A25-8F73-A3B06E40592E}</Project>
       <Name>SharpPcap</Name>
     </ProjectReference>
-    <ProjectReference Include="..\stunlib\stunlib.csproj">
-      <Project>{7AB36CCF-5FFD-4780-A54E-A102ECA028B5}</Project>
-      <Name>stunlib</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">

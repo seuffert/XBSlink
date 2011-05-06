@@ -60,7 +60,6 @@ namespace XBSlink
         public static IPAddress internal_ip = null;
 
         private bool use_UPnP = true;
-        private bool use_STUN = false;
 
         private uint old_sniffer_packet_count = 0;
         private uint old_udp_in_count = 0;
@@ -269,9 +268,6 @@ namespace XBSlink
             checkBox_all_broadcasts.Checked = s.REG_ADVANCED_BROADCAST_FORWARDING;
             checkBox_enable_MAC_list.Checked = s.REG_ENABLE_SPECIAL_MAC_LIST;
             checkBox_mac_restriction.Checked = s.REG_ONLY_FORWARD_SPECIAL_MACS;
-            checkBox_useStunServer.Checked = s.REG_ENABLE_STUN_SERVER;
-            textBox_stunServerHostname.Text = s.REG_STUN_SERVER_HOSTNAME;
-            textBox_stunServerPort.Text = s.REG_STUN_SERVER_PORT.ToString();
             checkBox_chatAutoSwitch.Checked = s.REG_CHAT_AUTOSWITCH;
             checkBox_chat_notify.Checked = s.REG_CHAT_SOUND_NOTIFICATION;
             checkBox_newNodeSound.Checked = s.REG_NEW_NODE_SOUND_NOTIFICATION;
@@ -307,10 +303,6 @@ namespace XBSlink
             s.REG_ONLY_FORWARD_SPECIAL_MACS = checkBox_mac_restriction.Checked;
             s.REG_SPECIAL_MAC_LIST = getMacListString();
             s.REG_REMOTE_HOST_HISTORY = getRemoteHostHistoryString();
-            s.REG_ENABLE_STUN_SERVER = checkBox_useStunServer.Checked;
-            s.REG_STUN_SERVER_HOSTNAME = textBox_stunServerHostname.Text;
-            if (int.TryParse(textBox_stunServerPort.Text, out out_int))
-                s.REG_STUN_SERVER_PORT = out_int;
             s.REG_CHAT_NICKNAME = textBox_chatNickname.Text;
             s.REG_CHAT_AUTOSWITCH = checkBox_chatAutoSwitch.Checked;
             s.REG_CHAT_SOUND_NOTIFICATION = checkBox_chat_notify.Checked;
@@ -418,21 +410,6 @@ namespace XBSlink
             {
                 xbs_messages.addInfoMessage("!! UPnP port mapping failed");
             }
-            try
-            {
-                if (external_ip == null && use_STUN && natstun.stun_isServerDiscoverySuccessfull())
-                {
-                    stunlib.Client.STUN_Result stun_result = natstun.stun_getResult();
-                    if (stun_result != null)
-                        if (stun_result.PublicEndPoint != null)
-                            if (stun_result.PublicEndPoint.Address != null)
-                                external_ip = stun_result.PublicEndPoint.Address;
-                }
-            }
-            catch (Exception)
-            {
-                xbs_messages.addInfoMessage("!! STUN discovery failed.");
-            }
             if (external_ip==null)
                 external_ip = xbs_natstun.getExternalIPAddressFromWebsite();                        
 
@@ -495,8 +472,6 @@ namespace XBSlink
             xbs_messages.addInfoMessage("starting Engine");
             if (checkbox_UPnP.Checked)
                 natstun.upnp_startDiscovery();
-            if (use_STUN && textBox_stunServerHostname.Text.Length > 0 && textBox_stunServerPort.Text.Length > 0)
-                natstun.stun_startDiscoverStunType(textBox_stunServerHostname.Text, int.Parse(textBox_stunServerPort.Text));
             start_engine_started_at = DateTime.Now;
             timer_startEngine.Start();
             button_start_engine.Enabled = false;
@@ -1012,11 +987,6 @@ namespace XBSlink
 #endif
         }
 
-        private void checkBox_useStunServer_CheckedChanged(object sender, EventArgs e)
-        {
-            use_STUN = checkBox_useStunServer.Checked;
-        }
-
         private bool isDigitOrControlChar( char c )
         {
             return (Char.IsControl(c) || Char.IsDigit(c));
@@ -1032,33 +1002,15 @@ namespace XBSlink
             e.Handled = ( handlePlusMinusInTextBox( (char)e.KeyChar, textBox_local_Port, 1, 65536) || !isDigitOrControlChar(e.KeyChar));
         }
 
-        private void textBox_stunServerPort_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            e.Handled = (handlePlusMinusInTextBox((char)e.KeyChar, textBox_stunServerPort, 1, 65536) || !isDigitOrControlChar(e.KeyChar));
-        }
-
         private void timer_startEngine_Tick(object sender, EventArgs e)
         {
             TimeSpan elapes_time = DateTime.Now - start_engine_started_at;
-            bool stun_discovery_finished = (checkBox_useStunServer.Checked && natstun.stun_isDiscoveryFinished()) || checkBox_useStunServer.Checked==false;
             bool upnp_discovery_finished = (checkbox_UPnP.Checked && natstun.isUPnPavailable()) || checkbox_UPnP.Checked==false;
-            if ((stun_discovery_finished && upnp_discovery_finished) || elapes_time.TotalSeconds >= MAX_WAIT_START_ENGINE_SECONDS)
+            if (upnp_discovery_finished || elapes_time.TotalSeconds >= MAX_WAIT_START_ENGINE_SECONDS)
             {
                 timer_startEngine.Stop();
                 resume_start_engine();
             }
-        }
-
-        private void textBox_stunServerHostname_Leave(object sender, EventArgs e)
-        {
-            if (textBox_stunServerHostname.Text.Length == 0)
-                textBox_stunServerHostname.Text = xbs_natstun.STUN_SERVER_DEFAULT_HOSTNAME;
-        }
-
-        private void textBox_stunServerPort_Leave(object sender, EventArgs e)
-        {
-            if (textBox_stunServerPort.Text.Length == 0)
-                textBox_stunServerPort.Text = xbs_natstun.STUN_SERVER_DEFAULT_PORT.ToString();
         }
 
         private void textBox_local_Port_Leave(object sender, EventArgs e)

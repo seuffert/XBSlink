@@ -35,15 +35,6 @@
     <Setting Name="REG_SPECIAL_MAC_LIST" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="REG_ENABLE_STUN_SERVER" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="REG_STUN_SERVER_HOSTNAME" Type="System.String" Scope="User">
-      <Value Profile="(Default)">stun.sipgate.net</Value>
-    </Setting>
-    <Setting Name="REG_STUN_SERVER_PORT" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">3478</Value>
-    </Setting>
     <Setting Name="REG_CHAT_NICKNAME" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
