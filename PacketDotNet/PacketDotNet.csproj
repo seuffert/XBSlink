@@ -36,11 +36,11 @@
     <GenerateDocumentation>true</GenerateDocumentation>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=a5715cc6d5c3540b" Condition=" '$(Configuration)' == 'DEBUG' ">
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=a5715cc6d5c3540b, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Libraries\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
@@ -97,12 +97,10 @@
     <Compile Include="IpVersion.cs" />
     <Compile Include="LinkLayers.cs" />
     <Compile Include="Utils\HexPrinter.cs" />
-    <Compile Include="PosixTimeval.cs" />
     <Compile Include="ILogInactive.cs" />
     <Compile Include="Utils\RandomUtils.cs" />
     <Compile Include="PayloadType.cs" />
     <Compile Include="ICMPv6Types.cs" />
-    <Compile Include="RawPacket.cs" />
     <Compile Include="ARPOperation.cs" />
     <Compile Include="PPPoEPacket.cs" />
     <Compile Include="PPPoEFields.cs" />
