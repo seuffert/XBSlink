@@ -390,9 +390,9 @@ namespace XBSlink
                     break;
 
                 case xbs_node_message_type.PING:
-                    tmp_node = new xbs_node(udp_msg.src_ip, udp_msg.src_port);
+                    tmp_node = (sending_node != null) ? sending_node : new xbs_node(udp_msg.src_ip, udp_msg.src_port);
                     xbs_node_message_pong msg_pong = new xbs_node_message_pong(tmp_node, udp_msg.data);
-                    send_xbs_node_message(msg_pong);
+                    tmp_node.sendNodeMessage(msg_pong);
                     break;
 
                 case xbs_node_message_type.PONG:
@@ -404,14 +404,14 @@ namespace XBSlink
                     break;
 
                 case xbs_node_message_type.GETNODELIST:
-                    tmp_node = new xbs_node(udp_msg.src_ip, udp_msg.src_port);
+                    tmp_node = (sending_node != null) ? sending_node : new xbs_node(udp_msg.src_ip, udp_msg.src_port);
                     node_list.sendNodeListToNode(tmp_node);
                     break;
                 
                 case xbs_node_message_type.GETCLIENTVERSION:
-                    tmp_node = new xbs_node(udp_msg.src_ip, udp_msg.src_port);
+                    tmp_node = (sending_node != null) ? sending_node : new xbs_node(udp_msg.src_ip, udp_msg.src_port);
                     xbs_node_message_clientversion msg_gcv = new xbs_node_message_clientversion(tmp_node, xbs_settings.xbslink_version);
-                    send_xbs_node_message(msg_gcv);
+                    tmp_node.sendNodeMessage(msg_gcv);
                     break;
 
                 case xbs_node_message_type.CLIENTVERSION:
@@ -440,9 +440,9 @@ namespace XBSlink
                     }
                     break;
                 case xbs_node_message_type.GETNICKNAME:
-                    tmp_node = new xbs_node(udp_msg.src_ip, udp_msg.src_port);
+                    tmp_node = (sending_node!=null) ? sending_node : new xbs_node(udp_msg.src_ip, udp_msg.src_port);
                     xbs_node_message_nickname msg_snick = new xbs_node_message_nickname(tmp_node, node_list.local_node.nickname);
-                    send_xbs_node_message(msg_snick);
+                    tmp_node.sendNodeMessage(msg_snick);
                     break;
                 case xbs_node_message_type.SERVERHELLO:
                     lock (_locker_HELLO)
@@ -461,7 +461,9 @@ namespace XBSlink
                     tmp_node.sendAddNodeMessage(node_list.local_node);
                     break;
             }
-        }
+
+            if (sending_node != null)
+                sending_node.statistics.receivedPacket((uint)udp_msg.data_len+3);        }
 
         private void dispatch_DATA_message(ref xbs_udp_message udp_msg, ref xbs_node sending_node)
         {
