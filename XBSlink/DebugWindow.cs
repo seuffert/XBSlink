@@ -129,6 +129,10 @@ namespace XBSlink
                 c = Color.Aquamarine;
             else if (message.StartsWith("~"))
                 c = Color.Teal;
+            else if (message.StartsWith("i>"))
+                c = Color.SandyBrown;
+            else if (message.StartsWith("s>"))
+                c = Color.Olive;
             return c;
         }
     }

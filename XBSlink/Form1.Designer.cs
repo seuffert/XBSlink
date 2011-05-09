@@ -70,7 +70,6 @@ namespace XBSlink
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
-            this.checkBox_all_broadcasts = new System.Windows.Forms.CheckBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage_info = new System.Windows.Forms.TabPage();
             this.label15 = new System.Windows.Forms.Label();
@@ -144,6 +143,7 @@ namespace XBSlink
             this.columnHeader_nat_ippool__originalIP = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader_nat_ippool_node = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.checkBox_NAT_enablePS3mode = new System.Windows.Forms.CheckBox();
             this.checkBox_nat_useDHCP = new System.Windows.Forms.CheckBox();
             this.checkBox_nat_enable = new System.Windows.Forms.CheckBox();
             this.label17 = new System.Windows.Forms.Label();
@@ -324,9 +324,9 @@ namespace XBSlink
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(3, 13);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(261, 13);
+            this.label2.Size = new System.Drawing.Size(305, 13);
             this.label2.TabIndex = 12;
-            this.label2.Text = "Capture Device (connected to same network as xbox)";
+            this.label2.Text = "Capture Device (connected to same network as game console)";
             this.toolTip1.SetToolTip(this.label2, "select the network device thats connected to the same network as your Xbox360. Wi" +
                     "reless adpaters will most likely NOT work!");
             // 
@@ -356,18 +356,6 @@ namespace XBSlink
             this.label5.Size = new System.Drawing.Size(10, 13);
             this.label5.TabIndex = 15;
             this.label5.Text = ":";
-            // 
-            // checkBox_all_broadcasts
-            // 
-            this.checkBox_all_broadcasts.AutoSize = true;
-            this.checkBox_all_broadcasts.Location = new System.Drawing.Point(9, 156);
-            this.checkBox_all_broadcasts.Name = "checkBox_all_broadcasts";
-            this.checkBox_all_broadcasts.Size = new System.Drawing.Size(267, 17);
-            this.checkBox_all_broadcasts.TabIndex = 16;
-            this.checkBox_all_broadcasts.Text = "unconditional forwarding of broadcasts (be careful!)";
-            this.toolTip1.SetToolTip(this.checkBox_all_broadcasts, "this helps with some games. might also forward some unrelated broadcast packets.");
-            this.checkBox_all_broadcasts.UseVisualStyleBackColor = true;
-            this.checkBox_all_broadcasts.CheckedChanged += new System.EventHandler(this.checkBox_all_broadcasts_CheckedChanged);
             // 
             // tabControl1
             // 
@@ -806,13 +794,11 @@ namespace XBSlink
             this.tabPage_settings.Controls.Add(this.button_reset_settings);
             this.tabPage_settings.Controls.Add(this.checkBox_checkForUpdates);
             this.tabPage_settings.Controls.Add(this.checkBox_useCloudServerForPortCheck);
-            this.tabPage_settings.Controls.Add(this.checkBox_newNodeSound);
             this.tabPage_settings.Controls.Add(this.groupBox2);
             this.tabPage_settings.Controls.Add(this.button_save_settings);
             this.tabPage_settings.Controls.Add(this.label6);
             this.tabPage_settings.Controls.Add(this.groupBox1);
             this.tabPage_settings.Controls.Add(this.comboBox_localIP);
-            this.tabPage_settings.Controls.Add(this.checkBox_all_broadcasts);
             this.tabPage_settings.Controls.Add(this.textBox_local_Port);
             this.tabPage_settings.Controls.Add(this.comboBox_captureDevice);
             this.tabPage_settings.Controls.Add(this.checkbox_UPnP);
@@ -831,11 +817,11 @@ namespace XBSlink
             this.checkBox_filter_wellknown_ports.AutoSize = true;
             this.checkBox_filter_wellknown_ports.Checked = true;
             this.checkBox_filter_wellknown_ports.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_filter_wellknown_ports.Location = new System.Drawing.Point(9, 179);
+            this.checkBox_filter_wellknown_ports.Location = new System.Drawing.Point(9, 156);
             this.checkBox_filter_wellknown_ports.Name = "checkBox_filter_wellknown_ports";
-            this.checkBox_filter_wellknown_ports.Size = new System.Drawing.Size(236, 17);
+            this.checkBox_filter_wellknown_ports.Size = new System.Drawing.Size(225, 17);
             this.checkBox_filter_wellknown_ports.TabIndex = 35;
-            this.checkBox_filter_wellknown_ports.Text = "filter packets from well known ports (p<1024)";
+            this.checkBox_filter_wellknown_ports.Text = "filter packets to well known ports (p<1024)";
             this.toolTip1.SetToolTip(this.checkBox_filter_wellknown_ports, "This security feature prevents XBSlink from accidently forwarding packets of loca" +
                     "l services.");
             this.checkBox_filter_wellknown_ports.UseVisualStyleBackColor = true;
@@ -882,11 +868,11 @@ namespace XBSlink
             this.checkBox_newNodeSound.AutoSize = true;
             this.checkBox_newNodeSound.Checked = true;
             this.checkBox_newNodeSound.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_newNodeSound.Location = new System.Drawing.Point(9, 202);
+            this.checkBox_newNodeSound.Location = new System.Drawing.Point(9, 108);
             this.checkBox_newNodeSound.Name = "checkBox_newNodeSound";
-            this.checkBox_newNodeSound.Size = new System.Drawing.Size(189, 17);
+            this.checkBox_newNodeSound.Size = new System.Drawing.Size(135, 17);
             this.checkBox_newNodeSound.TabIndex = 31;
-            this.checkBox_newNodeSound.Text = "sound notification when node joins";
+            this.checkBox_newNodeSound.Text = "sound when node joins";
             this.checkBox_newNodeSound.UseVisualStyleBackColor = true;
             this.checkBox_newNodeSound.CheckedChanged += new System.EventHandler(this.checkBox_newNodeSound_CheckedChanged);
             // 
@@ -896,6 +882,7 @@ namespace XBSlink
             this.groupBox2.Controls.Add(this.checkBox_chatAutoSwitch);
             this.groupBox2.Controls.Add(this.label10);
             this.groupBox2.Controls.Add(this.textBox_chatNickname);
+            this.groupBox2.Controls.Add(this.checkBox_newNodeSound);
             this.groupBox2.Location = new System.Drawing.Point(187, 232);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(155, 137);
@@ -910,9 +897,9 @@ namespace XBSlink
             this.checkBox_chat_notify.CheckState = System.Windows.Forms.CheckState.Checked;
             this.checkBox_chat_notify.Location = new System.Drawing.Point(9, 85);
             this.checkBox_chat_notify.Name = "checkBox_chat_notify";
-            this.checkBox_chat_notify.Size = new System.Drawing.Size(109, 17);
+            this.checkBox_chat_notify.Size = new System.Drawing.Size(115, 17);
             this.checkBox_chat_notify.TabIndex = 3;
-            this.checkBox_chat_notify.Text = "sound notification";
+            this.checkBox_chat_notify.Text = "sound on message";
             this.checkBox_chat_notify.UseVisualStyleBackColor = true;
             this.checkBox_chat_notify.CheckedChanged += new System.EventHandler(this.checkBox_chat_notify_CheckedChanged);
             // 
@@ -1159,7 +1146,7 @@ namespace XBSlink
             // label19
             // 
             this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(3, 98);
+            this.label19.Location = new System.Drawing.Point(3, 118);
             this.label19.Name = "label19";
             this.label19.Size = new System.Drawing.Size(105, 13);
             this.label19.TabIndex = 4;
@@ -1176,9 +1163,9 @@ namespace XBSlink
             this.columnHeader_nat_ippool__originalIP,
             this.columnHeader_nat_ippool_node});
             this.listView_nat_IPpool.GridLines = true;
-            this.listView_nat_IPpool.Location = new System.Drawing.Point(0, 119);
+            this.listView_nat_IPpool.Location = new System.Drawing.Point(0, 134);
             this.listView_nat_IPpool.Name = "listView_nat_IPpool";
-            this.listView_nat_IPpool.Size = new System.Drawing.Size(348, 217);
+            this.listView_nat_IPpool.Size = new System.Drawing.Size(348, 202);
             this.listView_nat_IPpool.TabIndex = 3;
             this.listView_nat_IPpool.UseCompatibleStateImageBehavior = false;
             this.listView_nat_IPpool.View = System.Windows.Forms.View.Details;
@@ -1208,26 +1195,40 @@ namespace XBSlink
             // 
             this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox3.Controls.Add(this.checkBox_NAT_enablePS3mode);
             this.groupBox3.Controls.Add(this.checkBox_nat_useDHCP);
             this.groupBox3.Controls.Add(this.checkBox_nat_enable);
             this.groupBox3.Location = new System.Drawing.Point(6, 27);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(339, 66);
+            this.groupBox3.Size = new System.Drawing.Size(339, 88);
             this.groupBox3.TabIndex = 2;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "NAT settings";
+            // 
+            // checkBox_NAT_enablePS3mode
+            // 
+            this.checkBox_NAT_enablePS3mode.AutoSize = true;
+            this.checkBox_NAT_enablePS3mode.Enabled = false;
+            this.checkBox_NAT_enablePS3mode.Location = new System.Drawing.Point(6, 42);
+            this.checkBox_NAT_enablePS3mode.Name = "checkBox_NAT_enablePS3mode";
+            this.checkBox_NAT_enablePS3mode.Size = new System.Drawing.Size(168, 17);
+            this.checkBox_NAT_enablePS3mode.TabIndex = 4;
+            this.checkBox_NAT_enablePS3mode.Text = "enable PS3 compatibilty mode";
+            this.checkBox_NAT_enablePS3mode.UseVisualStyleBackColor = true;
+            this.checkBox_NAT_enablePS3mode.CheckedChanged += new System.EventHandler(this.checkBox_NAT_enablePS3mode_CheckedChanged);
             // 
             // checkBox_nat_useDHCP
             // 
             this.checkBox_nat_useDHCP.AutoSize = true;
             this.checkBox_nat_useDHCP.Enabled = false;
-            this.checkBox_nat_useDHCP.Location = new System.Drawing.Point(6, 42);
+            this.checkBox_nat_useDHCP.Location = new System.Drawing.Point(6, 65);
             this.checkBox_nat_useDHCP.Name = "checkBox_nat_useDHCP";
             this.checkBox_nat_useDHCP.Size = new System.Drawing.Size(276, 17);
             this.checkBox_nat_useDHCP.TabIndex = 3;
             this.checkBox_nat_useDHCP.Text = "use local DHCP server to fill IP pool (planned feature)";
             this.toolTip1.SetToolTip(this.checkBox_nat_useDHCP, "not implemented yet, sorry");
             this.checkBox_nat_useDHCP.UseVisualStyleBackColor = true;
+            this.checkBox_nat_useDHCP.CheckedChanged += new System.EventHandler(this.checkBox_nat_useDHCP_CheckedChanged);
             // 
             // checkBox_nat_enable
             // 
@@ -1372,7 +1373,6 @@ namespace XBSlink
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel4;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel_udp_in;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel_udp_out;
-        private System.Windows.Forms.CheckBox checkBox_all_broadcasts;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage_info;
         private System.Windows.Forms.TabPage tabPage_settings;
@@ -1456,6 +1456,7 @@ namespace XBSlink
         private System.Windows.Forms.ComboBox comboBox_nat_netmask;
         private System.Windows.Forms.Button button_reset_settings;
         private System.Windows.Forms.CheckBox checkBox_filter_wellknown_ports;
+        private System.Windows.Forms.CheckBox checkBox_NAT_enablePS3mode;
     }
 }
 

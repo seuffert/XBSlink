@@ -32,7 +32,6 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Security.Permissions;
 using System.Threading;
-using Microsoft.Win32;
 using PacketDotNet;
 using PacketDotNet.Utils;
 using SharpPcap;
@@ -265,7 +264,6 @@ namespace XBSlink
             comboBox_RemoteHost.Text = s.REG_REMOTE_HOST;
             textBox_remote_port.Text = s.REG_REMOTE_PORT.ToString();
             checkbox_UPnP.Checked = s.REG_USE_UPNP;
-            checkBox_all_broadcasts.Checked = s.REG_ADVANCED_BROADCAST_FORWARDING;
             checkBox_enable_MAC_list.Checked = s.REG_ENABLE_SPECIAL_MAC_LIST;
             checkBox_mac_restriction.Checked = s.REG_ONLY_FORWARD_SPECIAL_MACS;
             checkBox_chatAutoSwitch.Checked = s.REG_CHAT_AUTOSWITCH;
@@ -278,6 +276,7 @@ namespace XBSlink
             checkBox_checkForUpdates.Checked = s.REG_CHECK4UPDATES;
             checkBox_nat_enable.Checked = s.REG_NAT_ENABLE;
             checkBox_filter_wellknown_ports.Checked = s.REG_FILTER_WELLKNOWN_PORTS;
+            checkBox_NAT_enablePS3mode.Checked = s.REG_PS3_COMPAT_MODE_ENABLE;
 
             if (checkBox_enable_MAC_list.Checked)
                 checkBox_mac_restriction.Enabled = true;
@@ -299,7 +298,6 @@ namespace XBSlink
             if (int.TryParse(textBox_remote_port.Text, out out_int)) 
                 s.REG_REMOTE_PORT = out_int;            
             s.REG_USE_UPNP = checkbox_UPnP.Checked;
-            s.REG_ADVANCED_BROADCAST_FORWARDING = checkBox_all_broadcasts.Checked;
             s.REG_ENABLE_SPECIAL_MAC_LIST = checkBox_enable_MAC_list.Checked;
             s.REG_ONLY_FORWARD_SPECIAL_MACS = checkBox_mac_restriction.Checked;
             s.REG_SPECIAL_MAC_LIST = getMacListString();
@@ -313,6 +311,7 @@ namespace XBSlink
             s.REG_NAT_ENABLE = checkBox_nat_enable.Checked;
             s.REG_NAT_IP_POOL = getNATIPPoolString();
             s.REG_FILTER_WELLKNOWN_PORTS = checkBox_filter_wellknown_ports.Checked;
+            s.REG_PS3_COMPAT_MODE_ENABLE = checkBox_NAT_enablePS3mode.Checked;
             s.Save();
         }
 
@@ -419,7 +418,7 @@ namespace XBSlink
             node_list.local_node = new xbs_node(local_node_ip, udp_listener.udp_socket_port);
             node_list.local_node.nickname = textBox_chatNickname.Text;
 
-            sniffer = new xbs_sniffer(pdev, checkBox_all_broadcasts.Checked, checkBox_enable_MAC_list.Checked, checkBox_mac_restriction.Checked, node_list, NAT);
+            sniffer = new xbs_sniffer(pdev, checkBox_enable_MAC_list.Checked, checkBox_mac_restriction.Checked, node_list, NAT);
             setSnifferMacList();
             sniffer.start_capture();
 
@@ -777,18 +776,6 @@ namespace XBSlink
             toolStripStatusLabel_udp_out.Text = udp_out_pps.ToString();
             old_udp_in_count = udp_in;
             old_udp_out_count = udp_out;
-        }
-
-        private void checkBox_all_broadcasts_CheckedChanged(object sender, EventArgs e)
-        {
-            if (sniffer != null)
-            {
-                if (sniffer.pdev_sniff_additional_broadcast != checkBox_all_broadcasts.Checked)
-                {
-                    sniffer.pdev_sniff_additional_broadcast = checkBox_all_broadcasts.Checked;
-                    sniffer.setPdevFilter();
-                }
-            }
         }
 
         private void button_save_settings_Click(object sender, EventArgs e)
@@ -1415,6 +1402,7 @@ namespace XBSlink
         private void checkBox_nat_enable_CheckedChanged(object sender, EventArgs e)
         {
             NAT.NAT_enabled = checkBox_nat_enable.Checked;
+            checkBox_NAT_enablePS3mode.Enabled = NAT.NAT_enabled;
         }
 
         private void button_nat_add_iprange_Click(object sender, EventArgs e)
@@ -1514,6 +1502,16 @@ namespace XBSlink
                 if (engine_started)
                     sniffer.setPdevFilter();
             }
+        }
+
+        private void checkBox_nat_useDHCP_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void checkBox_NAT_enablePS3mode_CheckedChanged(object sender, EventArgs e)
+        {
+            NAT.NAT_enablePS3mode = checkBox_NAT_enablePS3mode.Checked;
         }
 
     }

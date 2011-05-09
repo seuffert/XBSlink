@@ -23,9 +23,6 @@
     <Setting Name="REG_USE_UPNP" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="REG_ADVANCED_BROADCAST_FORWARDING" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
     <Setting Name="REG_ENABLE_SPECIAL_MAC_LIST" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
@@ -63,6 +60,9 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="REG_FILTER_WELLKNOWN_PORTS" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="REG_PS3_COMPAT_MODE_ENABLE" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>

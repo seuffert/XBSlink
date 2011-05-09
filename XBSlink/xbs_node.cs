@@ -169,7 +169,7 @@ namespace XBSlink
 
         public bool has_xbox(PhysicalAddress xbox_addr)
         {
-            if (xbox_addr.Equals(xbs_nat.broadcast_mac))
+            if (xbox_addr.Equals(xbs_nat.broadcast_mac) || xbox_addr.Equals(xbs_nat.zero_mac))
                 return true;
             int hash = xbox_addr.GetHashCode();
             bool ret = false;

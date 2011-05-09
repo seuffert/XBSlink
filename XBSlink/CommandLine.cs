@@ -46,7 +46,6 @@ namespace XBSlink
         String option_password = null;
         int option_maxnodes = 10;
         bool option_upnp = false;
-        bool option_advanced_broadcast = false;
         int option_local_port = 0;
         IPAddress option_local_ip = null;
         String option_capture_device = null;
@@ -77,7 +76,6 @@ namespace XBSlink
                 { "m|max-nodes=", "maximum clients in cloud. default is 10", (UInt16 v) => option_maxnodes=v },
                 { "w|password=", "set password for cloud", v => option_password=v },
                 { "u|upnp", "use UPnP to forward incoming port", v => option_upnp = v!=null },
-                { "a|advanced-broadcast", "enable advanced forwarding of broadcasts", v => option_advanced_broadcast = v!=null },
                 { "p|port=", "set the incoming port number. default is 31415", (UInt16 v) => option_local_port = v },
                 { "o|source-ip=", "bind to this local ip address.", (String v) => option_local_ip=IPAddress.Parse(v) },
                 { "i|capture-device=", "name of network device for capturing packets", v => option_capture_device = v },
@@ -226,7 +224,7 @@ namespace XBSlink
             if (option_nickname!=null)
                 node_list.local_node.nickname = option_nickname;
 
-            sniffer = new xbs_sniffer(pdev, option_advanced_broadcast, false, false, node_list, NAT);
+            sniffer = new xbs_sniffer(pdev, false, false, node_list, NAT);
             sniffer.start_capture();
 
             if (ExceptionMessage.ABORTING)

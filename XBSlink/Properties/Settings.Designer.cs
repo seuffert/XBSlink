@@ -110,18 +110,6 @@ namespace XBSlink.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool REG_ADVANCED_BROADCAST_FORWARDING {
-            get {
-                return ((bool)(this["REG_ADVANCED_BROADCAST_FORWARDING"]));
-            }
-            set {
-                this["REG_ADVANCED_BROADCAST_FORWARDING"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool REG_ENABLE_SPECIAL_MAC_LIST {
             get {
                 return ((bool)(this["REG_ENABLE_SPECIAL_MAC_LIST"]));
@@ -272,6 +260,18 @@ namespace XBSlink.Properties {
             }
             set {
                 this["REG_FILTER_WELLKNOWN_PORTS"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool REG_PS3_COMPAT_MODE_ENABLE {
+            get {
+                return ((bool)(this["REG_PS3_COMPAT_MODE_ENABLE"]));
+            }
+            set {
+                this["REG_PS3_COMPAT_MODE_ENABLE"] = value;
             }
         }
     }

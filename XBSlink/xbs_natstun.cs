@@ -162,7 +162,7 @@ namespace XBSlink
         private void upnp_unhandled_exception(object sender, UnhandledExceptionEventArgs args)
         {
 #if DEBUG
-            xbs_messages.addDebugMessage(" @ UPnP error: " + args.ExceptionObject.ToString());
+            xbs_messages.addDebugMessage(" @ UPnP error: " + args.ExceptionObject.GetType().ToString());
 #endif
         }
 

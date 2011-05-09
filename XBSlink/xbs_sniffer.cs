@@ -45,13 +45,12 @@ namespace XBSlink
     {
         private SharpPcap.LibPcap.LibPcapLiveDevice pdev = null;
         public int readTimeoutMilliseconds = 1000;
-        public bool pdev_sniff_additional_broadcast = true;
         public bool pdev_filter_use_special_macs = true;
         public bool pdev_filter_only_forward_special_macs = true;
         public bool pdev_filter_wellknown_ports = true;
 
         private String pdev_filter = "(udp and ((ip host 0.0.0.1) or (dst portrange 3074-3075))) ";
-        private String pdev_filter_all_broadcast = "(udp and ((ip host 0.0.0.1) or (dst portrange 3074-3075)) or (ether host FF:FF:FF:FF:FF:FF and ip dst host 255.255.255.255)) ";
+        //private String pdev_filter_all_broadcast = "(udp and ((ip host 0.0.0.1) or (dst portrange 3074-3075)) or (ether host FF:FF:FF:FF:FF:FF and ip dst host 255.255.255.255)) ";
         private List<PhysicalAddress> pdev_filter_known_macs_from_remote_nodes = new List<PhysicalAddress>();
         private List<PhysicalAddress> pdev_filter_special_macs = new List<PhysicalAddress>();
 
@@ -67,13 +66,12 @@ namespace XBSlink
         private xbs_node_list node_list = null;
         private xbs_nat NAT = null;
 
-        public xbs_sniffer(SharpPcap.LibPcap.LibPcapLiveDevice dev, bool sniff_additional_broadcast, bool use_special_mac_filter, bool only_forward_special_macs, xbs_node_list node_list, xbs_nat NAT)
+        public xbs_sniffer(SharpPcap.LibPcap.LibPcapLiveDevice dev, bool use_special_mac_filter, bool only_forward_special_macs, xbs_node_list node_list, xbs_nat NAT)
         {
             this.NAT = NAT;
-            this.pdev_sniff_additional_broadcast = sniff_additional_broadcast;
             this.pdev_filter_use_special_macs = use_special_mac_filter;
             this.pdev_filter_only_forward_special_macs = only_forward_special_macs;
-            injected_macs_hash.Capacity = 10;
+            injected_macs_hash.Capacity = 40;
             sniffed_macs_hash.Capacity = 10;
             sniffed_macs.Capacity = 10;
 
@@ -206,7 +204,7 @@ namespace XBSlink
             PhysicalAddress srcMAC = new PhysicalAddress(src_mac);
 
 #if DEBUG
-            //xbs_messages.addDebugMessage(" - new ethernet packet from "+srcMAC+" => "+dstMAC);
+            xbs_messages.addDebugMessage("s> " + srcMAC + "=>" + dstMAC + "Len:" + rawPacket.Data.Length);
             Packet p = Packet.ParsePacket(rawPacket.LinkLayerType, rawPacket.Data);
             xbs_messages.addDebugMessage("s> "+p);
 #endif
@@ -239,7 +237,7 @@ namespace XBSlink
                     }
                 }
                 p = Packet.ParsePacket(rawPacket.LinkLayerType, packet_data);
-                xbs_messages.addDebugMessage("i> " + p);
+                xbs_messages.addDebugMessage("s> " + p);
 #endif
             }
 
@@ -280,6 +278,10 @@ namespace XBSlink
 
 #if DEBUG
             Packet p = Packet.ParsePacket(LinkLayers.Ethernet, data);
+            if (p.PayloadPacket is IPv4Packet)
+                if ( ((IPv4Packet)p.PayloadPacket).PayloadPacket is UdpPacket )
+                    if ( ((UdpPacket)((IPv4Packet)p.PayloadPacket).PayloadPacket).DestinationPort<1024 )
+                        return;
             xbs_messages.addDebugMessage("i> "+p);
 #endif
 
@@ -408,7 +410,7 @@ namespace XBSlink
 
             try
             {
-                String f = (pdev_sniff_additional_broadcast ? pdev_filter_all_broadcast : pdev_filter) + filter_special_macs + filter_known_macs_from_remote_nodes + filter_discovered_devices + filter_exclude_injected_packets;
+                String f = pdev_filter + filter_special_macs + filter_known_macs_from_remote_nodes + filter_discovered_devices + filter_exclude_injected_packets;
                 if (pdev_filter_use_special_macs && pdev_filter_only_forward_special_macs && filter_special_macs.Length>0)
                     f = filter_special_macs;
 
