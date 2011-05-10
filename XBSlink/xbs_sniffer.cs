@@ -53,6 +53,7 @@ namespace XBSlink
         private const String pdev_filter_template_include = "{include_filters}";
         private const String pdev_filter_template_exclude = "{exlude_filters}";
         private String pdev_filter_template = "(" + pdev_filter_template_include + ") and not (" + pdev_filter_template_exclude + ")";
+        private String pdev_filter_template_only_include = "(" + pdev_filter_template_include + ")";
         private String pdev_filter_gameconsoles = "(udp and ((ip host 0.0.0.1) or (dst portrange 3074-3075))) ";
         private String pdev_filter_gateways = "";
 
@@ -400,7 +401,9 @@ namespace XBSlink
             List<String> include_filter_list = new List<string>();
 
             // always exclude local sniffing interface
-            exclude_filter_list.Add("ether host "+PhysicalAddressToString(pdev.MacAddress));
+            String local_mac = PhysicalAddressToString(pdev.MacAddress);
+            if (local_mac.Length>0)
+                exclude_filter_list.Add("ether host "+PhysicalAddressToString(pdev.MacAddress));
             // exclude gatway IPs, just to be on the safe side
             if (pdev_filter_exclude_gatway_ips && pdev_filter_gateways.Length > 0)
                 exclude_filter_list.Add(pdev_filter_gateways);
@@ -437,9 +440,10 @@ namespace XBSlink
             String exlude_filter_string = "( "+ String.Join(" ) or (", exclude_filter_list.ToArray()) + " ) ";
             String include_filter_string = "( " + String.Join(" ) or (", include_filter_list.ToArray()) + " ) ";
 
-            String f;
-            f = pdev_filter_template.Replace(pdev_filter_template_include, include_filter_string);
-            f = f.Replace(pdev_filter_template_exclude, exlude_filter_string);
+            String f = (exclude_filter_list.Count>0) ? pdev_filter_template : pdev_filter_template_only_include;
+            f = f.Replace(pdev_filter_template_include, include_filter_string);
+            if (exclude_filter_list.Count>0)
+                f = f.Replace(pdev_filter_template_exclude, exlude_filter_string);
 #if DEBUG
                 xbs_messages.addInfoMessage("- pdev filter: " + f);
 #endif
