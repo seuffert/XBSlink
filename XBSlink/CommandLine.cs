@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Threading;
-
 using SharpPcap;
 using SharpPcap.LibPcap;
 using SharpPcap.WinPcap;
@@ -194,6 +194,7 @@ namespace XBSlink
             node_list.notify_on_new_node = false;
             if (option_local_port == 0)
                 option_local_port = xbs_udp_listener.standard_port;
+            GatewayIPAddressInformationCollection local_gateways = xbs_console_app.getGatewaysForBindIP(option_local_ip);
             try
             {
                 udp_listener = new xbs_udp_listener(option_local_ip, option_local_port, node_list);
@@ -224,7 +225,7 @@ namespace XBSlink
             if (option_nickname!=null)
                 node_list.local_node.nickname = option_nickname;
 
-            sniffer = new xbs_sniffer(pdev, false, false, node_list, NAT);
+            sniffer = new xbs_sniffer(pdev, false, null, false, node_list, NAT, local_gateways, true);
             sniffer.start_capture();
 
             if (ExceptionMessage.ABORTING)
@@ -527,6 +528,24 @@ namespace XBSlink
                 else
                     xbs_messages.addInfoMessage("You are using the latest XBSlink version.");
             }
+        }
+
+        public static GatewayIPAddressInformationCollection getGatewaysForBindIP(IPAddress ip)
+        {
+            NetworkInterface[] network_interfaces = NetworkInterface.GetAllNetworkInterfaces();
+            IPInterfaceProperties ip_properties;
+            foreach (NetworkInterface ni in network_interfaces)
+            {
+                ip_properties = ni.GetIPProperties();
+                foreach (UnicastIPAddressInformation uniCast in ip_properties.UnicastAddresses)
+                {
+                    if (uniCast.Address.AddressFamily==AddressFamily.InterNetwork && uniCast.Address.Equals(ip))
+                    {
+                        return ip_properties.GatewayAddresses;
+                    }
+                }
+            }
+            return null;
         }
 
     }
