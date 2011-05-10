@@ -109,16 +109,17 @@ namespace XBSlink
             this.listBox_messages = new System.Windows.Forms.ListBox();
             this.button_clearMessages = new System.Windows.Forms.Button();
             this.tabPage_settings = new System.Windows.Forms.TabPage();
+            this.checkBox_excludeGatewayIPs = new System.Windows.Forms.CheckBox();
             this.checkBox_filter_wellknown_ports = new System.Windows.Forms.CheckBox();
             this.button_reset_settings = new System.Windows.Forms.Button();
             this.checkBox_checkForUpdates = new System.Windows.Forms.CheckBox();
             this.checkBox_useCloudServerForPortCheck = new System.Windows.Forms.CheckBox();
-            this.checkBox_newNodeSound = new System.Windows.Forms.CheckBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.checkBox_chat_notify = new System.Windows.Forms.CheckBox();
             this.checkBox_chatAutoSwitch = new System.Windows.Forms.CheckBox();
             this.label10 = new System.Windows.Forms.Label();
             this.textBox_chatNickname = new System.Windows.Forms.TextBox();
+            this.checkBox_newNodeSound = new System.Windows.Forms.CheckBox();
             this.button_save_settings = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -335,9 +336,9 @@ namespace XBSlink
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(3, 58);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(195, 13);
+            this.label3.Size = new System.Drawing.Size(153, 13);
             this.label3.TabIndex = 13;
-            this.label3.Text = "Bind to IP and port (for Internet access):";
+            this.label3.Text = "Bind to IP (for Internet access):";
             // 
             // label4
             // 
@@ -790,6 +791,7 @@ namespace XBSlink
             // 
             this.tabPage_settings.AutoScroll = true;
             this.tabPage_settings.BackColor = System.Drawing.SystemColors.Control;
+            this.tabPage_settings.Controls.Add(this.checkBox_excludeGatewayIPs);
             this.tabPage_settings.Controls.Add(this.checkBox_filter_wellknown_ports);
             this.tabPage_settings.Controls.Add(this.button_reset_settings);
             this.tabPage_settings.Controls.Add(this.checkBox_checkForUpdates);
@@ -811,6 +813,20 @@ namespace XBSlink
             this.tabPage_settings.Size = new System.Drawing.Size(348, 405);
             this.tabPage_settings.TabIndex = 1;
             this.tabPage_settings.Text = "Settings";
+            // 
+            // checkBox_excludeGatewayIPs
+            // 
+            this.checkBox_excludeGatewayIPs.AutoSize = true;
+            this.checkBox_excludeGatewayIPs.Checked = true;
+            this.checkBox_excludeGatewayIPs.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_excludeGatewayIPs.Location = new System.Drawing.Point(9, 179);
+            this.checkBox_excludeGatewayIPs.Name = "checkBox_excludeGatewayIPs";
+            this.checkBox_excludeGatewayIPs.Size = new System.Drawing.Size(202, 17);
+            this.checkBox_excludeGatewayIPs.TabIndex = 36;
+            this.checkBox_excludeGatewayIPs.Text = "exclude gateway IPs in packet sniffer";
+            this.toolTip1.SetToolTip(this.checkBox_excludeGatewayIPs, "Protects your network from being disrupted by a faulty XBSlink node.");
+            this.checkBox_excludeGatewayIPs.UseVisualStyleBackColor = true;
+            this.checkBox_excludeGatewayIPs.CheckedChanged += new System.EventHandler(this.checkBox_excludeGatewayIPs_CheckedChanged);
             // 
             // checkBox_filter_wellknown_ports
             // 
@@ -862,19 +878,6 @@ namespace XBSlink
             this.checkBox_useCloudServerForPortCheck.Text = "use cloud server to check incoming port";
             this.toolTip1.SetToolTip(this.checkBox_useCloudServerForPortCheck, "if selected, the cloud server wil be asked to send a test packet back");
             this.checkBox_useCloudServerForPortCheck.UseVisualStyleBackColor = true;
-            // 
-            // checkBox_newNodeSound
-            // 
-            this.checkBox_newNodeSound.AutoSize = true;
-            this.checkBox_newNodeSound.Checked = true;
-            this.checkBox_newNodeSound.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_newNodeSound.Location = new System.Drawing.Point(9, 108);
-            this.checkBox_newNodeSound.Name = "checkBox_newNodeSound";
-            this.checkBox_newNodeSound.Size = new System.Drawing.Size(135, 17);
-            this.checkBox_newNodeSound.TabIndex = 31;
-            this.checkBox_newNodeSound.Text = "sound when node joins";
-            this.checkBox_newNodeSound.UseVisualStyleBackColor = true;
-            this.checkBox_newNodeSound.CheckedChanged += new System.EventHandler(this.checkBox_newNodeSound_CheckedChanged);
             // 
             // groupBox2
             // 
@@ -936,6 +939,19 @@ namespace XBSlink
             this.toolTip1.SetToolTip(this.textBox_chatNickname, "the nickname will appear in the chat as well as in the node list");
             this.textBox_chatNickname.Leave += new System.EventHandler(this.textBox_chatNickname_Leave);
             // 
+            // checkBox_newNodeSound
+            // 
+            this.checkBox_newNodeSound.AutoSize = true;
+            this.checkBox_newNodeSound.Checked = true;
+            this.checkBox_newNodeSound.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_newNodeSound.Location = new System.Drawing.Point(9, 108);
+            this.checkBox_newNodeSound.Name = "checkBox_newNodeSound";
+            this.checkBox_newNodeSound.Size = new System.Drawing.Size(135, 17);
+            this.checkBox_newNodeSound.TabIndex = 31;
+            this.checkBox_newNodeSound.Text = "sound when node joins";
+            this.checkBox_newNodeSound.UseVisualStyleBackColor = true;
+            this.checkBox_newNodeSound.CheckedChanged += new System.EventHandler(this.checkBox_newNodeSound_CheckedChanged);
+            // 
             // button_save_settings
             // 
             this.button_save_settings.Location = new System.Drawing.Point(9, 375);
@@ -949,11 +965,11 @@ namespace XBSlink
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(251, 77);
+            this.label6.Location = new System.Drawing.Point(206, 58);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(26, 13);
+            this.label6.Size = new System.Drawing.Size(70, 13);
             this.label6.TabIndex = 22;
-            this.label6.Text = "Port";
+            this.label6.Text = "incoming port";
             // 
             // groupBox1
             // 
@@ -1457,6 +1473,7 @@ namespace XBSlink
         private System.Windows.Forms.Button button_reset_settings;
         private System.Windows.Forms.CheckBox checkBox_filter_wellknown_ports;
         private System.Windows.Forms.CheckBox checkBox_NAT_enablePS3mode;
+        private System.Windows.Forms.CheckBox checkBox_excludeGatewayIPs;
     }
 }
 

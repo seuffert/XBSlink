@@ -89,6 +89,8 @@ namespace XBSlink
         private DateTime last_resizeNATIPPoolHeaderHeader = DateTime.Now;
         private DateTime last_resizeCloudListHeader = DateTime.Now;
         private DateTime last_resizeNodeListHeader = DateTime.Now;
+
+        private Dictionary<IPAddress, GatewayIPAddressInformationCollection> network_device_gateways = new Dictionary<IPAddress, GatewayIPAddressInformationCollection>();
         
         public FormMain()
         {
@@ -217,11 +219,9 @@ namespace XBSlink
             int local_ip_count = 0;
             int preferred_local_ip = -1;
             IPInterfaceProperties ip_properties;
-            IPv4InterfaceProperties ipv4_properties;
             foreach (NetworkInterface ni in network_interfaces)
             {
                 ip_properties = ni.GetIPProperties();
-                ipv4_properties = ip_properties.GetIPv4Properties();
                 foreach (UnicastIPAddressInformation uniCast in ip_properties.UnicastAddresses)
                     if (!IPAddress.IsLoopback(uniCast.Address) && uniCast.Address.AddressFamily != AddressFamily.InterNetworkV6)
                     {
@@ -229,9 +229,10 @@ namespace XBSlink
                         {
                             local_ip_count++;
                             comboBox_localIP.Items.Add(uniCast.Address.ToString());
-                            if (ni.OperationalStatus == OperationalStatus.Up && (ni.GetIPProperties().GatewayAddresses.Count > 0))
+                            network_device_gateways[uniCast.Address] = ip_properties.GatewayAddresses;
+                            if (ni.OperationalStatus == OperationalStatus.Up && (ip_properties.GatewayAddresses.Count > 0))
                             {
-                                if (!ni.GetIPProperties().GatewayAddresses[0].Address.Equals(new IPAddress(0)))
+                                if (!ip_properties.GatewayAddresses[0].Address.Equals(new IPAddress(0)))
                                     preferred_local_ip = local_ip_count;
                             }
                         }
@@ -277,6 +278,7 @@ namespace XBSlink
             checkBox_nat_enable.Checked = s.REG_NAT_ENABLE;
             checkBox_filter_wellknown_ports.Checked = s.REG_FILTER_WELLKNOWN_PORTS;
             checkBox_NAT_enablePS3mode.Checked = s.REG_PS3_COMPAT_MODE_ENABLE;
+            checkBox_excludeGatewayIPs.Checked = s.REG_SNIFFER_EXCLUDE_GATWAY_IPS;
 
             if (checkBox_enable_MAC_list.Checked)
                 checkBox_mac_restriction.Enabled = true;
@@ -312,6 +314,7 @@ namespace XBSlink
             s.REG_NAT_IP_POOL = getNATIPPoolString();
             s.REG_FILTER_WELLKNOWN_PORTS = checkBox_filter_wellknown_ports.Checked;
             s.REG_PS3_COMPAT_MODE_ENABLE = checkBox_NAT_enablePS3mode.Checked;
+            s.REG_SNIFFER_EXCLUDE_GATWAY_IPS = checkBox_excludeGatewayIPs.Checked;
             s.Save();
         }
 
@@ -418,8 +421,7 @@ namespace XBSlink
             node_list.local_node = new xbs_node(local_node_ip, udp_listener.udp_socket_port);
             node_list.local_node.nickname = textBox_chatNickname.Text;
 
-            sniffer = new xbs_sniffer(pdev, checkBox_enable_MAC_list.Checked, checkBox_mac_restriction.Checked, node_list, NAT);
-            setSnifferMacList();
+            sniffer = new xbs_sniffer(pdev, checkBox_enable_MAC_list.Checked, generateSnifferMacList(), checkBox_mac_restriction.Checked, node_list, NAT, network_device_gateways[internal_ip], checkBox_excludeGatewayIPs.Checked);
             sniffer.start_capture();
 
             if (ExceptionMessage.ABORTING)
@@ -831,12 +833,14 @@ namespace XBSlink
                 return;
             textBox_add_MAC.Text = (String)listBox_MAC_list.Items[listBox_MAC_list.SelectedIndex];
             listBox_MAC_list.Items.RemoveAt(listBox_MAC_list.SelectedIndex);
-            setSnifferMacList();
             if (listBox_MAC_list.Items.Count < 1)
             {
                 button_del_MAC.Enabled = false;
-                checkBox_mac_restriction.Checked = false;
+                //checkBox_mac_restriction.Checked = false;
+                checkBox_enable_MAC_list.Checked = false;
+                sniffer.pdev_filter_use_special_macs = false;
             }
+            setSnifferMacList();
         }
 
         private String getMacListString()
@@ -912,23 +916,37 @@ namespace XBSlink
             }
         }
 
+        private List<PhysicalAddress> generateSnifferMacList()
+        {
+            List<PhysicalAddress> mac_list = new List<PhysicalAddress>();
+            foreach (String mac in listBox_MAC_list.Items)
+                mac_list.Add(PhysicalAddress.Parse(mac));
+            return mac_list;
+        }
+
         private void setSnifferMacList()
         {
             if (sniffer != null)
-            {
-                List<PhysicalAddress> mac_list = new List<PhysicalAddress>();
-                foreach (String mac in listBox_MAC_list.Items)
-                    mac_list.Add(PhysicalAddress.Parse(mac));
-                sniffer.setSpecialMacPacketFilter(mac_list);
-            }
+                sniffer.setSpecialMacPacketFilter( generateSnifferMacList() );
         }
 
         private void checkBox_enable_MAC_list_CheckedChanged(object sender, EventArgs e)
         {
-            if (sniffer != null)
+            if (listBox_MAC_list.Items.Count != 0)
             {
-                sniffer.pdev_filter_use_special_macs = checkBox_enable_MAC_list.Checked;
-                sniffer.setPdevFilter();
+                if (sniffer != null)
+                {
+                    sniffer.pdev_filter_use_special_macs = checkBox_enable_MAC_list.Checked;
+                    sniffer.setPdevFilter();
+                }
+            }
+            else
+            {
+                if (checkBox_enable_MAC_list.Checked)
+                {
+                    MessageBox.Show(Resources.message_specialmaclist_empty, "XBSlink information", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    checkBox_enable_MAC_list.Checked = false;
+                }
             }
         }
 
@@ -1512,6 +1530,15 @@ namespace XBSlink
         private void checkBox_NAT_enablePS3mode_CheckedChanged(object sender, EventArgs e)
         {
             NAT.NAT_enablePS3mode = checkBox_NAT_enablePS3mode.Checked;
+        }
+
+        private void checkBox_excludeGatewayIPs_CheckedChanged(object sender, EventArgs e)
+        {
+            if (sniffer != null)
+            {
+                sniffer.pdev_filter_exclude_gatway_ips = checkBox_excludeGatewayIPs.Checked;
+                sniffer.setPdevFilter();
+            }
         }
 
     }

@@ -164,4 +164,7 @@ For more information see &lt;http://www.secudb.de/~seuffert/xbslink/faq#question
   <data name="url_check_latest_version_mac" xml:space="preserve">
     <value>http://www.secudb.de/~seuffert/xbslink/latest_xbslink_version_mac</value>
   </data>
+  <data name="message_specialmaclist_empty" xml:space="preserve">
+    <value>Please add at least one MAC address to the list.</value>
+  </data>
 </root>

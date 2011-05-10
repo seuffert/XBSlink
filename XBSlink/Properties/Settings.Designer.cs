@@ -274,5 +274,17 @@ namespace XBSlink.Properties {
                 this["REG_PS3_COMPAT_MODE_ENABLE"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool REG_SNIFFER_EXCLUDE_GATWAY_IPS {
+            get {
+                return ((bool)(this["REG_SNIFFER_EXCLUDE_GATWAY_IPS"]));
+            }
+            set {
+                this["REG_SNIFFER_EXCLUDE_GATWAY_IPS"] = value;
+            }
+        }
     }
 }

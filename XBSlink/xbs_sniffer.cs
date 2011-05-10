@@ -48,9 +48,14 @@ namespace XBSlink
         public bool pdev_filter_use_special_macs = true;
         public bool pdev_filter_only_forward_special_macs = true;
         public bool pdev_filter_wellknown_ports = true;
+        public bool pdev_filter_exclude_gatway_ips = true;
 
-        private String pdev_filter = "(udp and ((ip host 0.0.0.1) or (dst portrange 3074-3075))) ";
-        //private String pdev_filter_all_broadcast = "(udp and ((ip host 0.0.0.1) or (dst portrange 3074-3075)) or (ether host FF:FF:FF:FF:FF:FF and ip dst host 255.255.255.255)) ";
+        private const String pdev_filter_template_include = "{include_filters}";
+        private const String pdev_filter_template_exclude = "{exlude_filters}";
+        private String pdev_filter_template = "(" + pdev_filter_template_include + ") and not (" + pdev_filter_template_exclude + ")";
+        private String pdev_filter_gameconsoles = "(udp and ((ip host 0.0.0.1) or (dst portrange 3074-3075))) ";
+        private String pdev_filter_gateways = "";
+
         private List<PhysicalAddress> pdev_filter_known_macs_from_remote_nodes = new List<PhysicalAddress>();
         private List<PhysicalAddress> pdev_filter_special_macs = new List<PhysicalAddress>();
 
@@ -66,11 +71,15 @@ namespace XBSlink
         private xbs_node_list node_list = null;
         private xbs_nat NAT = null;
 
-        public xbs_sniffer(SharpPcap.LibPcap.LibPcapLiveDevice dev, bool use_special_mac_filter, bool only_forward_special_macs, xbs_node_list node_list, xbs_nat NAT)
+        public xbs_sniffer(SharpPcap.LibPcap.LibPcapLiveDevice dev, bool use_special_mac_filter, List<PhysicalAddress> filter_special_macs, bool only_forward_special_macs, xbs_node_list node_list, xbs_nat NAT, GatewayIPAddressInformationCollection gateways, bool exclude_gateway_ips)
         {
             this.NAT = NAT;
             this.pdev_filter_use_special_macs = use_special_mac_filter;
+            if (filter_special_macs!=null)
+                this.pdev_filter_special_macs = filter_special_macs;
             this.pdev_filter_only_forward_special_macs = only_forward_special_macs;
+            this.pdev_filter_exclude_gatway_ips = exclude_gateway_ips;
+            create_gateway_filter(gateways);
             injected_macs_hash.Capacity = 40;
             sniffed_macs_hash.Capacity = 10;
             sniffed_macs.Capacity = 10;
@@ -92,6 +101,18 @@ namespace XBSlink
             dispatcher_thread.IsBackground = true;
             dispatcher_thread.Priority = ThreadPriority.AboveNormal;
             dispatcher_thread.Start();
+        }
+
+        private void create_gateway_filter( GatewayIPAddressInformationCollection gateways )
+        {
+            if (gateways == null)
+                return;
+            if (gateways.Count == 0)
+                return;
+            String[] ips = new String[gateways.Count];
+            for (int i = 0; i < gateways.Count; i++)
+                ips[i] = gateways[i].Address.ToString();
+            pdev_filter_gateways = "host " + String.Join(" or host ", ips);
         }
 
         public void start_capture()
@@ -375,51 +396,56 @@ namespace XBSlink
 
         public void setPdevFilter()
         {
-            String filter_known_macs_from_remote_nodes = String.Empty;
-            String filter_exclude_injected_packets = String.Empty;
-            String filter_special_macs = String.Empty;
-            String filter_discovered_devices = String.Empty;
+            List<String> exclude_filter_list = new List<string>();
+            List<String> include_filter_list = new List<string>();
+
+            // always exclude local sniffing interface
+            exclude_filter_list.Add("ether host "+PhysicalAddressToString(pdev.MacAddress));
+            // exclude gatway IPs, just to be on the safe side
+            if (pdev_filter_exclude_gatway_ips && pdev_filter_gateways.Length > 0)
+                exclude_filter_list.Add(pdev_filter_gateways);
+            // exclude well known ports, just to be on the safe side
+            if (pdev_filter_wellknown_ports)
+                exclude_filter_list.Add("ip and (dst portrange 1-1023 or src portrange 1-1023)");
+            // include packets to game console specific ports/IPs
+            if (!(pdev_filter_use_special_macs && pdev_filter_only_forward_special_macs))
+                include_filter_list.Add(pdev_filter_gameconsoles);
+
+            // include packets TO MACs from remote users
+            // exclude packets FROM MACs from remote users
             lock (pdev_filter_known_macs_from_remote_nodes)
             {
-                if (pdev_filter_known_macs_from_remote_nodes.Count > 0)
+                if ((pdev_filter_known_macs_from_remote_nodes.Count > 0))
                 {
                     // we want all packets send to MACs we know of from other XBSlink nodes
-                    filter_known_macs_from_remote_nodes = " or ( ether dst " + String.Join(" or ether dst ", pdev_filter_known_macs_from_remote_nodes.ConvertAll<string>(delegate(PhysicalAddress pa) { return PhysicalAddressToString(pa); }).ToArray()) + " )";
-                    // we do NOT want packets injected by us, send from other other nodes to out network
-                    filter_exclude_injected_packets = " and not ( ether src " + String.Join(" or ether src ", pdev_filter_known_macs_from_remote_nodes.ConvertAll<string>(delegate(PhysicalAddress pa) { return PhysicalAddressToString(pa); }).ToArray()) + " )";
+                    if (!(pdev_filter_use_special_macs && pdev_filter_only_forward_special_macs))
+                        include_filter_list.Add( "ether dst " + String.Join(" or ether dst ", pdev_filter_known_macs_from_remote_nodes.ConvertAll<string>(delegate(PhysicalAddress pa) { return PhysicalAddressToString(pa); }).ToArray()) );
+                    // we do NOT want packets injected by us, send from other other nodes to our network
+                    exclude_filter_list.Add( "ether src " + String.Join(" or ether src ", pdev_filter_known_macs_from_remote_nodes.ConvertAll<string>(delegate(PhysicalAddress pa) { return PhysicalAddressToString(pa); }).ToArray()) );
                 }
             }
+            // include special MACs provided by the user
             if (pdev_filter_use_special_macs)
-            {
                 lock (pdev_filter_special_macs)
-                {
                     if (pdev_filter_special_macs.Count > 0)
-                    {
-                        filter_special_macs = (pdev_filter_only_forward_special_macs == false) ? " or (ether src " : "(ether src ";
-                        filter_special_macs += String.Join(" or ether src ", pdev_filter_special_macs.ConvertAll<string>(delegate(PhysicalAddress pa) { return PhysicalAddressToString(pa); }).ToArray()) + ")";
-                    }
-                }
-            }
+                        include_filter_list.Add("ether src " + String.Join(" or ether src ", pdev_filter_special_macs.ConvertAll<string>(delegate(PhysicalAddress pa) { return PhysicalAddressToString(pa); }).ToArray()));
+            // include packets from already known/sniffed devices
             lock (sniffed_macs)
-            {
-                if (sniffed_macs.Count > 0)
-                {
-                    filter_discovered_devices = " or ( ether src " + String.Join(" or ether src ", sniffed_macs.ConvertAll<string>(delegate(PhysicalAddress pa) { return PhysicalAddressToString(pa); }).ToArray()) + " )";
-                }
-            }
+                if ((sniffed_macs.Count > 0) && !(pdev_filter_use_special_macs && pdev_filter_only_forward_special_macs))
+                    include_filter_list.Add( "ether src " + String.Join(" or ether src ", sniffed_macs.ConvertAll<string>(delegate(PhysicalAddress pa) { return PhysicalAddressToString(pa); }).ToArray()) );
 
-            try
-            {
-                String f = pdev_filter + filter_special_macs + filter_known_macs_from_remote_nodes + filter_discovered_devices + filter_exclude_injected_packets;
-                if (pdev_filter_use_special_macs && pdev_filter_only_forward_special_macs && filter_special_macs.Length>0)
-                    f = filter_special_macs;
+            String exlude_filter_string = "( "+ String.Join(" ) or (", exclude_filter_list.ToArray()) + " ) ";
+            String include_filter_string = "( " + String.Join(" ) or (", include_filter_list.ToArray()) + " ) ";
 
-                if (pdev_filter_wellknown_ports)
-                    f += " and not (ip and (dst portrange 1-1023 or src portrange 1-1023) )";
+            String f;
+            f = pdev_filter_template.Replace(pdev_filter_template_include, include_filter_string);
+            f = f.Replace(pdev_filter_template_exclude, exlude_filter_string);
 #if DEBUG
                 xbs_messages.addInfoMessage("- pdev filter: " + f);
 #endif
-                pdev.Filter = f;
+            try
+            {
+                    pdev.Filter = f;
             }
             catch (PcapException)
             {
