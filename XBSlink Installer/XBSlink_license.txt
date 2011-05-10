@@ -1,11 +1,29 @@
-This free software program by Oliver Seuffert may be freely distributed, provided that no charge above the cost of distribution is levied, and that this disclaimer is always attached to it.
+About XBSlink
+XBSlink is a system link proxy for the XBox360 and the PlayStation 2/3 to play system link games over an internet connection.
 
-The program is provided as is without any guarantees or warranty.
-Although the author has attempted to find and correct any bugs in the free software programs, the author is not responsible for any damage or losses of any kind caused by the use or misuse of the programs.
-In general terms that means you use them at your own risk, and we accept NO RESPONSIBILITY WHATSOEVER for anything that may occur as a result of your use of, or inability to use, any item provided by this program.
-The author is under no obligation to provide support, service, corrections, or upgrades to the free software programs.
+Disclaimer
 
-If you wish to distribute any item or to include any part of any item in a commercial project, please ask for permission first.
+This free software program by Oliver Seuffert may be freely distributed, provided that no charge above the cost of distribution is levied, and that this disclaimer is always attached to it. The program is provided as is without any guarantees or warranty. Although the author has attempted to find and correct any bugs in the free software programs, the author is not responsible for any damage or losses of any kind caused by the use or misuse of the programs. In general terms that means you use them at your own risk, and we accept NO RESPONSIBILITY WHATSOEVER for anything that may occur as a result of your use of, or inability to use, any item provided by this program. The author is under no obligation to provide support, service, corrections, or upgrades to the free software programs.
 
-For more information, please send and email to xbslink@secudb.de or visit http://www.secudb.de/~seuffert/xbslink/
+If you wish to distribute any item or to include any part of any item in a commercial project, please ask for permission first. For more information, please contact xbslink@secudb.de or visit http://www.secudb.de/xbslink.
 
+If you do not agree to these terms, please do not download or use this program.
+
+Requirements
+
+•	Windows XP/Vista/7 , Linux, Mac OS X
+•	command-line or GUI mode
+•	.Net 3.5
+•	WinPCap Packet Capture Library
+•	(Comes bundled with the installer! see http://www.winpcap.org)
+•	the Linux version requires the Mono 2.4 .NET framework and the pcap library (v1.1.1) to be installed.
+•	the Mac version requires the Mono 2.10.1 .NET framework and the pcap library (libpcap.dylib) to be installed
+
+The source code for XBSlink is available under the GPL from Github.
+https://github.com/seuffert/XBSlink
+
+For current news and more information please visit
+http://www.secudb.de/~seuffert/xbslink/
+
+Special thanks go to KK, Leo, LOSTORDINO!
+by Oliver Seuffert 2011
