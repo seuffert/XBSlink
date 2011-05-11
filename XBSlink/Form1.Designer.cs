@@ -377,7 +377,6 @@ namespace XBSlink
             this.tabControl1.Size = new System.Drawing.Size(356, 431);
             this.tabControl1.TabIndex = 17;
             this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.tabControl1_SelectedIndexChanged);
-            this.tabControl1.TabIndexChanged += new System.EventHandler(this.tabControl1_TabIndexChanged);
             // 
             // tabPage_info
             // 

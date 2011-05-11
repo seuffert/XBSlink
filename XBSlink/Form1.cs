@@ -598,15 +598,34 @@ namespace XBSlink
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            updateMainInfo();
-            updateStatusBar();
-
             if (switch_tab != null)
             {
                 tabControl1.SelectedTab = switch_tab;
                 switch_tab = null;
             }
 
+            List<xbs_node> nodes = node_list.getXBSNodeListCopy();
+
+            if (tabControl1.SelectedTab == tabPage_info)
+                updateMainInfo(nodes);
+
+            DateTime last_change_time = node_list.getLastChangeTime();
+            if (last_change_time > last_nodelist_update)
+            {
+                if (tabControl1.SelectedTab == tabPage_info)
+                    updateMainInfoListview(nodes, false);
+                if (tabControl1.SelectedTab == tabPage_chat)
+                    updateChatUserList(nodes);
+                last_nodelist_update = last_change_time;
+            }
+            last_change_time = NAT.ip_pool.last_update;
+            if (last_change_time > last_nat_ippool_update && tabControl1.SelectedTab == tabPage_nat)
+            {
+                updateNATIPPoolListView();
+                last_nat_ippool_update = last_change_time;
+            }
+
+            updateStatusBar();
         }
 
         private void statusStrip1_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -643,10 +662,11 @@ namespace XBSlink
             //if (this.Width!=form1_width) this.Width = form1_width;
         }
 
-        private void updateMainInfo()
+        private void updateMainInfo(List<xbs_node> nodes)
         {
+            if (tabControl1.SelectedTab != tabPage_info)
+                return;
             String text = "";
-            List<xbs_node> nodes = node_list.getXBSNodeListCopy();
 
             if (cloudlist.part_of_cloud)
             {
@@ -664,51 +684,37 @@ namespace XBSlink
                 if (node_list.local_node!=null)
                     text += Environment.NewLine + "Local node: " + node_list.local_node;
 
-            PhysicalAddress[] local_xbox_macs = sniffer.getSniffedMACs();
-            if (local_xbox_macs.Length > 0)
+            if (sniffer != null)
             {
-                text += Environment.NewLine+"Discovered local device(s):" + Environment.NewLine;
-                foreach (PhysicalAddress phy in local_xbox_macs)
-                    text += " => " + phy + Environment.NewLine;
+                PhysicalAddress[] local_xbox_macs = sniffer.getSniffedMACs();
+                if (local_xbox_macs.Length > 0)
+                {
+                    text += Environment.NewLine + "Discovered local device(s):" + Environment.NewLine;
+                    foreach (PhysicalAddress phy in local_xbox_macs)
+                        text += " => " + phy + Environment.NewLine;
+                }
             }
             textBox1.Text = text;
-
-            DateTime last_change_time = node_list.getLastChangeTime();
-            if (last_change_time > last_nodelist_update)
-            {
-                updateMainInfoListview(nodes);
-                updateChatUserList(nodes);
-                last_nodelist_update = last_change_time;
-            }
-
-            last_change_time = NAT.ip_pool.last_update;
-            if (last_change_time > last_nat_ippool_update)
-            {
-#if DEBUG
-                xbs_messages.addDebugMessage("% updating NAT IP Pool ListView");
-#endif
-                updateNATIPPoolListView();
-                last_nat_ippool_update = last_change_time;
-            }
 
         }
 
         private void updateChatUserList( List<xbs_node> nodes )
         {
+            if (tabControl1.SelectedTab != tabPage_chat)
+                return;
             listBox_chatUserList.Items.Clear();
             label_num_persons_in_chat.Text = nodes.Count.ToString();
             foreach (xbs_node node in nodes)
-            {
                 listBox_chatUserList.Items.Add(node.nickname);
-            }
-
         }
 
-        private void updateMainInfoListview(List<xbs_node> nodes)
+        private void updateMainInfoListview(List<xbs_node> nodes, bool update_all)
         {
+            if (tabControl1.SelectedTab != tabPage_info)
+                return;
             listView_nodes.BeginUpdate();
             foreach (xbs_node node in nodes)
-                if (node.lastChangeTime > last_nodelist_update)
+                if (node.lastChangeTime > last_nodelist_update || update_all)
                     updateNodeInMainInfoList(node);
             if (node_list.getNodeCount() < listView_nodes.Items.Count)
                 purgeDeletedNodesInMainInfo();
@@ -1286,22 +1292,22 @@ namespace XBSlink
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            List<xbs_node> nodes = node_list.getXBSNodeListCopy();
             if (tabControl1.SelectedTab == tabPage_chat)
             {
                 textBox_chatMessages.SelectionStart = textBox_chatMessages.Text.Length;
                 textBox_chatMessages.ScrollToCaret();
+                updateChatUserList(nodes);
             }
+            else if (tabControl1.SelectedTab == tabPage_info)
+            {
+                updateMainInfo(nodes);
+                updateMainInfoListview(nodes, true);
+            }
+            else if (tabControl1.SelectedTab == tabPage_nat)
+                updateNATIPPoolListView();
             else if (tabControl1.SelectedTab == tabPage_clouds)
                 resizeCloudListHeader();
-        }
-
-        private void tabControl1_TabIndexChanged(object sender, EventArgs e)
-        {
-            if (tabControl1.SelectedTab == tabPage_chat)
-            {
-                textBox_chatMessages.SelectionStart = textBox_chatMessages.Text.Length;
-                textBox_chatMessages.ScrollToCaret();
-            }
         }
 
         private void resizeNodeListHeader()
@@ -1464,6 +1470,8 @@ namespace XBSlink
 
         private void updateNATIPPoolListView()
         {
+            if (tabControl1.SelectedTab != tabPage_nat)
+                return;
             listView_nat_IPpool.BeginUpdate();
             listView_nat_IPpool.Items.Clear();
             xbs_nat_entry[] entries = NAT.ip_pool.getEntriesArray();
