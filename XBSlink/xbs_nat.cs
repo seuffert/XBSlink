@@ -293,7 +293,9 @@ namespace XBSlink
                     nat_entry = ip_pool.requestIP(sourceIP, srcMAC);
                     if (nat_entry == null)
                     {
+#if DEBUG
                         xbs_messages.addInfoMessage("!! % out of NAT IPs. Could not nat incoming packet");
+#endif
                         return p_type;
                     }
                     NAT_list.Add(srcMAC, nat_entry);

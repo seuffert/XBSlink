@@ -978,8 +978,10 @@ namespace XBSlink
                 added_messages = true;
                 String msg = xbs_messages.DequeueInfoMessageString();
                 listBox_messages.Items.Add( msg );
+#if !DEBUG
                 if (msg.Substring(11).StartsWith("!!"))
                     error_message = true;
+#endif
             }
             if (added_messages)
                 listBox_messages.SelectedIndex = listBox_messages.Items.Count - 1;
