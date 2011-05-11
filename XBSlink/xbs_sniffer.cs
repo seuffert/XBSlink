@@ -54,8 +54,9 @@ namespace XBSlink
         private const String pdev_filter_template_exclude = "{exlude_filters}";
         private String pdev_filter_template = "(" + pdev_filter_template_include + ") and not (" + pdev_filter_template_exclude + ")";
         private String pdev_filter_template_only_include = "(" + pdev_filter_template_include + ")";
-        private String pdev_filter_gameconsoles = "(udp and ((ip host 0.0.0.1) or (dst portrange 3074-3075))) ";
+        private const String pdev_filter_gameconsoles = "(udp and ((ip host 0.0.0.1) or (dst portrange 3074-3075))) ";
         private String pdev_filter_gateways = "";
+        private String pdev_filter_fallback = pdev_filter_gameconsoles;
 
         private List<PhysicalAddress> pdev_filter_known_macs_from_remote_nodes = new List<PhysicalAddress>();
         private List<PhysicalAddress> pdev_filter_special_macs = new List<PhysicalAddress>();
@@ -453,7 +454,8 @@ namespace XBSlink
             }
             catch (PcapException)
             {
-                xbs_messages.addInfoMessage("!! - ERROR setting pdev filter");
+                xbs_messages.addInfoMessage("!! - ERROR setting pdev filter, using fallback - please inform developer.");
+                pdev.Filter = pdev_filter_fallback;
             }
         }
 
