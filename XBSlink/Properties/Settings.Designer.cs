@@ -286,5 +286,17 @@ namespace XBSlink.Properties {
                 this["REG_SNIFFER_EXCLUDE_GATWAY_IPS"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool REG_CHAT_NODEINFOMESSAGES {
+            get {
+                return ((bool)(this["REG_CHAT_NODEINFOMESSAGES"]));
+            }
+            set {
+                this["REG_CHAT_NODEINFOMESSAGES"] = value;
+            }
+        }
     }
 }

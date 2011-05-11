@@ -68,5 +68,8 @@
     <Setting Name="REG_SNIFFER_EXCLUDE_GATWAY_IPS" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="REG_CHAT_NODEINFOMESSAGES" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

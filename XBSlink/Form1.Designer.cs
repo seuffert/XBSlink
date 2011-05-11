@@ -115,6 +115,7 @@ namespace XBSlink
             this.checkBox_checkForUpdates = new System.Windows.Forms.CheckBox();
             this.checkBox_useCloudServerForPortCheck = new System.Windows.Forms.CheckBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.checkBox_chat_nodeInfoMessagesInChat = new System.Windows.Forms.CheckBox();
             this.checkBox_chat_notify = new System.Windows.Forms.CheckBox();
             this.checkBox_chatAutoSwitch = new System.Windows.Forms.CheckBox();
             this.label10 = new System.Windows.Forms.Label();
@@ -880,6 +881,7 @@ namespace XBSlink
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.checkBox_chat_nodeInfoMessagesInChat);
             this.groupBox2.Controls.Add(this.checkBox_chat_notify);
             this.groupBox2.Controls.Add(this.checkBox_chatAutoSwitch);
             this.groupBox2.Controls.Add(this.label10);
@@ -892,12 +894,25 @@ namespace XBSlink
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "chat settings";
             // 
+            // checkBox_chat_nodeInfoMessagesInChat
+            // 
+            this.checkBox_chat_nodeInfoMessagesInChat.AutoSize = true;
+            this.checkBox_chat_nodeInfoMessagesInChat.Checked = true;
+            this.checkBox_chat_nodeInfoMessagesInChat.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_chat_nodeInfoMessagesInChat.Location = new System.Drawing.Point(9, 112);
+            this.checkBox_chat_nodeInfoMessagesInChat.Name = "checkBox_chat_nodeInfoMessagesInChat";
+            this.checkBox_chat_nodeInfoMessagesInChat.Size = new System.Drawing.Size(128, 17);
+            this.checkBox_chat_nodeInfoMessagesInChat.TabIndex = 32;
+            this.checkBox_chat_nodeInfoMessagesInChat.Text = "join/leave info in chat";
+            this.checkBox_chat_nodeInfoMessagesInChat.UseVisualStyleBackColor = true;
+            this.checkBox_chat_nodeInfoMessagesInChat.CheckedChanged += new System.EventHandler(this.checkBox_chat_nodeInfoMessagesInChat_CheckedChanged);
+            // 
             // checkBox_chat_notify
             // 
             this.checkBox_chat_notify.AutoSize = true;
             this.checkBox_chat_notify.Checked = true;
             this.checkBox_chat_notify.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_chat_notify.Location = new System.Drawing.Point(9, 85);
+            this.checkBox_chat_notify.Location = new System.Drawing.Point(9, 66);
             this.checkBox_chat_notify.Name = "checkBox_chat_notify";
             this.checkBox_chat_notify.Size = new System.Drawing.Size(115, 17);
             this.checkBox_chat_notify.TabIndex = 3;
@@ -910,7 +925,7 @@ namespace XBSlink
             this.checkBox_chatAutoSwitch.AutoSize = true;
             this.checkBox_chatAutoSwitch.Checked = true;
             this.checkBox_chatAutoSwitch.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_chatAutoSwitch.Location = new System.Drawing.Point(9, 62);
+            this.checkBox_chatAutoSwitch.Location = new System.Drawing.Point(9, 43);
             this.checkBox_chatAutoSwitch.Name = "checkBox_chatAutoSwitch";
             this.checkBox_chatAutoSwitch.Size = new System.Drawing.Size(134, 17);
             this.checkBox_chatAutoSwitch.TabIndex = 2;
@@ -925,15 +940,15 @@ namespace XBSlink
             this.label10.AutoSize = true;
             this.label10.Location = new System.Drawing.Point(6, 20);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(55, 13);
+            this.label10.Size = new System.Drawing.Size(29, 13);
             this.label10.TabIndex = 1;
-            this.label10.Text = "Nickname";
+            this.label10.Text = "Nick";
             // 
             // textBox_chatNickname
             // 
-            this.textBox_chatNickname.Location = new System.Drawing.Point(9, 36);
+            this.textBox_chatNickname.Location = new System.Drawing.Point(41, 17);
             this.textBox_chatNickname.Name = "textBox_chatNickname";
-            this.textBox_chatNickname.Size = new System.Drawing.Size(140, 20);
+            this.textBox_chatNickname.Size = new System.Drawing.Size(108, 20);
             this.textBox_chatNickname.TabIndex = 0;
             this.toolTip1.SetToolTip(this.textBox_chatNickname, "the nickname will appear in the chat as well as in the node list");
             this.textBox_chatNickname.Leave += new System.EventHandler(this.textBox_chatNickname_Leave);
@@ -943,7 +958,7 @@ namespace XBSlink
             this.checkBox_newNodeSound.AutoSize = true;
             this.checkBox_newNodeSound.Checked = true;
             this.checkBox_newNodeSound.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_newNodeSound.Location = new System.Drawing.Point(9, 108);
+            this.checkBox_newNodeSound.Location = new System.Drawing.Point(9, 89);
             this.checkBox_newNodeSound.Name = "checkBox_newNodeSound";
             this.checkBox_newNodeSound.Size = new System.Drawing.Size(135, 17);
             this.checkBox_newNodeSound.TabIndex = 31;
@@ -1473,6 +1488,7 @@ namespace XBSlink
         private System.Windows.Forms.CheckBox checkBox_filter_wellknown_ports;
         private System.Windows.Forms.CheckBox checkBox_NAT_enablePS3mode;
         private System.Windows.Forms.CheckBox checkBox_excludeGatewayIPs;
+        private System.Windows.Forms.CheckBox checkBox_chat_nodeInfoMessagesInChat;
     }
 }
 

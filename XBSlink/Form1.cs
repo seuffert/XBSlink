@@ -279,6 +279,8 @@ namespace XBSlink
             checkBox_filter_wellknown_ports.Checked = s.REG_FILTER_WELLKNOWN_PORTS;
             checkBox_NAT_enablePS3mode.Checked = s.REG_PS3_COMPAT_MODE_ENABLE;
             checkBox_excludeGatewayIPs.Checked = s.REG_SNIFFER_EXCLUDE_GATWAY_IPS;
+            checkBox_chat_nodeInfoMessagesInChat.Checked = s.REG_CHAT_NODEINFOMESSAGES;
+            xbs_chat.message_when_nodes_join_or_leave = s.REG_CHAT_NODEINFOMESSAGES;
 
             if (checkBox_enable_MAC_list.Checked)
                 checkBox_mac_restriction.Enabled = true;
@@ -315,6 +317,7 @@ namespace XBSlink
             s.REG_FILTER_WELLKNOWN_PORTS = checkBox_filter_wellknown_ports.Checked;
             s.REG_PS3_COMPAT_MODE_ENABLE = checkBox_NAT_enablePS3mode.Checked;
             s.REG_SNIFFER_EXCLUDE_GATWAY_IPS = checkBox_excludeGatewayIPs.Checked;
+            s.REG_CHAT_NODEINFOMESSAGES = checkBox_chat_nodeInfoMessagesInChat.Checked;
             s.Save();
         }
 
@@ -1553,6 +1556,11 @@ namespace XBSlink
                 sniffer.pdev_filter_exclude_gatway_ips = checkBox_excludeGatewayIPs.Checked;
                 sniffer.setPdevFilter();
             }
+        }
+
+        private void checkBox_chat_nodeInfoMessagesInChat_CheckedChanged(object sender, EventArgs e)
+        {
+            xbs_chat.message_when_nodes_join_or_leave = checkBox_chat_nodeInfoMessagesInChat.Checked;
         }
 
     }

@@ -394,7 +394,7 @@ namespace XBSlink
                     {
                         xbs_messages.addInfoMessage("!! error on deleting node: "+ex.Message);
                     }
-                    if (tmp_node != null)
+                    if (tmp_node != null && xbs_chat.message_when_nodes_join_or_leave)
                         xbs_chat.addSystemMessage(tmp_node.nickname + " left.");
                     break;
 
@@ -445,7 +445,8 @@ namespace XBSlink
                         sending_node.nickname = msg_nick.getNickname();
                         sending_node.nickname_received = true;
                         node_list.listHasJustChanged();
-                        xbs_chat.addSystemMessage(sending_node.nickname + " joined.");
+                        if ( xbs_chat.message_when_nodes_join_or_leave )
+                            xbs_chat.addSystemMessage(sending_node.nickname + " joined.");
                     }
                     break;
                 case xbs_node_message_type.GETNICKNAME:
