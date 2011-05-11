@@ -969,13 +969,19 @@ namespace XBSlink
             try
             {
 #endif
+            bool error_message = false;
             while (xbs_messages.getInfoMessageCount() > 0)
             {
                 added_messages = true;
-                listBox_messages.Items.Add( xbs_messages.DequeueInfoMessageString() );
+                String msg = xbs_messages.DequeueInfoMessageString();
+                listBox_messages.Items.Add( msg );
+                if (msg.Substring(11).StartsWith("!!"))
+                    error_message = true;
             }
             if (added_messages)
                 listBox_messages.SelectedIndex = listBox_messages.Items.Count - 1;
+            if (error_message)
+                MessageBox.Show("An non fatal error occured in XBSlink. Please see the messages for more information.", "XBSlink error", MessageBoxButtons.OK, MessageBoxIcon.Stop);
 
             added_messages = false;
             while (xbs_messages.getChatMessageCount() > 0)
