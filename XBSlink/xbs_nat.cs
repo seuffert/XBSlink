@@ -222,6 +222,8 @@ namespace XBSlink
         public xbs_nat_ippool ip_pool = new xbs_nat_ippool();
         private Dictionary<PhysicalAddress, xbs_nat_entry> NAT_list = new Dictionary<PhysicalAddress, xbs_nat_entry>();
 
+        private bool natIPpoolOverflow_warning_shown = false;
+
         public xbs_nat()
         {
         }
@@ -293,15 +295,21 @@ namespace XBSlink
                     nat_entry = ip_pool.requestIP(sourceIP, srcMAC);
                     if (nat_entry == null)
                     {
-#if DEBUG
-                        xbs_messages.addInfoMessage("!! % out of NAT IPs. Could not nat incoming packet", xbs_message_sender.NAT, xbs_message_type.WARNING);
-#endif
+                        if (!natIPpoolOverflow_warning_shown)
+                        {
+                            natIPpoolOverflow_warning_shown = true;
+                            xbs_messages.addInfoMessage("!! % out of NAT IPs. Could not NAT incoming packet", xbs_message_sender.NAT, xbs_message_type.WARNING);
+                        }
                         return p_type;
                     }
-                    NAT_list.Add(srcMAC, nat_entry);
+                    else
+                    {
+                        natIPpoolOverflow_warning_shown = false;
+                        NAT_list.Add(srcMAC, nat_entry);
 #if DEBUG
-                    xbs_messages.addDebugMessage("% new device in NAT list: " + srcMAC + " " + nat_entry.original_source_ip + "=>" + nat_entry.natted_source_ip, xbs_message_sender.NAT);
+                        xbs_messages.addDebugMessage("% new device in NAT list: " + srcMAC + " " + nat_entry.original_source_ip + "=>" + nat_entry.natted_source_ip, xbs_message_sender.NAT);
 #endif
+                    }
                 }
                 else
                 {
