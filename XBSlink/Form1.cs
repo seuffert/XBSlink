@@ -66,6 +66,9 @@ namespace XBSlink
         private uint old_udp_out_count = 0;
 
         private NotifyIcon notify_icon = null;
+        private bool notify_icon_error_message_shown = false;
+        private bool notify_icon_fatalerror_message_shown = false;
+        private bool notify_icon_warning_message_shown = false;
 
         private int form1_width;
 
@@ -471,6 +474,7 @@ namespace XBSlink
 
         private void engine_start()
         {
+            clearMessagesAndNotifications();
             // show Messages to User
             tabControl1.SelectedTab = tabPage_messages;
             xbs_messages.addInfoMessage("starting Engine", xbs_message_sender.GENERAL);
@@ -957,11 +961,18 @@ namespace XBSlink
             }
         }
 
-        private void button_clearMessages_Click(object sender, EventArgs e)
+        private void clearMessagesAndNotifications()
         {
             lock (listBox_messages)
                 listBox_messages.Items.Clear();
             toolStripStatusLabel_icon.Image = Resources.ok_16;
+            notify_icon_warning_message_shown = false;
+            notify_icon_fatalerror_message_shown = false;
+            notify_icon_error_message_shown = false;
+        }
+        private void button_clearMessages_Click(object sender, EventArgs e)
+        {
+            clearMessagesAndNotifications();
         }
 
         private void timer_messages_Tick(object sender, EventArgs e)
@@ -988,10 +999,27 @@ namespace XBSlink
             }
             if (added_messages)
                 listBox_messages.SelectedIndex = listBox_messages.Items.Count - 1;
-            if (error_message || fatal_error_message)
+
+            if (error_message || fatal_error_message && toolStripStatusLabel_icon.Image != Resources.error_16)
                 toolStripStatusLabel_icon.Image = Resources.error_16;
-            else if (warning_message)
+            else if (warning_message && toolStripStatusLabel_icon.Image!=Resources.error_16)
                 toolStripStatusLabel_icon.Image = Resources.warning_16;
+
+            if (fatal_error_message && notify_icon_fatalerror_message_shown == false)
+            {
+                notify_icon_fatalerror_message_shown = true;
+                notify_icon.ShowBalloonTip(10000, "XBSlink fatal error", Resources.notifyicon_fatal_error_message, ToolTipIcon.Error);
+            }
+            else if (error_message && notify_icon_error_message_shown == false && notify_icon_fatalerror_message_shown == false)
+            {
+                notify_icon_error_message_shown = true;
+                notify_icon.ShowBalloonTip(10000, "XBSlink error", Resources.notifyicon_error_message, ToolTipIcon.Error);
+            }
+            else if (warning_message && notify_icon_warning_message_shown == false && notify_icon_error_message_shown == false && notify_icon_fatalerror_message_shown == false)
+            {
+                notify_icon_warning_message_shown = true;
+                notify_icon.ShowBalloonTip(10000, "XBSlink warning", Resources.notifyicon_warning_message, ToolTipIcon.Warning);
+            }
 
             added_messages = false;
             while (xbs_messages.getChatMessageCount() > 0)

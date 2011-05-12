@@ -146,6 +146,36 @@ namespace XBSlink.Properties {
             }
         }
         
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die XBSlink encountered at least one non-fatal error!
+        ///Please check the messages. ähnelt.
+        /// </summary>
+        internal static string notifyicon_error_message {
+            get {
+                return ResourceManager.GetString("notifyicon_error_message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die XBSlink encountered at least one fatal error! 
+        ///Please check the messages. ähnelt.
+        /// </summary>
+        internal static string notifyicon_fatal_error_message {
+            get {
+                return ResourceManager.GetString("notifyicon_fatal_error_message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die XBSlink encountered at least one warning!
+        ///Please check the messages. ähnelt.
+        /// </summary>
+        internal static string notifyicon_warning_message {
+            get {
+                return ResourceManager.GetString("notifyicon_warning_message", resourceCulture);
+            }
+        }
+        
         internal static System.Drawing.Bitmap ok_16 {
             get {
                 object obj = ResourceManager.GetObject("ok_16", resourceCulture);
