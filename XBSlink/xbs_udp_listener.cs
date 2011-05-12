@@ -477,6 +477,8 @@ namespace XBSlink
 
         private void dispatch_DATA_message(ref xbs_udp_message udp_msg, ref xbs_node sending_node)
         {
+            if (xbs_sniffer.getInstance() == null)
+                return;
             byte[] src_mac = new byte[6];
             byte[] dst_mac = new byte[6];
             Buffer.BlockCopy(udp_msg.data, 0, dst_mac, 0, 6);

@@ -52,12 +52,14 @@ namespace XBSlink
 
         public static void sendChatMessage(String message)
         {
-            xbs_node_list.getInstance().sendChatMessageToAllNodes(message);
+            if (xbs_node_list.getInstance()!=null)
+                xbs_node_list.getInstance().sendChatMessageToAllNodes(message);
         }
 
         public static void addLocalMessage(String message)
         {
-            addMessage("<" + xbs_node_list.getInstance().local_node.nickname + "> : " + message);
+            if (xbs_node_list.getInstance() != null)
+                addMessage("<" + xbs_node_list.getInstance().local_node.nickname + "> : " + message);
         }
 
         public static void addSystemMessage(String message)

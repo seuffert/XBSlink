@@ -184,13 +184,19 @@ namespace XBSlink
 
         public void sendNodeMessage(xbs_node_message msg)
         {
-            xbs_udp_listener.getInstance().send_xbs_node_message(msg);
-            statistics.sentPacket(msg.getMessageByteArraySize());
+            if (xbs_udp_listener.getInstance() != null)
+            {
+                xbs_udp_listener.getInstance().send_xbs_node_message(msg);
+                statistics.sentPacket(msg.getMessageByteArraySize());
+            }
         }
         public void sendNodeMessageHighPrio(xbs_node_message msg)
         {
-            xbs_udp_listener.getInstance().send_xbs_node_message_high_prio(msg);
-            statistics.sentPacket(msg.getMessageByteArraySize());
+            if (xbs_udp_listener.getInstance() != null)
+            {
+                xbs_udp_listener.getInstance().send_xbs_node_message_high_prio(msg);
+                statistics.sentPacket(msg.getMessageByteArraySize());
+            }
         }
 
         public void sendDataMessage( ref byte[] data)

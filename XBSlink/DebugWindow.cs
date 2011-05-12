@@ -62,7 +62,10 @@ namespace XBSlink
         private void button_clear_Click(object sender, EventArgs e)
         {
             lock (DebugWindow.form)
+            {
+                background_color_list.Clear();
                 listBox_messages.Items.Clear();
+            }
         }
 
         private void timer1_Tick(object sender, EventArgs e)

@@ -242,7 +242,8 @@ namespace XBSlink
                         return false;
                     }
                     xbs_node_message_announce msg = new xbs_node_message_announce(ip, port);
-                    xbs_udp_listener.getInstance().send_xbs_node_message(msg);
+                    if (xbs_udp_listener.getInstance()!=null)
+                        xbs_udp_listener.getInstance().send_xbs_node_message(msg);
                 }
             }
             startUpdateThread();
@@ -282,8 +283,11 @@ namespace XBSlink
                 if (update_thread.ThreadState != ThreadState.Stopped )
                     update_thread.Join();
             update_thread = null;
-            xbs_node_list.getInstance().sendLogOff();
-            xbs_node_list.getInstance().clear_nodes();
+            if (xbs_node_list.getInstance() != null)
+            {
+                xbs_node_list.getInstance().sendLogOff();
+                xbs_node_list.getInstance().clear_nodes();
+            }
             cloudlist_url = null;
             return true;
         }
@@ -371,16 +375,19 @@ namespace XBSlink
                 return;
             }
             xbs_node_list node_list = xbs_node_list.getInstance();
-            xbs_node node = node_list.findNode(ip, port);
-            if (node == null)
+            if (node_list != null)
             {
-                node = new xbs_node(ip, port);
-                if (!node_list.local_node.Equals(node))
+                xbs_node node = node_list.findNode(ip, port);
+                if (node == null)
                 {
+                    node = new xbs_node(ip, port);
+                    if (!node_list.local_node.Equals(node))
+                    {
 #if DEBUG
-                    xbs_messages.addDebugMessage(" x found new node in cloudlist update: " + node);
+                        xbs_messages.addDebugMessage(" x found new node in cloudlist update: " + node);
 #endif
-                    node_list.tryAddingNode(node);
+                        node_list.tryAddingNode(node);
+                    }
                 }
             }
         }
