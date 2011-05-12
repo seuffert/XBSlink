@@ -728,23 +728,28 @@ namespace XBSlink
 
         private void purgeDeletedNodesInMainInfo()
         {
-            List<ListViewItem> del_list = new List<ListViewItem>();
-            foreach (ListViewItem lv_item in listView_nodes.Items)
+            if (listView_nodes.Items.Count==0)
+                return;
+            try
             {
-                try
+                for (int i = listView_nodes.Items.Count - 1; i > 0; i--)
                 {
+                    ListViewItem lv_item = listView_nodes.Items[i];
                     IPAddress ip = IPAddress.Parse(lv_item.Text);
                     int port = int.Parse(lv_item.SubItems[1].Text.Split('/')[0]);
                     if (node_list.findNode(ip, port) == null)
-                        del_list.Add(lv_item);
-                }
-                catch (Exception e)
-                {
-                    xbs_messages.addInfoMessage("!! error purging Main Info node list : " + e.Message, xbs_message_sender.GENERAL, xbs_message_type.ERROR);
+                    {
+#if DEBUG
+                        xbs_messages.addDebugMessage(String.Format("purged Node {0}:{1} from nodeListView", ip, port), xbs_message_sender.GENERAL);
+#endif
+                        listView_nodes.Items.RemoveAt(i);
+                    }
                 }
             }
-            foreach (ListViewItem lv_item in del_list)
-                listView_nodes.Items.Remove(lv_item);
+            catch (Exception ex)
+            {
+                xbs_messages.addInfoMessage( "!! Error while purging node from main nodeListView", xbs_message_sender.GENERAL, xbs_message_type.ERROR);
+            }
         }
 
         private void updateNodeInMainInfoList(xbs_node node)
