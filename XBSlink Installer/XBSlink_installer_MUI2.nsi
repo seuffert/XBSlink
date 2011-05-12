@@ -5,6 +5,7 @@
 ;--------------------------------
   !include "MUI2.nsh"
   !include "FileFunc.nsh"
+  !include "VersionCompare.nsh"
   !system "xbslink_version_info.exe"
   !include "XBSlink_version.txt"
 ;--------------------------------
@@ -102,11 +103,23 @@ Section "Start Menu Shortcuts" StartMenuShortcuts
   
 SectionEnd
 
+  Var WINPCAP_NAME ; DisplayName from WinPcap installation
+  Var WINPCAP_VERSION ; DisplayVersion from WinPcap installation
+
 ;--------------------------------
 Section "WinPCap Capture Library" WinPCap
   SetOutPath $TEMP
   File "WinPcap_4_1_2.exe"
+  ReadRegStr $WINPCAP_NAME HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayName"
+  IfErrors lbl_winpcap_do_install
+  ReadRegStr $WINPCAP_VERSION HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayVersion"
+  StrCmp $WINPCAP_VERSION "" lbl_winpcap_do_install ; WinPcap is really old(?) or installed improperly.
+	${VersionCompare} $WINPCAP_VERSION "4.1.0.2001" $1 ; WinPcap 4.1.2
+	StrCmp $1 "1" lbl_winpcap_do_install
+	goto lbl_winpcap_dont_install 
+lbl_winpcap_do_install:    
   ExecWait '"$TEMP\WinPcap_4_1_2.exe"'
+lbl_winpcap_dont_install:  
   Delete "$TEMP\WinPcap_4_1_2.exe"
 SectionEnd
 ;--------------------------------
