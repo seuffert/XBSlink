@@ -32,7 +32,7 @@ using Mono.Nat.Upnp;
 
 namespace XBSlink
 {
-    class xbs_natstun
+    class xbs_upnp
     {
         // NAT variables
         private INatDevice device = null;
@@ -57,7 +57,7 @@ namespace XBSlink
             }
         }
 #endif
-        public xbs_natstun()
+        public xbs_upnp()
         {
 #if DEBUG
             NatUtility.Logger = new UPnPlogger();
@@ -72,7 +72,7 @@ namespace XBSlink
         {
             if (!isUPnPavailable())
             {
-                xbs_messages.addInfoMessage(" @ UPnP device discovery started");
+                xbs_messages.addInfoMessage(" @ UPnP device discovery started", xbs_message_sender.UPNP);
                 NatUtility.StartDiscovery();
                 upnp_discovery_started = true;
             }
@@ -82,8 +82,9 @@ namespace XBSlink
         {
             if (upnp_discovery_started)
             {
-                xbs_messages.addDebugMessage(" @ UPnP device discovery stopped");
+                xbs_messages.addDebugMessage(" @ UPnP device discovery stopped", xbs_message_sender.UPNP);
                 NatUtility.StopDiscovery();
+                upnp_discovery_started = false;
             }
         }
 
@@ -107,10 +108,10 @@ namespace XBSlink
                     this.device = dev;
                     this.public_ip = pub_ip;
                 }
-                xbs_messages.addInfoMessage(" @ UPnP device found. external IP: " + pub_ip);
+                xbs_messages.addInfoMessage(" @ UPnP device found. external IP: " + pub_ip, xbs_message_sender.UPNP);
             }
             else
-                xbs_messages.addInfoMessage(" @ UPnP discovery failed. Could not get public IP");
+                xbs_messages.addInfoMessage(" @ UPnP discovery failed. Could not get public IP", xbs_message_sender.UPNP, xbs_message_type.WARNING);
         }
 
         public bool upnp_create_mapping(Protocol prot, int internalPort, int externalPort)
@@ -124,12 +125,12 @@ namespace XBSlink
                 }
                 catch (MappingException)
                 {
-                    xbs_messages.addInfoMessage(" @ UPnP error: could not forward port");
+                    xbs_messages.addInfoMessage(" @ UPnP error: could not forward port", xbs_message_sender.UPNP, xbs_message_type.ERROR);
                     return false;
                 }
                 lock (this)
                     my_PortMappings.Add(port_mapping);
-                xbs_messages.addInfoMessage(" @ UPnP port mapped from " + public_ip + ":" + port_mapping.PublicPort);
+                xbs_messages.addInfoMessage(" @ UPnP port mapped from " + public_ip + ":" + port_mapping.PublicPort, xbs_message_sender.UPNP);
                 return true;
             }
             return false;
@@ -150,7 +151,7 @@ namespace XBSlink
                     foreach (Mapping pm in mappings)
                     {
                         device.DeletePortMap(pm);
-                        xbs_messages.addInfoMessage(" @ UPnP port mapping removed " + public_ip + ":" + pm.PublicPort);
+                        xbs_messages.addInfoMessage(" @ UPnP port mapping removed " + public_ip + ":" + pm.PublicPort, xbs_message_sender.UPNP);
                     }
                 }
                 catch (Exception)
@@ -162,7 +163,7 @@ namespace XBSlink
         private void upnp_unhandled_exception(object sender, UnhandledExceptionEventArgs args)
         {
 #if DEBUG
-            xbs_messages.addDebugMessage(" @ UPnP error: " + args.ExceptionObject.GetType().ToString());
+            xbs_messages.addDebugMessage(" @ UPnP error: " + args.ExceptionObject.GetType().ToString(), xbs_message_sender.UPNP, xbs_message_type.ERROR);
 #endif
         }
 
@@ -184,16 +185,16 @@ namespace XBSlink
             IPAddress external_ip;
             try
             {
-                external_ip_str = new System.Net.WebClient().DownloadString(xbs_natstun.EXTERNAL_IP_WEB_SERVICE);
+                external_ip_str = new System.Net.WebClient().DownloadString(xbs_upnp.EXTERNAL_IP_WEB_SERVICE);
             }
             catch (WebException)
             {
-                xbs_messages.addInfoMessage("!! Could not resolve external IP Address.");
+                xbs_messages.addInfoMessage("!! Could not resolve external IP Address.", xbs_message_sender.UPNP, xbs_message_type.ERROR);
                 return null;
             }
             bool ret = IPAddress.TryParse(external_ip_str.Trim(), out external_ip);
             if ( ret )
-                xbs_messages.addInfoMessage(" @ discovered external public IP " + external_ip);
+                xbs_messages.addInfoMessage(" @ discovered external public IP " + external_ip, xbs_message_sender.UPNP);
             return ( ret ? external_ip : null);
         }
 

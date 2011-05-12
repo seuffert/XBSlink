@@ -97,7 +97,7 @@ namespace XBSlink
             if (System.Environment.OSVersion.Platform == PlatformID.Win32NT && pdev is SharpPcap.WinPcap.WinPcapDevice)
                 ((SharpPcap.WinPcap.WinPcapDevice)pdev).MinToCopy = 10;
 
-            xbs_messages.addInfoMessage(" - sniffer created on device " + pdev.Description);
+            xbs_messages.addInfoMessage(" - sniffer created on device " + pdev.Description, xbs_message_sender.SNIFFER);
 
             dispatcher_thread = new Thread(new ThreadStart(dispatcher));
             dispatcher_thread.IsBackground = true;
@@ -120,7 +120,7 @@ namespace XBSlink
         public void start_capture()
         {
 #if DEBUG
-            xbs_messages.addInfoMessage(" - start capturing packets");
+            xbs_messages.addInfoMessage(" - start capturing packets", xbs_message_sender.SNIFFER);
 #endif
             pdev.StartCapture();
         }
@@ -169,14 +169,14 @@ namespace XBSlink
             }
             catch (InvalidOperationException)
             {
-                xbs_messages.addInfoMessage("!! InvalidOperationException in sniffer (OnPacketArrival)!");
+                xbs_messages.addInfoMessage("!! InvalidOperationException in sniffer (OnPacketArrival)!", xbs_message_sender.SNIFFER, xbs_message_type.FATAL_ERROR);
                 return;
             }
         }
 
         public void dispatcher()
         {
-            xbs_messages.addInfoMessage(" - sniffer dispatcher thread starting...");
+            xbs_messages.addInfoMessage(" - sniffer dispatcher thread starting...", xbs_message_sender.SNIFFER);
             int count = 0;
             RawCapture p = null;
 
@@ -227,9 +227,9 @@ namespace XBSlink
             PhysicalAddress srcMAC = new PhysicalAddress(src_mac);
 
 #if DEBUG
-            xbs_messages.addDebugMessage("s> " + srcMAC + "=>" + dstMAC + "Len:" + rawPacket.Data.Length);
+            xbs_messages.addDebugMessage("s> " + srcMAC + "=>" + dstMAC + "Len:" + rawPacket.Data.Length, xbs_message_sender.SNIFFER);
             Packet p = Packet.ParsePacket(rawPacket.LinkLayerType, rawPacket.Data);
-            xbs_messages.addDebugMessage("s> "+p);
+            xbs_messages.addDebugMessage("s> " + p, xbs_message_sender.SNIFFER);
 #endif
 
             // if sniffed packet has MAC of packet we injected, discard
@@ -256,11 +256,11 @@ namespace XBSlink
                         xbs_sniffer_statistics.deNAT_timeInCode += (UInt64)stopWatch.ElapsedTicks;
                         UInt32 average = (UInt32)(xbs_sniffer_statistics.deNAT_timeInCode / (xbs_sniffer_statistics.deNAT_callCount - 1));
                         double average_ms = new TimeSpan(average).TotalMilliseconds;
-                        xbs_messages.addDebugMessage("- deNAT time: " + stopWatch.ElapsedTicks + " deNAT count: " + (xbs_sniffer_statistics.deNAT_callCount - 1) + " Total Time: " + xbs_sniffer_statistics.deNAT_timeInCode + "=> " + average + " / " + average_ms + "ms");
+                        xbs_messages.addDebugMessage("- deNAT time: " + stopWatch.ElapsedTicks + " deNAT count: " + (xbs_sniffer_statistics.deNAT_callCount - 1) + " Total Time: " + xbs_sniffer_statistics.deNAT_timeInCode + "=> " + average + " / " + average_ms + "ms", xbs_message_sender.SNIFFER);
                     }
                 }
                 p = Packet.ParsePacket(rawPacket.LinkLayerType, packet_data);
-                xbs_messages.addDebugMessage("s> " + p);
+                xbs_messages.addDebugMessage("s> " + p, xbs_message_sender.SNIFFER);
 #endif
             }
 
@@ -305,7 +305,7 @@ namespace XBSlink
                 if ( ((IPv4Packet)p.PayloadPacket).PayloadPacket is UdpPacket )
                     if ( ((UdpPacket)((IPv4Packet)p.PayloadPacket).PayloadPacket).DestinationPort<1024 )
                         return;
-            xbs_messages.addDebugMessage("i> "+p);
+            xbs_messages.addDebugMessage("i> " + p, xbs_message_sender.SNIFFER);
 #endif
 
             if (NAT.NAT_enabled)
@@ -325,11 +325,11 @@ namespace XBSlink
                         xbs_sniffer_statistics.NAT_timeInCode += (UInt64)stopWatch.ElapsedTicks;
                         UInt32 average = (UInt32)(xbs_sniffer_statistics.NAT_timeInCode / (xbs_sniffer_statistics.NAT_callCount - 1));
                         double average_ms = new TimeSpan(average).TotalMilliseconds;
-                        xbs_messages.addDebugMessage("- NAT time: " + stopWatch.ElapsedTicks+"t/"+stopWatch.ElapsedMilliseconds + "ms | NAT count: " + (xbs_sniffer_statistics.NAT_callCount - 1) + " Total Time: " + xbs_sniffer_statistics.NAT_timeInCode + "t=> Average " + average + "t / " + average_ms+"ms");
+                        xbs_messages.addDebugMessage("- NAT time: " + stopWatch.ElapsedTicks + "t/" + stopWatch.ElapsedMilliseconds + "ms | NAT count: " + (xbs_sniffer_statistics.NAT_callCount - 1) + " Total Time: " + xbs_sniffer_statistics.NAT_timeInCode + "t=> Average " + average + "t / " + average_ms + "ms", xbs_message_sender.SNIFFER);
                     }
                 }
                 p = Packet.ParsePacket(LinkLayers.Ethernet, data);
-                xbs_messages.addDebugMessage("i> " + p);
+                xbs_messages.addDebugMessage("i> " + p, xbs_message_sender.SNIFFER);
 #endif
             }
 
@@ -340,11 +340,11 @@ namespace XBSlink
             }
             catch (PcapException pex)
             {
-                xbs_messages.addInfoMessage("!! error while injecting packet from "+srcMAC+" to "+dstMAC+" ("+data.Length+") : "+pex.Message);
+                xbs_messages.addInfoMessage("!! error while injecting packet from " + srcMAC + " to " + dstMAC + " (" + data.Length + ") : " + pex.Message, xbs_message_sender.SNIFFER, xbs_message_type.FATAL_ERROR);
             }
             catch (ArgumentException aex)
             {
-                xbs_messages.addInfoMessage("!! error while injecting packet from " + srcMAC + " to " + dstMAC + " (" + data.Length + ") : " + aex.Message);
+                xbs_messages.addInfoMessage("!! error while injecting packet from " + srcMAC + " to " + dstMAC + " (" + data.Length + ") : " + aex.Message, xbs_message_sender.SNIFFER, xbs_message_type.FATAL_ERROR);
             }
         }
 
@@ -446,7 +446,7 @@ namespace XBSlink
             if (exclude_filter_list.Count>0)
                 f = f.Replace(pdev_filter_template_exclude, exlude_filter_string);
 #if DEBUG
-                xbs_messages.addInfoMessage("- pdev filter: " + f);
+            xbs_messages.addInfoMessage("- pdev filter: " + f, xbs_message_sender.SNIFFER);
 #endif
             try
             {
@@ -454,7 +454,7 @@ namespace XBSlink
             }
             catch (PcapException)
             {
-                xbs_messages.addInfoMessage("!! - ERROR setting pdev filter, using fallback - please inform developer.");
+                xbs_messages.addInfoMessage("!! - ERROR setting pdev filter, using fallback - please inform developer.", xbs_message_sender.SNIFFER, xbs_message_type.FATAL_ERROR);
                 pdev.Filter = pdev_filter_fallback;
             }
         }

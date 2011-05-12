@@ -205,12 +205,15 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="error_50.png" />
+    <Content Include="error_16.png" />
+    <Content Include="ok_16.png" />
     <Content Include="sounds\node_left.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="SharpPcap.dll.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Content Include="warning_16.png" />
     <Content Include="XBSlink.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

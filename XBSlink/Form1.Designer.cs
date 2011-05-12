@@ -51,12 +51,13 @@ namespace XBSlink
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
-            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel_sniffer_in = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel_udp_in = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel_udp_out = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel_icon = new System.Windows.Forms.ToolStripStatusLabel();
             this.comboBox_captureDevice = new System.Windows.Forms.ComboBox();
             this.button_start_engine = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
@@ -156,7 +157,7 @@ namespace XBSlink
             this.timer_startEngine = new System.Windows.Forms.Timer(this.components);
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.toolTip2 = new System.Windows.Forms.ToolTip(this.components);
-            this.statusStrip1.SuspendLayout();
+            this.statusStrip.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage_info.SuspendLayout();
             this.tabPage_clouds.SuspendLayout();
@@ -173,20 +174,20 @@ namespace XBSlink
             this.tabPage_about.SuspendLayout();
             this.SuspendLayout();
             // 
-            // statusStrip1
+            // statusStrip
             // 
-            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel3,
             this.toolStripStatusLabel_sniffer_in,
             this.toolStripStatusLabel4,
             this.toolStripStatusLabel_udp_in,
-            this.toolStripStatusLabel_udp_out});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 500);
-            this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(374, 22);
-            this.statusStrip1.TabIndex = 2;
-            this.statusStrip1.Text = "statusStrip1";
-            this.statusStrip1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.statusStrip1_MouseDoubleClick);
+            this.toolStripStatusLabel_udp_out,
+            this.toolStripStatusLabel_icon});
+            this.statusStrip.Location = new System.Drawing.Point(0, 500);
+            this.statusStrip.Name = "statusStrip";
+            this.statusStrip.Size = new System.Drawing.Size(374, 22);
+            this.statusStrip.TabIndex = 2;
+            this.statusStrip.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.statusStrip1_MouseDoubleClick);
             // 
             // toolStripStatusLabel3
             // 
@@ -226,6 +227,16 @@ namespace XBSlink
             this.toolStripStatusLabel_udp_out.Size = new System.Drawing.Size(23, 17);
             this.toolStripStatusLabel_udp_out.Text = "0";
             this.toolStripStatusLabel_udp_out.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // toolStripStatusLabel_icon
+            // 
+            this.toolStripStatusLabel_icon.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripStatusLabel_icon.Image = global::XBSlink.Properties.Resources.ok_16;
+            this.toolStripStatusLabel_icon.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.toolStripStatusLabel_icon.Name = "toolStripStatusLabel_icon";
+            this.toolStripStatusLabel_icon.Size = new System.Drawing.Size(42, 17);
+            this.toolStripStatusLabel_icon.Spring = true;
+            this.toolStripStatusLabel_icon.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // comboBox_captureDevice
             // 
@@ -1341,7 +1352,7 @@ namespace XBSlink
             this.Controls.Add(this.textBox_remote_port);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.button_start_engine);
-            this.Controls.Add(this.statusStrip1);
+            this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.label5);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
@@ -1351,8 +1362,8 @@ namespace XBSlink
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.SizeChanged += new System.EventHandler(this.Form1_SizeChanged);
-            this.statusStrip1.ResumeLayout(false);
-            this.statusStrip1.PerformLayout();
+            this.statusStrip.ResumeLayout(false);
+            this.statusStrip.PerformLayout();
             this.tabControl1.ResumeLayout(false);
             this.tabPage_info.ResumeLayout(false);
             this.tabPage_info.PerformLayout();
@@ -1384,7 +1395,7 @@ namespace XBSlink
 
         #endregion
 
-        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.ComboBox comboBox_captureDevice;
         private System.Windows.Forms.Button button_start_engine;
         private System.Windows.Forms.Timer timer1;
@@ -1489,6 +1500,7 @@ namespace XBSlink
         private System.Windows.Forms.CheckBox checkBox_NAT_enablePS3mode;
         private System.Windows.Forms.CheckBox checkBox_excludeGatewayIPs;
         private System.Windows.Forms.CheckBox checkBox_chat_nodeInfoMessagesInChat;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel_icon;
     }
 }
 

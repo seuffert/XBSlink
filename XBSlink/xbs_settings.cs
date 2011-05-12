@@ -84,13 +84,13 @@ namespace XBSlink
             }
             catch (WebException wex)
             {
-                xbs_messages.addInfoMessage("!! could not get online update version information: " + wex.Message);
+                xbs_messages.addInfoMessage("!! could not get online update version information: " + wex.Message, xbs_message_sender.GENERAL, xbs_message_type.ERROR);
                 return null;
             }
 
             if (result.Length != 7)
             {
-                xbs_messages.addInfoMessage("!! update server returned unknown result: " + result);
+                xbs_messages.addInfoMessage("!! update server returned unknown result: " + result, xbs_message_sender.GENERAL, xbs_message_type.ERROR);
                 return null;
             }
             else

@@ -80,7 +80,7 @@ namespace XBSlink
                         }
                     }
                 }
-                xbs_messages.addDebugMessage("% NAT IP pool filled with " + count + " ip addresses. Total count of IPs in pool: " + ip_pool.Count);
+                xbs_messages.addDebugMessage("% NAT IP pool filled with " + count + " ip addresses. Total count of IPs in pool: " + ip_pool.Count, xbs_message_sender.NAT);
             }
             return count;
         }
@@ -187,7 +187,7 @@ namespace XBSlink
             if (CountOfUsedIPs == 0)
                 return;
 #if DEBUG
-            xbs_messages.addDebugMessage("% freeing remaining NAT IPs");
+            xbs_messages.addDebugMessage("% freeing remaining NAT IPs", xbs_message_sender.NAT);
 #endif
             lock (ip_pool)
             {
@@ -294,19 +294,19 @@ namespace XBSlink
                     if (nat_entry == null)
                     {
 #if DEBUG
-                        xbs_messages.addInfoMessage("!! % out of NAT IPs. Could not nat incoming packet");
+                        xbs_messages.addInfoMessage("!! % out of NAT IPs. Could not nat incoming packet", xbs_message_sender.NAT, xbs_message_type.WARNING);
 #endif
                         return p_type;
                     }
                     NAT_list.Add(srcMAC, nat_entry);
 #if DEBUG
-                    xbs_messages.addDebugMessage("% new device in NAT list: " + srcMAC + " " + nat_entry.original_source_ip + "=>" + nat_entry.natted_source_ip);
+                    xbs_messages.addDebugMessage("% new device in NAT list: " + srcMAC + " " + nat_entry.original_source_ip + "=>" + nat_entry.natted_source_ip, xbs_message_sender.NAT);
 #endif
                 }
                 else
                 {
 #if DEBUG
-                    xbs_messages.addDebugMessage("% found device in NAT list: " + srcMAC + " " + nat_entry.original_source_ip + "=>" + nat_entry.natted_source_ip);
+                    xbs_messages.addDebugMessage("% found device in NAT list: " + srcMAC + " " + nat_entry.original_source_ip + "=>" + nat_entry.natted_source_ip, xbs_message_sender.NAT);
 #endif
                 }
             }
@@ -393,7 +393,7 @@ namespace XBSlink
             }
 #if DEBUG
             if (nat_entry!=null)
-                xbs_messages.addDebugMessage("% found device in deNAT list: " + dstMAC + " " + nat_entry.natted_source_ip + "=>" + nat_entry.original_source_ip);
+                xbs_messages.addDebugMessage("% found device in deNAT list: " + dstMAC + " " + nat_entry.natted_source_ip + "=>" + nat_entry.original_source_ip, xbs_message_sender.NAT);
 #endif
 
             if (nat_entry != null)
@@ -489,12 +489,12 @@ namespace XBSlink
                 if (!NAT_list.TryGetValue(srcMAC, out nat_entry))
                 {
 #if DEBUG
-                    xbs_messages.addDebugMessage("% removal not needed, device not present in NAT IP pool.  " + srcMAC);
+                    xbs_messages.addDebugMessage("% removal not needed, device not present in NAT IP pool.  " + srcMAC, xbs_message_sender.NAT);
 #endif
                     return;
                 }
 #if DEBUG
-                xbs_messages.addDebugMessage("% removing device "+srcMAC+" from NAT list, freeing NAT IP "+nat_entry.natted_source_ip);
+                xbs_messages.addDebugMessage("% removing device " + srcMAC + " from NAT list, freeing NAT IP " + nat_entry.natted_source_ip, xbs_message_sender.NAT);
 #endif
                 NAT_list.Remove(srcMAC);
                 ip_pool.freeIP(nat_entry);
@@ -569,7 +569,7 @@ namespace XBSlink
             if (index_of_hostaddr < 0)
             {
 #if DEBUG
-                xbs_messages.addDebugMessage("!! % PS3_replaceInfoResponse_hostAddr could not find index_of_hostaddr in Packet");
+                xbs_messages.addDebugMessage("!! % PS3_replaceInfoResponse_hostAddr could not find index_of_hostaddr in Packet", xbs_message_sender.NAT, xbs_message_type.WARNING);
 #endif
                 return;
             }
@@ -582,7 +582,7 @@ namespace XBSlink
             catch (Exception e)
             {
 #if DEBUG
-                xbs_messages.addDebugMessage("!! % PS3_replaceInfoResponse_hostAddr could not convert hostaddr_entry_string in Packet : " + e.ToString());
+                xbs_messages.addDebugMessage("!! % PS3_replaceInfoResponse_hostAddr could not convert hostaddr_entry_string in Packet : " + e.ToString(), xbs_message_sender.NAT, xbs_message_type.ERROR);
 #endif                
                 return;
             }
@@ -597,12 +597,12 @@ namespace XBSlink
             Buffer.BlockCopy(natted_ip_bytes, 0, hostaddr_all_bytes, 0, 4);
             String hostaddr_new_base64 = Convert.ToBase64String(hostaddr_all_bytes);
 #if DEBUG
-            xbs_messages.addDebugMessage("% PS3_replaceInfoResponse_hostAddr hostAddr : " + hostaddr_ip + "|" + hostaddr_base64 + " => " + natted_ip + "|" + hostaddr_new_base64);
+            xbs_messages.addDebugMessage("% PS3_replaceInfoResponse_hostAddr hostAddr : " + hostaddr_ip + "|" + hostaddr_base64 + " => " + natted_ip + "|" + hostaddr_new_base64, xbs_message_sender.NAT);
 #endif
             if (hostaddr_new_base64.Length != hostaddr_base64.Length)
             {
 #if DEBUG
-                xbs_messages.addDebugMessage(String.Format("!! % PS3_replaceInfoResponse_hostAddr hostaddr_new_base64 is to BIG! : {0} => {1}", hostaddr_base64.Length, hostaddr_new_base64.Length));
+                xbs_messages.addDebugMessage(String.Format("!! % PS3_replaceInfoResponse_hostAddr hostaddr_new_base64 is to BIG! : {0} => {1}", hostaddr_base64.Length, hostaddr_new_base64.Length), xbs_message_sender.NAT, xbs_message_type.ERROR);
 #endif                
                 return;
             }
@@ -610,7 +610,7 @@ namespace XBSlink
             if (hostaddr_new_base64_bytes.Length > hostaddr_base64_byte_count)
             {
 #if DEBUG
-                xbs_messages.addDebugMessage(String.Format("!! % PS3_replaceInfoResponse_hostAddr hostaddr_new_base64_bytes is to BIG! : {0}", hostaddr_new_base64_bytes.Length));
+                xbs_messages.addDebugMessage(String.Format("!! % PS3_replaceInfoResponse_hostAddr hostaddr_new_base64_bytes is to BIG! : {0}", hostaddr_new_base64_bytes.Length), xbs_message_sender.NAT, xbs_message_type.ERROR);
 #endif
                 return;
             }

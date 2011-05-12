@@ -6,14 +6,26 @@ using System.Threading;
 
 namespace XBSlink
 {
-    /*
+    enum xbs_message_sender : byte
+    {
+        GENERAL                         = 0x00,
+        SNIFFER                         = 0x01,
+        UDP_LISTENER                    = 0x02,
+        UPNP                            = 0x03,
+        COMMANDLINE_MESSAGE_DISCPATCHER = 0x04,
+        CLOUDLIST                       = 0x05,
+        NAT                             = 0x06,
+        NODE                            = 0x07,
+        NODELIST                        = 0x08,
+    }
+
     enum xbs_message_type : byte
     {
-        GENERAL = 0x00,
-        SNIFFER = 0x01,
-        UDP_LISTENER = 0x02
+        GENERAL         = 0x00,
+        WARNING         = 0x01,
+        ERROR           = 0x02,
+        FATAL_ERROR     = 0x03,
     }
-    */
 
     class xbs_message
     {
@@ -21,17 +33,20 @@ namespace XBSlink
         public String text;
         public String ThreadName = Thread.CurrentThread.Name;
         public int ThreadID = Thread.CurrentThread.ManagedThreadId;
+        public xbs_message_type type;
+        public xbs_message_sender sender;
 
-        public xbs_message(String txt, DateTime time)
+        public xbs_message(String txt, DateTime time, xbs_message_sender msg_sender, xbs_message_type msg_type)
         {
             time_added = time;
             text = txt;
+            type = msg_type;
+            sender = msg_sender;
         }
 
-        public xbs_message(String txt)
+        public xbs_message( String txt, xbs_message_sender sender, xbs_message_type type)
+            : this( txt, DateTime.Now, sender, type )
         {
-            time_added = DateTime.Now;
-            text = txt;
         }
 
         public override string ToString()
@@ -52,26 +67,34 @@ namespace XBSlink
         private static Queue<xbs_message> chat_messages = new Queue<xbs_message>();
         private static Queue<xbs_message> debug_messages = new Queue<xbs_message>();
 
-        private static void addMessage(String msg, Queue<xbs_message> queue)
+        private static void addMessage(String msg, Queue<xbs_message> queue, xbs_message_sender sender, xbs_message_type type)
         {
             lock (queue)
-                queue.Enqueue(new xbs_message(msg));
+                queue.Enqueue(new xbs_message(msg, sender, type));
         }
-        public static void addInfoMessage(String msg)
+        public static void addInfoMessage(String msg, xbs_message_sender sender)
         {
-            addMessage(msg, messages);
+            addInfoMessage(msg, sender, xbs_message_type.GENERAL);
+        }
+        public static void addInfoMessage(String msg, xbs_message_sender sender, xbs_message_type type)
+        {
+            addMessage(msg, messages, sender, type);
 #if DEBUG
-            addDebugMessage(msg);
+            addDebugMessage(msg, sender, type);
 #endif
         }
         public static void addChatMessage(String msg)
         {
-            addMessage(msg, chat_messages);
+            addMessage(msg, chat_messages, xbs_message_sender.GENERAL, xbs_message_type.GENERAL);
         }
-        public static void addDebugMessage(String msg)
+        public static void addDebugMessage(String msg, xbs_message_sender sender)
+        {
+            addDebugMessage(msg, sender, xbs_message_type.GENERAL);
+        }
+        public static void addDebugMessage(String msg, xbs_message_sender sender, xbs_message_type type)
         {
 #if DEBUG
-            addMessage(msg, debug_messages);
+            addMessage(msg, debug_messages, sender, type);
 #endif
         }
 

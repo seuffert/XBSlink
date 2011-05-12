@@ -80,6 +80,13 @@ namespace XBSlink.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap error_16 {
+            get {
+                object obj = ResourceManager.GetObject("error_16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap error_50 {
             get {
                 object obj = ResourceManager.GetObject("error_50", resourceCulture);
@@ -139,6 +146,13 @@ namespace XBSlink.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap ok_16 {
+            get {
+                object obj = ResourceManager.GetObject("ok_16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die http://www.secudb.de/~seuffert/xbslink/latest_xbslink_version ähnelt.
         /// </summary>
@@ -172,6 +186,13 @@ namespace XBSlink.Properties {
         internal static string url_xbslink_website {
             get {
                 return ResourceManager.GetString("url_xbslink_website", resourceCulture);
+            }
+        }
+        
+        internal static System.Drawing.Bitmap warning_16 {
+            get {
+                object obj = ResourceManager.GetObject("warning_16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         

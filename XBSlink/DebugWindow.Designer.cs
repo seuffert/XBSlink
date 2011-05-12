@@ -105,6 +105,6 @@ namespace XBSlink
 
         private System.Windows.Forms.Button button_clear;
         private System.Windows.Forms.Timer timer1;
-        public System.Windows.Forms.ListBox listBox_messages;
+        public DebugWindowListBox listBox_messages;
     }
 }
