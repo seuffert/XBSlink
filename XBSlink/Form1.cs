@@ -1005,20 +1005,23 @@ namespace XBSlink
             else if (warning_message && toolStripStatusLabel_icon.Image!=Resources.error_16)
                 toolStripStatusLabel_icon.Image = Resources.warning_16;
 
-            if (fatal_error_message && notify_icon_fatalerror_message_shown == false)
+            if (notify_icon != null)
             {
-                notify_icon_fatalerror_message_shown = true;
-                notify_icon.ShowBalloonTip(10000, "XBSlink fatal error", Resources.notifyicon_fatal_error_message, ToolTipIcon.Error);
-            }
-            else if (error_message && notify_icon_error_message_shown == false && notify_icon_fatalerror_message_shown == false)
-            {
-                notify_icon_error_message_shown = true;
-                notify_icon.ShowBalloonTip(10000, "XBSlink error", Resources.notifyicon_error_message, ToolTipIcon.Error);
-            }
-            else if (warning_message && notify_icon_warning_message_shown == false && notify_icon_error_message_shown == false && notify_icon_fatalerror_message_shown == false)
-            {
-                notify_icon_warning_message_shown = true;
-                notify_icon.ShowBalloonTip(10000, "XBSlink warning", Resources.notifyicon_warning_message, ToolTipIcon.Warning);
+                if (fatal_error_message && notify_icon_fatalerror_message_shown == false)
+                {
+                    notify_icon_fatalerror_message_shown = true;
+                    notify_icon.ShowBalloonTip(10000, "XBSlink fatal error", Resources.notifyicon_fatal_error_message, ToolTipIcon.Error);
+                }
+                else if (error_message && notify_icon_error_message_shown == false && notify_icon_fatalerror_message_shown == false)
+                {
+                    notify_icon_error_message_shown = true;
+                    notify_icon.ShowBalloonTip(10000, "XBSlink error", Resources.notifyicon_error_message, ToolTipIcon.Error);
+                }
+                else if (warning_message && notify_icon_warning_message_shown == false && notify_icon_error_message_shown == false && notify_icon_fatalerror_message_shown == false)
+                {
+                    notify_icon_warning_message_shown = true;
+                    notify_icon.ShowBalloonTip(10000, "XBSlink warning", Resources.notifyicon_warning_message, ToolTipIcon.Warning);
+                }
             }
 
             added_messages = false;
