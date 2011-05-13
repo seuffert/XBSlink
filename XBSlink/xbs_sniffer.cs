@@ -454,7 +454,7 @@ namespace XBSlink
             }
             catch (PcapException)
             {
-                xbs_messages.addInfoMessage("!! - ERROR setting pdev filter, using fallback - please inform developer.", xbs_message_sender.SNIFFER, xbs_message_type.FATAL_ERROR);
+                xbs_messages.addInfoMessage("!! - ERROR setting pdev filter, using fallback - please inform developer. pdev_filter: "+f, xbs_message_sender.SNIFFER, xbs_message_type.FATAL_ERROR);
                 pdev.Filter = pdev_filter_fallback;
             }
         }
