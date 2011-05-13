@@ -328,7 +328,11 @@ namespace XBSlink
                 {
                     UdpPacket p_UDP = (UdpPacket)p_IPV4.PayloadPacket;
                     if (NAT_enablePS3mode)
-                        PS3_replaceInfoResponse_hostAddr(dstMAC, ref p_UDP, nat_entry.natted_source_ip);
+                    {
+                        bool ret = PS3_replaceInfoResponse_hostAddr(dstMAC, ref p_UDP, nat_entry.natted_source_ip);
+                        if (!ret)
+                            ret = PS3_replaceClientAnswer_hostAddr(dstMAC, ref p_UDP, nat_entry.natted_source_ip, nat_entry.original_source_ip);
+                    }
                     p_UDP.UpdateUDPChecksum();
                 }
                 else if (p_IPV4.Protocol == IPProtocolType.TCP)
@@ -412,7 +416,12 @@ namespace XBSlink
                     p_IPV4.UpdateIPChecksum();
                     if (p_IPV4.Protocol == IPProtocolType.UDP)
                     {
-                        ((UdpPacket)p_IPV4.PayloadPacket).UpdateUDPChecksum();
+                        UdpPacket p_UDP = (UdpPacket)p_IPV4.PayloadPacket;
+                        if (NAT_enablePS3mode)
+                        {
+                            bool ret = PS3_replaceClientAnswer_hostAddr(dstMAC, ref p_UDP, nat_entry.original_source_ip, nat_entry.natted_source_ip);
+                        }
+                        p_UDP.UpdateUDPChecksum();
                         packet_changed = true;
                     }
                     else if (p_IPV4.Protocol == IPProtocolType.TCP)
@@ -560,12 +569,12 @@ namespace XBSlink
             return (ushort)(x >> 16);
         }
 
-        private void PS3_replaceInfoResponse_hostAddr(PhysicalAddress dstMAC, ref UdpPacket udp_packet, IPAddress natted_ip)
+        private bool PS3_replaceInfoResponse_hostAddr(PhysicalAddress dstMAC, ref UdpPacket udp_packet, IPAddress natted_ip)
         {
             byte[] data = udp_packet.PayloadData;
             // infoResponse packets are on port 3075 send to broadcast
             if (udp_packet.DestinationPort != 3075 || data.Length < 100)
-                return;
+                return false;
 
             System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
             String hostaddr_string = "\\hostaddr\\";
@@ -579,7 +588,7 @@ namespace XBSlink
 #if DEBUG
                 xbs_messages.addDebugMessage("!! % PS3_replaceInfoResponse_hostAddr could not find index_of_hostaddr in Packet", xbs_message_sender.NAT, xbs_message_type.WARNING);
 #endif
-                return;
+                return false;
             }
             index_of_hostaddr += hostaddr_string_bytearray.Length;
 
@@ -592,7 +601,7 @@ namespace XBSlink
 #if DEBUG
                 xbs_messages.addDebugMessage("!! % PS3_replaceInfoResponse_hostAddr could not convert hostaddr_entry_string in Packet : " + e.ToString(), xbs_message_sender.NAT, xbs_message_type.ERROR);
 #endif                
-                return;
+                return false;
             }
 
             byte[] hostaddr_all_bytes = Convert.FromBase64String(hostaddr_base64);
@@ -612,7 +621,7 @@ namespace XBSlink
 #if DEBUG
                 xbs_messages.addDebugMessage(String.Format("!! % PS3_replaceInfoResponse_hostAddr hostaddr_new_base64 is to BIG! : {0} => {1}", hostaddr_base64.Length, hostaddr_new_base64.Length), xbs_message_sender.NAT, xbs_message_type.ERROR);
 #endif                
-                return;
+                return false;
             }
             byte[] hostaddr_new_base64_bytes = enc.GetBytes(hostaddr_new_base64);
             if (hostaddr_new_base64_bytes.Length > hostaddr_base64_byte_count)
@@ -620,18 +629,19 @@ namespace XBSlink
 #if DEBUG
                 xbs_messages.addDebugMessage(String.Format("!! % PS3_replaceInfoResponse_hostAddr hostaddr_new_base64_bytes is to BIG! : {0}", hostaddr_new_base64_bytes.Length), xbs_message_sender.NAT, xbs_message_type.ERROR);
 #endif
-                return;
+                return false;
             }
             Buffer.BlockCopy(hostaddr_new_base64_bytes, 0, data, index_of_hostaddr, hostaddr_new_base64_bytes.Length);
             UInt16 checksum = calc_ps3_packet_checksum_faster(ref data, 2);
             EndianBitConverter.Big.CopyBytes(checksum, data, data.Length - 2);
             udp_packet.PayloadData = data;
+            return true;
         }
 
         private int findIndexOfArrayInArray( ref byte[] haystack, ref byte[] needle)
         {
 
-            for (int i = 0; i < haystack.Length-needle.Length; i++)
+            for (int i = 0; i <= haystack.Length-needle.Length; i++)
                 if (findIndexOfArrayInArray_isMatch(ref haystack, i, ref needle))
                     return i;
             return -1;
@@ -658,5 +668,30 @@ namespace XBSlink
             return (UInt16)((checksum != 0) ? ~checksum : checksum);
         }
 
+        private bool PS3_replaceClientAnswer_hostAddr(PhysicalAddress dstMAC, ref UdpPacket udp_packet, IPAddress ip_replacement, IPAddress ip_inpacket)
+        {
+            byte[] data = udp_packet.PayloadData;
+            byte[] ip_inpacket__bytes = ip_inpacket.GetAddressBytes();
+            int index = data.Length-6;
+            bool ret = findIndexOfArrayInArray_isMatch(ref data, index, ref ip_inpacket__bytes);
+            if (!ret)
+            {
+                index = index - 6;
+                ret = findIndexOfArrayInArray_isMatch(ref data, index, ref ip_inpacket__bytes);
+                /*
+                if (ret)
+                {
+                    byte[] b = new byte[4] { 0xb0, 0x32, 0x80, 0x44 };
+                    Buffer.BlockCopy(b, 0, data, 13, b.Length);
+                }
+                 * */
+            }
+            if (!ret)
+                return false;
+            byte[] ip_replacement_bytes = ip_replacement.GetAddressBytes();
+            Buffer.BlockCopy(ip_replacement_bytes, 0, data, index, ip_replacement_bytes.Length);
+            udp_packet.PayloadData = data;
+            return true;
+        }
     }
 }
