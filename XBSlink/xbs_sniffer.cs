@@ -73,7 +73,7 @@ namespace XBSlink
         private xbs_node_list node_list = null;
         private xbs_nat NAT = null;
 
-        public xbs_sniffer(SharpPcap.LibPcap.LibPcapLiveDevice dev, bool use_special_mac_filter, List<PhysicalAddress> filter_special_macs, bool only_forward_special_macs, xbs_node_list node_list, xbs_nat NAT, GatewayIPAddressInformationCollection gateways, bool exclude_gateway_ips)
+        public xbs_sniffer(ICaptureDevice dev, bool use_special_mac_filter, List<PhysicalAddress> filter_special_macs, bool only_forward_special_macs, xbs_node_list node_list, xbs_nat NAT, GatewayIPAddressInformationCollection gateways, bool exclude_gateway_ips)
         {
             this.NAT = NAT;
             this.pdev_filter_use_special_macs = use_special_mac_filter;
@@ -88,7 +88,9 @@ namespace XBSlink
 
             this.node_list = node_list;
 
-            this.pdev = dev;
+            if (!(dev is SharpPcap.LibPcap.LibPcapLiveDevice))
+                throw new ArgumentException("pcap caputure device is not a LibPcapLiveDevice");
+            this.pdev = (SharpPcap.LibPcap.LibPcapLiveDevice)dev;
             pdev.OnPacketArrival +=
                 new PacketArrivalEventHandler(OnPacketArrival);
             pdev.Open(DeviceMode.Promiscuous, readTimeoutMilliseconds);

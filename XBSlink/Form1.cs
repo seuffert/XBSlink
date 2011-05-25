@@ -92,6 +92,8 @@ namespace XBSlink
         private DateTime last_resizeCloudListHeader = DateTime.Now;
         private DateTime last_resizeNodeListHeader = DateTime.Now;
 
+        SharpPcap.CaptureDeviceList pcap_devices = null;
+
         private Dictionary<IPAddress, GatewayIPAddressInformationCollection> network_device_gateways = new Dictionary<IPAddress, GatewayIPAddressInformationCollection>();
         
         public FormMain()
@@ -188,19 +190,21 @@ namespace XBSlink
         private bool initializeCaptureDeviceList()
         {
             DialogResult res = DialogResult.No;
-            LibPcapLiveDeviceList devices = LibPcapLiveDeviceList.Instance;
-            if (devices.Count < 1 && System.Environment.OSVersion.Platform==PlatformID.Win32NT)
+            pcap_devices = CaptureDeviceList.Instance;
+            if (pcap_devices.Count < 1 && System.Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
                 res = MessageBox.Show(Resources.message_no_capture_devices_startNPF, "XBSlink error", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
                 if (res == DialogResult.Yes)
                 {
                     startNPFdriver();
-                    devices = LibPcapLiveDeviceList.New();
+                    pcap_devices = CaptureDeviceList.New();
                 }
             }
 
-            foreach (LibPcapLiveDevice dev in devices)
+            foreach (LibPcapLiveDevice dev in pcap_devices)
+            {
                 comboBox_captureDevice.Items.Add(dev.Interface.FriendlyName + " (" + dev.Interface.Description + ")");
+            }
 
             if (comboBox_captureDevice.Items.Count > 0)
                 comboBox_captureDevice.SelectedIndex = 0;
@@ -342,23 +346,8 @@ namespace XBSlink
         {
             if (ExceptionMessage.ABORTING)
                 return;
-            LibPcapLiveDeviceList devices;
-            LibPcapLiveDevice pdev;
-            SharpPcap.WinPcap.WinPcapDeviceList devices_win;
-            SharpPcap.WinPcap.WinPcapDevice pdev_win;
-            try
-            {
-                devices = LibPcapLiveDeviceList.Instance;
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("XBSlink failed to get the list of available network adapters."
-                    + Environment.NewLine
-                    +"Does your user have enough system rights? Is the pcap library installed?","XBSlink error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Close();
-                return;
-            }
-            if (devices.Count == 0)
+            ICaptureDevice pdev;
+            if (pcap_devices.Count == 0)
             {
                 MessageBox.Show("XBSlink did not find any available network adapters in your system."
                     + Environment.NewLine
@@ -368,19 +357,7 @@ namespace XBSlink
             }
 
             try {
-                pdev = devices[comboBox_captureDevice.SelectedIndex];
-                if (System.Environment.OSVersion.Platform == PlatformID.Win32NT)
-                {
-                    devices_win = SharpPcap.WinPcap.WinPcapDeviceList.Instance;
-                    for (int i = 0; i < devices_win.Count; i++)
-                    {
-                        pdev_win = devices_win[i];
-                        if (pdev_win.Name.Contains(pdev.Name))
-                            pdev = pdev_win;
-                    }
-
-                }
-
+                pdev = pcap_devices[comboBox_captureDevice.SelectedIndex];
             } 
             catch (Exception)
             {
@@ -424,9 +401,19 @@ namespace XBSlink
             IPAddress local_node_ip = (external_ip == null) ? internal_ip : external_ip;
             node_list.local_node = new xbs_node(local_node_ip, udp_listener.udp_socket_port);
             node_list.local_node.nickname = textBox_chatNickname.Text;
-
-            sniffer = new xbs_sniffer(pdev, checkBox_enable_MAC_list.Checked, generateSnifferMacList(), checkBox_mac_restriction.Checked, node_list, NAT, network_device_gateways[internal_ip], checkBox_excludeGatewayIPs.Checked);
-            sniffer.start_capture();
+            try
+            {
+                sniffer = new xbs_sniffer((LibPcapLiveDevice)pdev, checkBox_enable_MAC_list.Checked, generateSnifferMacList(), checkBox_mac_restriction.Checked, node_list, NAT, network_device_gateways[internal_ip], checkBox_excludeGatewayIPs.Checked);
+                sniffer.start_capture();
+            }
+            catch (ArgumentException aex)
+            {
+                xbs_messages.addInfoMessage("!! starting Packet sniffer failed: "+aex.Message, xbs_message_sender.GENERAL, xbs_message_type.ERROR);
+                abort_start_engine = true;
+                udp_listener = null;
+                sniffer = null;
+                return;
+            }
 
             if (ExceptionMessage.ABORTING)
                 return;
@@ -1478,7 +1465,7 @@ namespace XBSlink
         private void checkBox_nat_enable_CheckedChanged(object sender, EventArgs e)
         {
             NAT.NAT_enabled = checkBox_nat_enable.Checked;
-            checkBox_NAT_enablePS3mode.Enabled = NAT.NAT_enabled;
+            //checkBox_NAT_enablePS3mode.Enabled = NAT.NAT_enabled;
         }
 
         private void button_nat_add_iprange_Click(object sender, EventArgs e)
@@ -1589,7 +1576,9 @@ namespace XBSlink
 
         private void checkBox_NAT_enablePS3mode_CheckedChanged(object sender, EventArgs e)
         {
-            NAT.NAT_enablePS3mode = checkBox_NAT_enablePS3mode.Checked;
+            if (checkBox_NAT_enablePS3mode.Checked)
+                checkBox_NAT_enablePS3mode.Checked = false;
+            //NAT.NAT_enablePS3mode = checkBox_NAT_enablePS3mode.Checked;
         }
 
         private void checkBox_excludeGatewayIPs_CheckedChanged(object sender, EventArgs e)

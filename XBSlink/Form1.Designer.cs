@@ -1252,9 +1252,9 @@ namespace XBSlink
             this.checkBox_NAT_enablePS3mode.Enabled = false;
             this.checkBox_NAT_enablePS3mode.Location = new System.Drawing.Point(6, 42);
             this.checkBox_NAT_enablePS3mode.Name = "checkBox_NAT_enablePS3mode";
-            this.checkBox_NAT_enablePS3mode.Size = new System.Drawing.Size(168, 17);
+            this.checkBox_NAT_enablePS3mode.Size = new System.Drawing.Size(238, 17);
             this.checkBox_NAT_enablePS3mode.TabIndex = 4;
-            this.checkBox_NAT_enablePS3mode.Text = "enable PS3 compatibilty mode";
+            this.checkBox_NAT_enablePS3mode.Text = "enable PS3 compatibilty mode (not ready yet)";
             this.checkBox_NAT_enablePS3mode.UseVisualStyleBackColor = true;
             this.checkBox_NAT_enablePS3mode.CheckedChanged += new System.EventHandler(this.checkBox_NAT_enablePS3mode_CheckedChanged);
             // 
