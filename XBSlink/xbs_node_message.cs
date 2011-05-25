@@ -61,10 +61,14 @@ namespace XBSlink
             return (xbs_node_message_type)bytes[0];
         }
 
+        public uint getMessageByteArraySize()
+        {
+            return (data == null) ? 1 : (uint)(sizeof(xbs_node_message_type) + sizeof(UInt16) + data.Length);
+        }
+
         public byte[] getByteArray()
         {
-            byte[] ret;
-            ret = (data==null) ? new byte[1] : new byte[sizeof(xbs_node_message_type) + sizeof(UInt16) + data.Length];
+            byte[] ret = new byte[getMessageByteArraySize()];
             ret[0] = (byte)type;
             if (ret.Length > 1)
             {

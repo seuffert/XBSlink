@@ -83,6 +83,7 @@
       <HintPath>..\PacketDotNet\Libraries\log4net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
@@ -99,9 +100,11 @@
       <DependentUpon>ExceptionMessage.cs</DependentUpon>
     </Compile>
     <Compile Include="Options.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="xbs_cloudlist.cs" />
     <Compile Include="xbs_chat.cs" />
     <Compile Include="xbs_messages.cs" />
+    <Compile Include="xbs_nat.cs" />
     <Compile Include="xbs_natstun.cs" />
     <Compile Include="xbs_settings.cs" />
     <Compile Include="DebugWindow.cs">
@@ -153,6 +156,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="XBSlink.exe.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Mono.Nat\Mono.Nat.csproj">
@@ -166,10 +172,6 @@
     <ProjectReference Include="..\SharpPcap\SharpPcap.csproj">
       <Project>{24262E52-1304-4A25-8F73-A3B06E40592E}</Project>
       <Name>SharpPcap</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\stunlib\stunlib.csproj">
-      <Project>{7AB36CCF-5FFD-4780-A54E-A102ECA028B5}</Project>
-      <Name>stunlib</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -203,12 +205,15 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="error_50.png" />
+    <Content Include="error_16.png" />
+    <Content Include="ok_16.png" />
     <Content Include="sounds\node_left.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="SharpPcap.dll.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Content Include="warning_16.png" />
     <Content Include="XBSlink.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -87,7 +87,7 @@ namespace XBSlink
                         return;
                 node_list.Add(node);
             }
-            xbs_messages.addInfoMessage(" + Added new node: " + node);
+            xbs_messages.addInfoMessage(" + Added new node: " + node, xbs_message_sender.NODELIST);
             node.sendGetClientVersion();
             node.sendPing();
             node.sendGetNickname();
@@ -122,7 +122,7 @@ namespace XBSlink
                 foreach (xbs_node n in node_list)
                     if (n.Equals(node))
                     {
-                        xbs_messages.addInfoMessage(" + removed node " + n);
+                        xbs_messages.addInfoMessage(" + removed node " + n, xbs_message_sender.NODELIST);
                         deleted_node = n;
                         node_list.Remove(n);
                         if (notify_on_new_node)
@@ -141,6 +141,9 @@ namespace XBSlink
                         break;
                     }
             }
+            if (node.get_xbox_count() > 0)
+                foreach (xbs_xbox xbox in node.getXboxArray())
+                    xbs_nat.getInstance().informOfRemovedDevice(xbox.mac);
         }
 
         public xbs_node delNode(IPAddress ip, UInt16 port)
@@ -170,6 +173,17 @@ namespace XBSlink
             return null;
         }
 
+        public xbs_node findNode(PhysicalAddress mac)
+        {
+            lock (this)
+            {
+                foreach (xbs_node n in node_list)
+                    if (n.has_xbox(mac))
+                        return n;
+            }
+            return null;
+        }
+
         public xbs_node findNodeInAddingList(IPAddress ip, int port)
         {
             lock (node_list_adding)
@@ -184,7 +198,7 @@ namespace XBSlink
         public void sendNodeListToNode(xbs_node new_node)
         {
 #if DEBUG
-            xbs_messages.addInfoMessage(" + sending Nodelist to " + new_node);
+            xbs_messages.addInfoMessage(" + sending Nodelist to " + new_node, xbs_message_sender.NODELIST);
 #endif
             lock (this)
             {
@@ -196,7 +210,7 @@ namespace XBSlink
 
         public void informNodesOnAddNode(xbs_node new_node)
         {
-            xbs_messages.addInfoMessage(" + informing all nodes of new node " + new_node);
+            xbs_messages.addInfoMessage(" + informing all nodes of new node " + new_node, xbs_message_sender.NODELIST);
             lock (this)
             {
                 foreach (xbs_node node in node_list)
@@ -207,7 +221,7 @@ namespace XBSlink
 
         public void informNodesOnDelNode(xbs_node node)
         {
-            xbs_messages.addInfoMessage(" + informing all nodes of removed node " + node);
+            xbs_messages.addInfoMessage(" + informing all nodes of removed node " + node, xbs_message_sender.NODELIST);
             lock (this)
             {
                 foreach (xbs_node n in node_list)
@@ -233,12 +247,11 @@ namespace XBSlink
                 {
                     if (!run_ping_nodes_loop)
                         break;
-                    time_since_last_ping = (int)(now - n.lastPingTime).TotalSeconds;
-                    time_since_last_pong = (int)(now - n.lastPongTime).TotalSeconds;
+                    time_since_last_ping = (int)n.timeSinceLastPing.TotalSeconds;
+                    time_since_last_pong = (int)n.timeSinceLastPong.TotalSeconds;
                     if (time_since_last_ping > xbs_node_list.MIN_PING_DELAY_SECONDS || time_since_last_pong > xbs_node_list.MIN_PING_DELAY_SECONDS)
                     {
                         n.sendPing();
-                        n.lastPingTime = now;
                         if (n.client_version == xbs_node.CLIENT_VERSION_UNKNOWN)
                             n.sendGetClientVersion();
                         if (n.nickname_received == false)
@@ -249,7 +262,7 @@ namespace XBSlink
                 }
                 foreach (xbs_node n in del_list)
                 {
-                    xbs_messages.addInfoMessage(" + removing node "+n+" (ping timeout)");
+                    xbs_messages.addInfoMessage(" + removing node " + n + " (ping timeout)", xbs_message_sender.NODELIST);
                     n.sendDelNodeMessage(local_node);
                     node_list.Remove(n);
                     listHasJustChanged();
@@ -278,7 +291,7 @@ namespace XBSlink
 
         private void ping_nodes_thread()
         {
-            xbs_messages.addInfoMessage(" + starting node survey service");
+            xbs_messages.addInfoMessage(" + starting node survey service", xbs_message_sender.NODELIST);
 #if !DEBUG
             try
             {
@@ -306,6 +319,10 @@ namespace XBSlink
             {
                 lock (node_list)
                 {
+                    foreach (xbs_node node in node_list)
+                        if (node.get_xbox_count() > 0)
+                            foreach (xbs_xbox xbox in node.getXboxArray())
+                                xbs_nat.getInstance().informOfRemovedDevice(xbox.mac);
                     node_list.Clear();
                 }
             }
@@ -317,7 +334,7 @@ namespace XBSlink
             if (findNodeInAddingList(new_node.ip_public, new_node.port_public) != null)
             {
 #if DEBUG
-                xbs_messages.addDebugMessage(" + node already in addingList: "+new_node);
+                xbs_messages.addDebugMessage(" + node already in addingList: " + new_node, xbs_message_sender.NODELIST);
 #endif
                 return;
             }
@@ -329,7 +346,7 @@ namespace XBSlink
         private void purgeAddedNodeFromAddingList(xbs_node new_node)
         {
 #if DEBUG
-            xbs_messages.addInfoMessage("+ trying to purged node from node_list_adding : " + new_node);
+            xbs_messages.addInfoMessage("+ trying to purged node from node_list_adding : " + new_node, xbs_message_sender.NODELIST);
 #endif
             lock (node_list_adding)
             {
@@ -338,7 +355,7 @@ namespace XBSlink
                     {
                         node_list_adding.RemoveAt(i);
 #if DEBUG
-                        xbs_messages.addInfoMessage("+ purged node from node_list_adding : "+new_node);
+                        xbs_messages.addInfoMessage("+ purged node from node_list_adding : " + new_node, xbs_message_sender.NODELIST);
 #endif
                         break;
                     }
@@ -381,7 +398,7 @@ namespace XBSlink
                 cloud_helper = node_list.Count == 0 ? null : node_list[0];
             if (cloud_helper == null)
                 return;
-            xbs_messages.addInfoMessage("+ asking cloud_helper ("+cloud_helper+") for help to add node "+node);
+            xbs_messages.addInfoMessage("+ asking cloud_helper (" + cloud_helper + ") for help to add node " + node, xbs_message_sender.NODELIST);
             cloud_helper.sendToCloudHelper_HelpWithNode(node);
         }
 

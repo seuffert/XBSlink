@@ -164,4 +164,28 @@ For more information see &lt;http://www.secudb.de/~seuffert/xbslink/faq#question
   <data name="url_check_latest_version_mac" xml:space="preserve">
     <value>http://www.secudb.de/~seuffert/xbslink/latest_xbslink_version_mac</value>
   </data>
+  <data name="message_specialmaclist_empty" xml:space="preserve">
+    <value>Please add at least one MAC address to the list.</value>
+  </data>
+  <data name="error_16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\error_16.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="ok_16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\ok_16.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="warning_16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\warning_16.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="notifyicon_error_message" xml:space="preserve">
+    <value>XBSlink encountered at least one non-fatal error!
+Please check the messages.</value>
+  </data>
+  <data name="notifyicon_fatal_error_message" xml:space="preserve">
+    <value>XBSlink encountered at least one fatal error! 
+Please check the messages.</value>
+  </data>
+  <data name="notifyicon_warning_message" xml:space="preserve">
+    <value>XBSlink encountered at least one warning!
+Please check the messages.</value>
+  </data>
 </root>

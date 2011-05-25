@@ -53,6 +53,11 @@ namespace SharpPcap
         /// </summary>
         ICaptureStatistics Statistics { get; }
 
+        /// <summary>
+        /// Mac address of the physical device
+        /// </summary>
+        System.Net.NetworkInformation.PhysicalAddress MacAddress { get; }
+
 #region Dump related
         /// <summary>
         /// Gets a value indicating whether a dump file is already associated with this device
@@ -63,7 +68,7 @@ namespace SharpPcap
         /// Writes a packet to the pcap dump file associated with this device.
         /// </summary>
         /// <param name="p">The packet to write</param>
-        void Dump(PacketDotNet.RawPacket p);
+        void Dump(RawCapture p);
 
         /// <summary>
         /// Opens a file for packet writings
@@ -156,7 +161,7 @@ namespace SharpPcap
         /// Retrieves the next packet from a device
         /// </summary>
         /// <returns></returns>
-        PacketDotNet.RawPacket GetNextPacket();
+        RawCapture GetNextPacket();
 
         /// <summary>
         /// Sends a raw packet throgh this device

@@ -138,7 +138,7 @@ namespace XBSlink
             receive_thread.Priority = ThreadPriority.AboveNormal;
             receive_thread.Start();
 
-            xbs_messages.addInfoMessage(" * initialized udp listener on port " + port);
+            xbs_messages.addInfoMessage(" * initialized udp listener on port " + port, xbs_message_sender.UDP_LISTENER);
             return true;
         }
 
@@ -158,7 +158,7 @@ namespace XBSlink
 
         public void udp_receiver()
         {
-            xbs_messages.addInfoMessage(" * udp receiver thread started");
+            xbs_messages.addInfoMessage(" * udp receiver thread started", xbs_message_sender.UDP_LISTENER);
             byte[] data = new byte[2048];
             byte[] data2 = new byte[2048];
             IPEndPoint remote_endpoint = new IPEndPoint(IPAddress.Any, 0);
@@ -188,7 +188,7 @@ namespace XBSlink
                         {
                             msg.data = new byte[bytes - 3];
                             Buffer.BlockCopy(data, 3, msg.data, 0, bytes - 3);
-                            msg.data_len = (UInt16)(bytes - 3); // TODO: FIXME
+                            msg.data_len = (UInt16)(bytes - 3); // TODO: FIXME?
                         }
                         else
                             msg.data_len = 0;
@@ -196,6 +196,9 @@ namespace XBSlink
                         msg.src_ip = remote_endpoint.Address;
                         msg.src_port = remote_endpoint.Port;
 
+#if DEBUG
+                        //xbs_messages.addDebugMessage(" * added UDP packet size "+msg.data_len+" command "+msg.msg_type);
+#endif
                         lock (_locker)
                         {
                             if (command == xbs_node_message_type.DATA)
@@ -214,6 +217,9 @@ namespace XBSlink
             {
                 ExceptionMessage.ShowExceptionDialog("udp_receiver service", ex);
             }
+#endif
+#if DEBUG
+                xbs_messages.addDebugMessage(" * udp receiver thread stopped", xbs_message_sender.UDP_LISTENER);
 #endif
         }
 
@@ -238,7 +244,7 @@ namespace XBSlink
 
         public void dispatcher()
         {
-            xbs_messages.addInfoMessage(" * udp listener dispatcher thread starting...");
+            xbs_messages.addInfoMessage(" * udp listener dispatcher thread starting...", xbs_message_sender.UDP_LISTENER);
 #if !DEBUG
             try
             {
@@ -260,6 +266,9 @@ namespace XBSlink
             {
                 ExceptionMessage.ShowExceptionDialog("udp dispatcher service", ex);
             }
+#endif
+#if DEBUG
+                xbs_messages.addDebugMessage(" * udp listener dispatcher thread stopped.", xbs_message_sender.UDP_LISTENER);
 #endif
         }
 
@@ -297,7 +306,7 @@ namespace XBSlink
                 }
                 catch (Exception e)
                 {
-                    xbs_messages.addDebugMessage("!! ERROR in UDP dispatch_in_qeue(): "+e.Message);
+                    xbs_messages.addDebugMessage("!! ERROR in UDP dispatch_in_qeue(): " + e.Message, xbs_message_sender.UDP_LISTENER, xbs_message_type.FATAL_ERROR);
                 }
 
                 if (udp_msg != null)
@@ -306,7 +315,7 @@ namespace XBSlink
                     udp_msg = null;
                 }
                 else
-                    xbs_messages.addDebugMessage("!! ERROR in UDP dispatch_in_qeue(): NULL reference in udp_msg ");
+                    xbs_messages.addDebugMessage("!! ERROR in UDP dispatch_in_qeue(): NULL reference in udp_msg ", xbs_message_sender.UDP_LISTENER, xbs_message_type.ERROR);
 
 
                 // only recheck for new packets if all known packets are delivered
@@ -322,133 +331,133 @@ namespace XBSlink
 
         public void dispatch_in_msg(ref xbs_udp_message udp_msg)
         {
-            xbs_node new_node = null;
+            xbs_node tmp_node = null;
+            xbs_node sending_node = node_list.findNode(udp_msg.src_ip, udp_msg.src_port);
 # if DEBUG
-            if (udp_msg.msg_type!=xbs_node_message_type.PING && udp_msg.msg_type!=xbs_node_message_type.PONG)
-                xbs_messages.addDebugMessage(" * IN " + udp_msg.msg_type + " " + udp_msg.src_ip + ":" + udp_msg.src_port);
+            if (udp_msg.msg_type != xbs_node_message_type.PING && udp_msg.msg_type != xbs_node_message_type.PONG)
+            {
+                String str_send_node = (sending_node == null) ? udp_msg.src_ip + ":" + udp_msg.src_port : sending_node.ToString() + " " + sending_node.nickname;
+                xbs_messages.addDebugMessage(" * IN " + udp_msg.msg_type + " " + str_send_node, xbs_message_sender.UDP_LISTENER);
+            }
 # endif
             switch (udp_msg.msg_type)
             {
                 case xbs_node_message_type.DATA:
-                    dispatch_DATA_message(ref udp_msg);
+                    dispatch_DATA_message(ref udp_msg, ref sending_node);
                     break;
 
                 case xbs_node_message_type.ANNOUNCE:
-                    new_node = new xbs_node(udp_msg.src_ip, udp_msg.src_port);
-                    new_node.sendAddNodeMessage(node_list.local_node);
-                    node_list.sendNodeListToNode(new_node);
+                    tmp_node = new xbs_node(udp_msg.src_ip, udp_msg.src_port);
+                    tmp_node.sendAddNodeMessage(node_list.local_node);
+                    node_list.sendNodeListToNode(tmp_node);
                     break;
 
                 case xbs_node_message_type.KNOWNNODE:
                     xbs_node_message_knownnode msg_knownnode = new xbs_node_message_knownnode(udp_msg.data);
-                    new_node = node_list.findNode(msg_knownnode.ip, msg_knownnode.port);
-                    if (new_node == null)
+                    tmp_node = node_list.findNode(msg_knownnode.ip, msg_knownnode.port);
+                    if (tmp_node == null)
                     {
-                        new_node = new xbs_node(msg_knownnode.ip, msg_knownnode.port);
+                        tmp_node = new xbs_node(msg_knownnode.ip, msg_knownnode.port);
 #if DEBUG
-                        xbs_messages.addDebugMessage(" * trying to add known node: " + new_node);
+                        xbs_messages.addDebugMessage(" * trying to add known node: " + tmp_node, xbs_message_sender.UDP_LISTENER);
 #endif
-                        node_list.tryAddingNode(new_node);
+                        node_list.tryAddingNode(tmp_node);
                     }
 #if DEBUG
                     else
-                        xbs_messages.addDebugMessage(" * already in contact with node: " + new_node);
+                        xbs_messages.addDebugMessage(" * already in contact with node: " + tmp_node, xbs_message_sender.UDP_LISTENER);
 #endif
                     break;
 
                 case xbs_node_message_type.ADDNODE:
                     xbs_node_message_addnode msg_addnode = new xbs_node_message_addnode(udp_msg.data);
 # if DEBUG
-                    xbs_messages.addDebugMessage(" * received ADDNODE from " + udp_msg.src_ip + ":" + udp_msg.src_port + " for " + msg_addnode.ip + ":" + msg_addnode.port);
+                    xbs_messages.addDebugMessage(" * received ADDNODE from " + udp_msg.src_ip + ":" + udp_msg.src_port + " for " + msg_addnode.ip + ":" + msg_addnode.port, xbs_message_sender.UDP_LISTENER);
 # endif
-                    new_node = node_list.findNode(udp_msg.src_ip, udp_msg.src_port);
-                    if (new_node == null)
+                    if (sending_node == null)
                     {   // node not known, add to nodelist
-                        new_node = node_list.addNode(msg_addnode.ip, msg_addnode.port, udp_msg.src_ip, udp_msg.src_port);
-                        new_node.sendAddNodeMessage(node_list.local_node);
+                        tmp_node = node_list.addNode(msg_addnode.ip, msg_addnode.port, udp_msg.src_ip, udp_msg.src_port);
+                        tmp_node.sendAddNodeMessage(node_list.local_node);
                     }
                     break;
 
                 case xbs_node_message_type.DELNODE:
                     xbs_node_message_delnode msg_delnode = new xbs_node_message_delnode(udp_msg.data);
 # if DEBUG  
-                    xbs_messages.addDebugMessage(" * received DELNODE from " + udp_msg.src_ip + ":" + udp_msg.src_port + " for " + msg_delnode.ip + ":" + msg_delnode.port);
+                    xbs_messages.addDebugMessage(" * received DELNODE from " + udp_msg.src_ip + ":" + udp_msg.src_port + " for " + msg_delnode.ip + ":" + msg_delnode.port, xbs_message_sender.UDP_LISTENER);
 # endif
                     try
                     {
-                        new_node = node_list.delNode(udp_msg.src_ip, (UInt16)udp_msg.src_port);
+                        tmp_node = node_list.delNode(udp_msg.src_ip, (UInt16)udp_msg.src_port);
                     }
                     catch (Exception ex)
                     {
-                        xbs_messages.addInfoMessage("!! error on deleting node: "+ex.Message);
+                        xbs_messages.addInfoMessage("!! error on deleting node: " + ex.Message, xbs_message_sender.UDP_LISTENER, xbs_message_type.ERROR);
                     }
-                    if (new_node!=null)
-                        xbs_chat.addSystemMessage(new_node.nickname + " left.");
+                    if (tmp_node != null && xbs_chat.message_when_nodes_join_or_leave)
+                        xbs_chat.addSystemMessage(tmp_node.nickname + " left.");
                     break;
 
                 case xbs_node_message_type.PING:
-                    new_node = new xbs_node(udp_msg.src_ip, udp_msg.src_port);
-                    xbs_node_message_pong msg_pong = new xbs_node_message_pong(new_node, udp_msg.data);
-                    send_xbs_node_message(msg_pong);
+                    tmp_node = (sending_node != null) ? sending_node : new xbs_node(udp_msg.src_ip, udp_msg.src_port);
+                    xbs_node_message_pong msg_pong = new xbs_node_message_pong(tmp_node, udp_msg.data);
+                    tmp_node.sendNodeMessage(msg_pong);
                     break;
 
                 case xbs_node_message_type.PONG:
-                    new_node = node_list.findNode(udp_msg.src_ip, (UInt16)udp_msg.src_port);
-                    if (new_node != null)
+                    if (sending_node != null)
                     {
-                        new_node.pong(xbs_node_message_pong.getDelay(udp_msg.data).Milliseconds);
+                        sending_node.pong(xbs_node_message_pong.getDelay(udp_msg.data).Milliseconds);
                         node_list.listHasJustChanged();
                     }
                     break;
 
                 case xbs_node_message_type.GETNODELIST:
-                    new_node = new xbs_node(udp_msg.src_ip, udp_msg.src_port);
-                    node_list.sendNodeListToNode(new_node);
+                    tmp_node = (sending_node != null) ? sending_node : new xbs_node(udp_msg.src_ip, udp_msg.src_port);
+                    node_list.sendNodeListToNode(tmp_node);
                     break;
                 
                 case xbs_node_message_type.GETCLIENTVERSION:
-                    new_node = new xbs_node(udp_msg.src_ip, udp_msg.src_port);
-                    xbs_node_message_clientversion msg_gcv = new xbs_node_message_clientversion(new_node, xbs_settings.xbslink_version);
-                    send_xbs_node_message(msg_gcv);
+                    tmp_node = (sending_node != null) ? sending_node : new xbs_node(udp_msg.src_ip, udp_msg.src_port);
+                    xbs_node_message_clientversion msg_gcv = new xbs_node_message_clientversion(tmp_node, xbs_settings.xbslink_version);
+                    tmp_node.sendNodeMessage(msg_gcv);
                     break;
 
                 case xbs_node_message_type.CLIENTVERSION:
-                    new_node = node_list.findNode(udp_msg.src_ip, (UInt16)udp_msg.src_port);
-                    if (new_node != null)
+                    if (sending_node != null)
                     {
                         xbs_node_message_clientversion msg_cv = new xbs_node_message_clientversion(udp_msg.data);
-                        new_node.client_version = msg_cv.version_string;
+                        sending_node.client_version = msg_cv.version_string;
                         node_list.listHasJustChanged();
                     }
                     break;
                 case xbs_node_message_type.CHATMSG:
-                    new_node = node_list.findNode(udp_msg.src_ip, (UInt16)udp_msg.src_port);
-                    if (new_node != null)
+                    if (sending_node != null)
                     {
                         xbs_node_message_chatmsg msg_chat = new xbs_node_message_chatmsg(udp_msg.data);
-                        xbs_chat.addChatMessage(new_node.nickname, msg_chat.getChatMessage());
+                        xbs_chat.addChatMessage(sending_node.nickname, msg_chat.getChatMessage());
                     }
                     break;
                 case xbs_node_message_type.NICKNAME:
-                    new_node = node_list.findNode(udp_msg.src_ip, (UInt16)udp_msg.src_port);
-                    if (new_node != null)
+                    if (sending_node != null)
                     {
                         xbs_node_message_nickname msg_nick = new xbs_node_message_nickname(udp_msg.data);
-                        new_node.nickname = msg_nick.getNickname();
-                        new_node.nickname_received = true;
+                        sending_node.nickname = msg_nick.getNickname();
+                        sending_node.nickname_received = true;
                         node_list.listHasJustChanged();
-                        xbs_chat.addSystemMessage(new_node.nickname + " joined.");
+                        if ( xbs_chat.message_when_nodes_join_or_leave )
+                            xbs_chat.addSystemMessage(sending_node.nickname + " joined.");
                     }
                     break;
                 case xbs_node_message_type.GETNICKNAME:
-                    new_node = new xbs_node(udp_msg.src_ip, udp_msg.src_port);
-                    xbs_node_message_nickname msg_snick = new xbs_node_message_nickname(new_node, node_list.local_node.nickname);
-                    send_xbs_node_message(msg_snick);
+                    tmp_node = (sending_node!=null) ? sending_node : new xbs_node(udp_msg.src_ip, udp_msg.src_port);
+                    xbs_node_message_nickname msg_snick = new xbs_node_message_nickname(tmp_node, node_list.local_node.nickname);
+                    tmp_node.sendNodeMessage(msg_snick);
                     break;
                 case xbs_node_message_type.SERVERHELLO:
                     lock (_locker_HELLO)
                     {
-                        xbs_natstun.isPortReachable = true;
+                        xbs_upnp.isPortReachable = true;
                         Monitor.PulseAll(_locker_HELLO);
                     }
                     break;
@@ -458,14 +467,18 @@ namespace XBSlink
                     break;
                 case xbs_node_message_type.FROM_CLOUDHELPER_CONTACTNODE:
                     xbs_node_message_fromCloudHelper_ContactNode msg_fromCloudContactNode = new xbs_node_message_fromCloudHelper_ContactNode(udp_msg.data);
-                    new_node = new xbs_node(msg_fromCloudContactNode.ip, msg_fromCloudContactNode.port);
-                    new_node.sendAddNodeMessage(node_list.local_node);
+                    tmp_node = new xbs_node(msg_fromCloudContactNode.ip, msg_fromCloudContactNode.port);
+                    tmp_node.sendAddNodeMessage(node_list.local_node);
                     break;
             }
-        }
 
-        private void dispatch_DATA_message(ref xbs_udp_message udp_msg)
+            if (sending_node != null)
+                sending_node.statistics.receivedPacket((uint)udp_msg.data_len+3);        }
+
+        private void dispatch_DATA_message(ref xbs_udp_message udp_msg, ref xbs_node sending_node)
         {
+            if (xbs_sniffer.getInstance() == null)
+                return;
             byte[] src_mac = new byte[6];
             byte[] dst_mac = new byte[6];
             Buffer.BlockCopy(udp_msg.data, 0, dst_mac, 0, 6);
@@ -473,18 +486,17 @@ namespace XBSlink
             Buffer.BlockCopy(udp_msg.data, 6, src_mac, 0, 6);
             PhysicalAddress srcMAC = new PhysicalAddress(src_mac);
 #if DEBUG
-            xbs_messages.addDebugMessage(" * DATA (" + udp_msg.data.Length + ") from " + srcMAC + " => " + dstMAC);
+            xbs_messages.addDebugMessage(" * DATA (" + udp_msg.data.Length + ") | " + srcMAC + " => " + dstMAC, xbs_message_sender.UDP_LISTENER);
 #endif
             xbs_sniffer.getInstance().injectRemotePacket(ref udp_msg.data, dstMAC, srcMAC);
-            xbs_node node = node_list.findNode(udp_msg.src_ip, (UInt16)udp_msg.src_port);
-            if (node != null)
-                if (node.addXbox(srcMAC))
+            if (sending_node != null)
+                if (sending_node.addXbox(srcMAC))
                     node_list.listHasJustChanged();
         }
 
         public void dispatcher_out()
         {
-            xbs_messages.addInfoMessage(" * udp outgoing dispatcher thread starting...");
+            xbs_messages.addInfoMessage(" * udp outgoing dispatcher thread starting...", xbs_message_sender.UDP_LISTENER);
 #if !DEBUG
             try
             {
@@ -532,7 +544,7 @@ namespace XBSlink
 
 # if DEBUG
                 if (msg.type != xbs_node_message_type.PING && msg.type != xbs_node_message_type.PONG)
-                    xbs_messages.addDebugMessage(" * OUT MSG " + msg.type + " " + msg.receiver);
+                    xbs_messages.addDebugMessage(" * OUT MSG " + msg.type + " " + msg.receiver, xbs_message_sender.UDP_LISTENER);
 # endif
                 xbs_udp_listener_statistics.increasePacketsOut();
                 byte[] bytes = msg.getByteArray();
@@ -543,7 +555,7 @@ namespace XBSlink
                 }
                 catch (SocketException sock_ex)
                 {
-                    xbs_messages.addInfoMessage("!! ERROR in dispatch_out_queue SendTo: "+sock_ex.Message);
+                    xbs_messages.addInfoMessage("!! ERROR in dispatch_out_queue SendTo: " + sock_ex.Message, xbs_message_sender.UDP_LISTENER, xbs_message_type.FATAL_ERROR);
                 }
                 
                 // recheck for new packets

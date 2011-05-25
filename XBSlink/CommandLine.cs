@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Threading;
-
 using SharpPcap;
 using SharpPcap.LibPcap;
 using SharpPcap.WinPcap;
@@ -21,7 +21,8 @@ namespace XBSlink
         public static xbs_udp_listener udp_listener = null;
         public static xbs_sniffer sniffer = null;
         public static xbs_node_list node_list = null;
-        private xbs_natstun natstun = null;
+        public static xbs_nat NAT = null;
+        private xbs_upnp upnp = null;
         private xbs_cloudlist cloudlist = null;
 
         private Thread MessageThread = null;
@@ -45,7 +46,6 @@ namespace XBSlink
         String option_password = null;
         int option_maxnodes = 10;
         bool option_upnp = false;
-        bool option_advanced_broadcast = false;
         int option_local_port = 0;
         IPAddress option_local_ip = null;
         String option_capture_device = null;
@@ -76,7 +76,6 @@ namespace XBSlink
                 { "m|max-nodes=", "maximum clients in cloud. default is 10", (UInt16 v) => option_maxnodes=v },
                 { "w|password=", "set password for cloud", v => option_password=v },
                 { "u|upnp", "use UPnP to forward incoming port", v => option_upnp = v!=null },
-                { "a|advanced-broadcast", "enable advanced forwarding of broadcasts", v => option_advanced_broadcast = v!=null },
                 { "p|port=", "set the incoming port number. default is 31415", (UInt16 v) => option_local_port = v },
                 { "o|source-ip=", "bind to this local ip address.", (String v) => option_local_ip=IPAddress.Parse(v) },
                 { "i|capture-device=", "name of network device for capturing packets", v => option_capture_device = v },
@@ -106,13 +105,13 @@ namespace XBSlink
                 udp_listener.shutdown();
                 udp_listener = null;
             }
-            if (natstun != null)
-                if (natstun.isUPnPavailable())
-                    natstun.upnp_deleteAllPortMappings();
+            if (upnp != null)
+                if (upnp.isUPnPavailable())
+                    upnp.upnp_deleteAllPortMappings();
 
             stop_threads();
 #if DEBUG
-            xbs_messages.addDebugMessage("exiting program.");
+            xbs_messages.addDebugMessage("exiting program.", xbs_message_sender.GENERAL);
 #endif
             output_queued_messages();
 #if DEBUG
@@ -186,45 +185,47 @@ namespace XBSlink
             LibPcapLiveDevice pdev = loadCaptureDevice(option_capture_device);
             if (pdev == null)
             {
-                xbs_messages.addInfoMessage("!! ERROR - could not load capture device with name \"" + option_capture_device + "\"");
+                xbs_messages.addInfoMessage("!! ERROR - could not load capture device with name \"" + option_capture_device + "\"", xbs_message_sender.GENERAL, xbs_message_type.FATAL_ERROR);
                 close_app(-2);
             }
 
+            NAT = new xbs_nat();
             node_list = new xbs_node_list();
             node_list.notify_on_new_node = false;
             if (option_local_port == 0)
                 option_local_port = xbs_udp_listener.standard_port;
+            GatewayIPAddressInformationCollection local_gateways = xbs_console_app.getGatewaysForBindIP(option_local_ip);
             try
             {
                 udp_listener = new xbs_udp_listener(option_local_ip, option_local_port, node_list);
             }
             catch (Exception e)
             {
-                xbs_messages.addInfoMessage("!! ERROR opening UDP port " + option_local_port);
-                xbs_messages.addInfoMessage(e.Message);
+                xbs_messages.addInfoMessage("!! ERROR opening UDP port " + option_local_port, xbs_message_sender.GENERAL, xbs_message_type.FATAL_ERROR);
+                xbs_messages.addInfoMessage(e.Message, xbs_message_sender.GENERAL);
                 close_app(-7);
             }
 
             try
             {
-                if (option_upnp && natstun.isUPnPavailable())
+                if (option_upnp && upnp.isUPnPavailable())
                 {
-                    external_ip = natstun.upnp_getPublicIP();
-                    natstun.upnp_create_mapping(Mono.Nat.Protocol.Udp, udp_listener.udp_socket_port, udp_listener.udp_socket_port);
+                    external_ip = upnp.upnp_getPublicIP();
+                    upnp.upnp_create_mapping(Mono.Nat.Protocol.Udp, udp_listener.udp_socket_port, udp_listener.udp_socket_port);
                 }
             }
             catch (Exception)
             {
-                xbs_messages.addInfoMessage("!! UPnP port mapping failed");
+                xbs_messages.addInfoMessage("!! UPnP port mapping failed", xbs_message_sender.GENERAL, xbs_message_type.ERROR);
             }
             if (external_ip == null)
-                external_ip = xbs_natstun.getExternalIPAddressFromWebsite();                        
+                external_ip = xbs_upnp.getExternalIPAddressFromWebsite();                        
             IPAddress local_node_ip = (external_ip == null) ? option_local_ip : external_ip;
             node_list.local_node = new xbs_node(local_node_ip, udp_listener.udp_socket_port);
             if (option_nickname!=null)
                 node_list.local_node.nickname = option_nickname;
 
-            sniffer = new xbs_sniffer(pdev, option_advanced_broadcast, false, false, node_list);
+            sniffer = new xbs_sniffer(pdev, false, null, false, node_list, NAT, local_gateways, true);
             sniffer.start_capture();
 
             if (ExceptionMessage.ABORTING)
@@ -241,17 +242,17 @@ namespace XBSlink
                 {
                     try
                     {
-                        cloudlist.JoinOrCreateCloud(option_cloudserver, option_cloudname, option_maxnodes.ToString(), option_password, node_list.local_node.ip_public, node_list.local_node.port_public, node_list.local_node.nickname, xbs_natstun.isPortReachable);
+                        cloudlist.JoinOrCreateCloud(option_cloudserver, option_cloudname, option_maxnodes.ToString(), option_password, node_list.local_node.ip_public, node_list.local_node.port_public, node_list.local_node.nickname, xbs_upnp.isPortReachable);
                     }
                     catch (Exception e)
                     {
-                        xbs_messages.addInfoMessage("!! ERROR connection to cloud " + option_cloudname);
-                        xbs_messages.addInfoMessage(e.Message);
+                        xbs_messages.addInfoMessage("!! ERROR connecting to cloud " + option_cloudname, xbs_message_sender.GENERAL, xbs_message_type.ERROR);
+                        xbs_messages.addInfoMessage(e.Message, xbs_message_sender.GENERAL, xbs_message_type.ERROR);
                     }
                 }
                 else
                 {
-                    xbs_messages.addInfoMessage("!! ERROR - cloudname is too short. " + xbs_cloudlist.MIN_CLOUDNAME_LENGTH+" chars minimum");
+                    xbs_messages.addInfoMessage("!! ERROR - cloudname is too short. " + xbs_cloudlist.MIN_CLOUDNAME_LENGTH + " chars minimum", xbs_message_sender.GENERAL, xbs_message_type.ERROR);
                     close_app(-12);
                 }
             }
@@ -305,7 +306,7 @@ namespace XBSlink
         {
             node_list = new xbs_node_list();
             udp_listener = new xbs_udp_listener(node_list);
-            natstun = new xbs_natstun();
+            upnp = new xbs_upnp();
         }
 
         private void list_Devices(String[] args)
@@ -353,7 +354,7 @@ namespace XBSlink
 
         private void message_thread_start()
         {
-            xbs_messages.addDebugMessage(" * message dispatcher thread starting...");
+            xbs_messages.addDebugMessage(" * message dispatcher thread starting...", xbs_message_sender.COMMANDLINE_MESSAGE_DISCPATCHER);
 #if !DEBUG
             try
             {
@@ -409,28 +410,28 @@ namespace XBSlink
             }
             catch (Exception)
             {
-                xbs_messages.addInfoMessage("!! ERRROR getting Pcap capture device list.");
+                xbs_messages.addInfoMessage("!! ERROR while getting Pcap capture device list.", xbs_message_sender.GENERAL, xbs_message_type.FATAL_ERROR);
             }
             return (capture_devices.Count > 0);
         }
 
         private void discover_upnp()
         {
-            natstun = new xbs_natstun();
-            natstun.upnp_startDiscovery();
+            upnp = new xbs_upnp();
+            upnp.upnp_startDiscovery();
             int count = 0;
-            while (!natstun.isUPnPavailable() && count < (80))
+            while (!upnp.isUPnPavailable() && count < (80))
             {
                 Thread.Sleep(250);
                 count++;
             }
-            if (natstun.isUPnPavailable())
-                external_ip = natstun.upnp_getPublicIP();
+            if (upnp.isUPnPavailable())
+                external_ip = upnp.upnp_getPublicIP();
         }
 
         private void handleCancelKeyPress()
         {
-            xbs_messages.addInfoMessage("!! cancel key pressed. closing threads.");
+            xbs_messages.addInfoMessage("!! cancel key pressed. closing threads.", xbs_message_sender.GENERAL, xbs_message_type.WARNING);
             close_app(0);
         }
 
@@ -508,7 +509,7 @@ namespace XBSlink
                     msg = Resources.message_no_capture_devices_startNPF;
                 else
                     msg = Resources.message_no_capture_devices;
-                xbs_messages.addInfoMessage("!! ERROR: " + msg);
+                xbs_messages.addInfoMessage("!! ERROR: " + msg, xbs_message_sender.GENERAL, xbs_message_type.FATAL_ERROR);
                 close_app(-1);
             }
         }
@@ -521,12 +522,30 @@ namespace XBSlink
             {
                 int new_version_found = result.CompareTo(xbs_settings.xbslink_version);
                 if (new_version_found > 0)
-                    xbs_messages.addInfoMessage("A new version of XBSlink is available! (v" + result + ")");
+                    xbs_messages.addInfoMessage("A new version of XBSlink is available! (v" + result + ")", xbs_message_sender.GENERAL);
                 else if (new_version_found < 0)
-                    xbs_messages.addInfoMessage("Latest XBSlink version found: v" + result);
+                    xbs_messages.addInfoMessage("Latest XBSlink version found: v" + result, xbs_message_sender.GENERAL);
                 else
-                    xbs_messages.addInfoMessage("You are using the latest XBSlink version.");
+                    xbs_messages.addInfoMessage("You are using the latest XBSlink version.", xbs_message_sender.GENERAL);
             }
+        }
+
+        public static GatewayIPAddressInformationCollection getGatewaysForBindIP(IPAddress ip)
+        {
+            NetworkInterface[] network_interfaces = NetworkInterface.GetAllNetworkInterfaces();
+            IPInterfaceProperties ip_properties;
+            foreach (NetworkInterface ni in network_interfaces)
+            {
+                ip_properties = ni.GetIPProperties();
+                foreach (UnicastIPAddressInformation uniCast in ip_properties.UnicastAddresses)
+                {
+                    if (uniCast.Address.AddressFamily==AddressFamily.InterNetwork && uniCast.Address.Equals(ip))
+                    {
+                        return ip_properties.GatewayAddresses;
+                    }
+                }
+            }
+            return null;
         }
 
     }

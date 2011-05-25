@@ -32,11 +32,12 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Security.Permissions;
 using System.Threading;
-using Microsoft.Win32;
 using PacketDotNet;
+using PacketDotNet.Utils;
 using SharpPcap;
 using SharpPcap.LibPcap;
 using SharpPcap.WinPcap;
+using MiscUtil.Conversion;
 using XBSlink.Properties;
 
 
@@ -50,6 +51,8 @@ namespace XBSlink
         public static xbs_udp_listener udp_listener = null;
         public static xbs_sniffer sniffer = null;
         public static xbs_node_list node_list = null;
+        public static xbs_nat NAT = null;
+        private xbs_upnp upnp = null;
 
         public DebugWindow debug_window = null;
 
@@ -57,17 +60,17 @@ namespace XBSlink
         public static IPAddress internal_ip = null;
 
         private bool use_UPnP = true;
-        private bool use_STUN = false;
 
         private uint old_sniffer_packet_count = 0;
         private uint old_udp_in_count = 0;
         private uint old_udp_out_count = 0;
 
         private NotifyIcon notify_icon = null;
+        private bool notify_icon_error_message_shown = false;
+        private bool notify_icon_fatalerror_message_shown = false;
+        private bool notify_icon_warning_message_shown = false;
 
         private int form1_width;
-
-        private xbs_natstun natstun = null;
 
         private const int MAX_WAIT_START_ENGINE_SECONDS = 6;
         private DateTime app_start_time;
@@ -83,7 +86,16 @@ namespace XBSlink
 
         private DateTime last_update_check = new DateTime(0);
         private DateTime last_nodelist_update = new DateTime(0);
+        private DateTime last_nat_ippool_update = new DateTime(0);
 
+        private DateTime last_resizeNATIPPoolHeaderHeader = DateTime.Now;
+        private DateTime last_resizeCloudListHeader = DateTime.Now;
+        private DateTime last_resizeNodeListHeader = DateTime.Now;
+
+        SharpPcap.CaptureDeviceList pcap_devices = null;
+
+        private Dictionary<IPAddress, GatewayIPAddressInformationCollection> network_device_gateways = new Dictionary<IPAddress, GatewayIPAddressInformationCollection>();
+        
         public FormMain()
         {
 #if DEBUG
@@ -97,8 +109,12 @@ namespace XBSlink
                 this.MinimumSize = new System.Drawing.Size(this.MaximumSize.Width, this.MinimumSize.Height);
             }
 
+            
             if (!initializeCaptureDeviceList())
-                throw new ApplicationException("no capture devices found");
+            {
+                //throw new ApplicationException("no capture devices found");
+            }
+
             app_start_time = DateTime.Now;
         }
 
@@ -117,7 +133,8 @@ namespace XBSlink
 
             node_list = new xbs_node_list();
             cloudlist = new xbs_cloudlist();
-            natstun = new xbs_natstun();
+            upnp = new xbs_upnp();
+            NAT = new xbs_nat();
 
             initializeCloudListView();
 
@@ -140,10 +157,12 @@ namespace XBSlink
         private void ShowVersionInfoMessages()
         {
             this.Text += " - Version " + xbs_settings.xbslink_version;
+            xbs_messages.addInfoMessage("using pcap lib version : " + SharpPcap.Pcap.Version, xbs_message_sender.GENERAL);
 #if DEBUG
-            xbs_messages.addInfoMessage("using PacketDotNet version " + System.Reflection.Assembly.GetAssembly(typeof(PacketDotNet.IpPacket)).GetName().Version.ToString());
-            xbs_messages.addInfoMessage("using SharpPcap version " + SharpPcap.Version.VersionString);
-            xbs_messages.addInfoMessage("using Mono.NAT version " + System.Reflection.Assembly.GetAssembly(typeof(Mono.Nat.NatUtility)).GetName().Version.ToString());
+            xbs_messages.addInfoMessage(".NET version : " + Environment.Version.ToString(), xbs_message_sender.GENERAL);
+            xbs_messages.addInfoMessage("using PacketDotNet version " + System.Reflection.Assembly.GetAssembly(typeof(PacketDotNet.IpPacket)).GetName().Version.ToString(), xbs_message_sender.GENERAL);
+            xbs_messages.addInfoMessage("using SharpPcap version " + SharpPcap.Version.VersionString, xbs_message_sender.GENERAL);
+            xbs_messages.addInfoMessage("using Mono.NAT version " + System.Reflection.Assembly.GetAssembly(typeof(Mono.Nat.NatUtility)).GetName().Version.ToString(), xbs_message_sender.GENERAL);
 #endif
         }
 
@@ -171,19 +190,22 @@ namespace XBSlink
         private bool initializeCaptureDeviceList()
         {
             DialogResult res = DialogResult.No;
-            LibPcapLiveDeviceList devices = LibPcapLiveDeviceList.Instance;
-            if (devices.Count < 1 && System.Environment.OSVersion.Platform==PlatformID.Win32NT)
+            pcap_devices = CaptureDeviceList.Instance;
+            if (pcap_devices.Count < 1 && System.Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
                 res = MessageBox.Show(Resources.message_no_capture_devices_startNPF, "XBSlink error", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
                 if (res == DialogResult.Yes)
                 {
                     startNPFdriver();
-                    devices = LibPcapLiveDeviceList.New();
+                    pcap_devices = CaptureDeviceList.New();
                 }
             }
 
-            foreach (LibPcapLiveDevice dev in devices)
+            foreach (LibPcapLiveDevice dev in pcap_devices)
+            {
                 comboBox_captureDevice.Items.Add(dev.Interface.FriendlyName + " (" + dev.Interface.Description + ")");
+            }
+
             if (comboBox_captureDevice.Items.Count > 0)
                 comboBox_captureDevice.SelectedIndex = 0;
             else
@@ -202,83 +224,107 @@ namespace XBSlink
             NetworkInterface[] network_interfaces = NetworkInterface.GetAllNetworkInterfaces();
             int local_ip_count = 0;
             int preferred_local_ip = -1;
+            IPInterfaceProperties ip_properties;
             foreach (NetworkInterface ni in network_interfaces)
-                foreach (IPAddressInformation uniCast in ni.GetIPProperties().UnicastAddresses)
+            {
+                ip_properties = ni.GetIPProperties();
+                foreach (UnicastIPAddressInformation uniCast in ip_properties.UnicastAddresses)
                     if (!IPAddress.IsLoopback(uniCast.Address) && uniCast.Address.AddressFamily != AddressFamily.InterNetworkV6)
                     {
                         if (uniCast.Address.ToString().Split('.')[0] != "169")
                         {
                             local_ip_count++;
                             comboBox_localIP.Items.Add(uniCast.Address.ToString());
-                            if (ni.OperationalStatus == OperationalStatus.Up && (ni.GetIPProperties().GatewayAddresses.Count > 0))
+                            network_device_gateways[uniCast.Address] = ip_properties.GatewayAddresses;
+                            if (ni.OperationalStatus == OperationalStatus.Up && (ip_properties.GatewayAddresses.Count > 0))
                             {
-                                if (!ni.GetIPProperties().GatewayAddresses[0].Address.Equals(new IPAddress(0)))
+                                if (!ip_properties.GatewayAddresses[0].Address.Equals(new IPAddress(0)))
                                     preferred_local_ip = local_ip_count;
                             }
                         }
                     }
+            }
             if (comboBox_localIP.Items.Count > 0)
+            {
                 comboBox_localIP.SelectedIndex = (preferred_local_ip == -1) ? 0 : preferred_local_ip - 1;
+            }
+
         }
 
         private void initWithRegistryValues()
         {
-            if (xbs_settings.getRegistryValue(xbs_settings.REG_SPECIAL_MAC_LIST) != null)
-                setMacListFromString(xbs_settings.getRegistryValue(xbs_settings.REG_SPECIAL_MAC_LIST));
-            if (xbs_settings.getRegistryValue(xbs_settings.REG_REMOTE_HOST_HISTORY) != null)
-                setRemoteHostHistoryFromString(xbs_settings.getRegistryValue(xbs_settings.REG_REMOTE_HOST_HISTORY));
+            Settings s = xbs_settings.settings;
 
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_CAPTURE_DEVICE_NAME, comboBox_captureDevice);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_LOCAL_IP, comboBox_localIP);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_LOCAL_PORT, textBox_local_Port);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_REMOTE_HOST, comboBox_RemoteHost);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_REMOTE_PORT, textBox_remote_port);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_USE_UPNP, checkbox_UPnP);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_ADVANCED_BROADCAST_FORWARDING, checkBox_all_broadcasts);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_ENABLE_SPECIAL_MAC_LIST, checkBox_enable_MAC_list);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_ONLY_FORWARD_SPECIAL_MACS, checkBox_mac_restriction);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_ENABLE_STUN_SERVER, checkBox_useStunServer);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_STUN_SERVER_HOSTNAME, textBox_stunServerHostname);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_STUN_SERVER_PORT, textBox_stunServerPort);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_CHAT_AUTOSWITCH, checkBox_chatAutoSwitch);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_CHAT_SOUND_NOTIFICATION, checkBox_chat_notify);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_NEW_NODE_SOUND_NOTIFICATION, checkBox_newNodeSound);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_CLOUDLIST_SERVER, textBox_cloudlist);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_USE_CLOUDLIST_SERVER_TO_CHECK_INCOMING_PORT, checkBox_useCloudServerForPortCheck);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_CHAT_NICKNAME, textBox_chatNickname);
-            xbs_settings.initializeRegistrySettingWithControl(xbs_settings.REG_CHECK4UPDATES, checkBox_checkForUpdates);
+            if (s.REG_SPECIAL_MAC_LIST != null)
+                setMacListFromString( s.REG_SPECIAL_MAC_LIST );
+            if (s.REG_REMOTE_HOST_HISTORY != null)
+                setRemoteHostHistoryFromString( s.REG_REMOTE_HOST_HISTORY );
+            if (s.REG_NAT_IP_POOL != null)
+            {
+                setNATIPPoolFromString( s.REG_NAT_IP_POOL );
+                updateNATIPPoolListView();
+            }
+
+            comboBox_captureDevice.Text = s.REG_CAPTURE_DEVICE_NAME;
+            comboBox_localIP.Text = s.REG_LOCAL_IP;
+            textBox_local_Port.Text = s.REG_LOCAL_PORT.ToString();
+            comboBox_RemoteHost.Text = s.REG_REMOTE_HOST;
+            textBox_remote_port.Text = s.REG_REMOTE_PORT.ToString();
+            checkbox_UPnP.Checked = s.REG_USE_UPNP;
+            checkBox_enable_MAC_list.Checked = s.REG_ENABLE_SPECIAL_MAC_LIST;
+            checkBox_mac_restriction.Checked = s.REG_ONLY_FORWARD_SPECIAL_MACS;
+            checkBox_chatAutoSwitch.Checked = s.REG_CHAT_AUTOSWITCH;
+            checkBox_chat_notify.Checked = s.REG_CHAT_SOUND_NOTIFICATION;
+            checkBox_newNodeSound.Checked = s.REG_NEW_NODE_SOUND_NOTIFICATION;
+            textBox_cloudlist.Text = (s.REG_CLOUDLIST_SERVER.Length!=0) ? s.REG_CLOUDLIST_SERVER : xbs_cloudlist.DEFAULT_CLOUDLIST_SERVER;
+            //textBox_cloudlist.Text = "http://www.secudb.de/~seuffert/xbslink/cloudlist_test/";
+            checkBox_useCloudServerForPortCheck.Checked = s.REG_USE_CLOUDLIST_SERVER_TO_CHECK_INCOMING_PORT;
+            textBox_chatNickname.Text = (s.REG_CHAT_NICKNAME.Length!=0) ? s.REG_CHAT_NICKNAME : xbs_chat.STANDARD_NICKNAME;
+            checkBox_checkForUpdates.Checked = s.REG_CHECK4UPDATES;
+            checkBox_nat_enable.Checked = s.REG_NAT_ENABLE;
+            checkBox_filter_wellknown_ports.Checked = s.REG_FILTER_WELLKNOWN_PORTS;
+            checkBox_NAT_enablePS3mode.Checked = s.REG_PS3_COMPAT_MODE_ENABLE;
+            checkBox_excludeGatewayIPs.Checked = s.REG_SNIFFER_EXCLUDE_GATWAY_IPS;
+            checkBox_chat_nodeInfoMessagesInChat.Checked = s.REG_CHAT_NODEINFOMESSAGES;
+            xbs_chat.message_when_nodes_join_or_leave = s.REG_CHAT_NODEINFOMESSAGES;
 
             if (checkBox_enable_MAC_list.Checked)
                 checkBox_mac_restriction.Enabled = true;
 
-            if (textBox_chatNickname.Text == "Anonymous")
-                textBox_chatNickname.Text = textBox_chatNickname.Text + (new Random().Next(1000, 9999));
-
-            saveRegistryValues();
+            if (textBox_chatNickname.Text == "")
+                textBox_chatNickname.Text = xbs_chat.STANDARD_NICKNAME;
         }
        
         private void saveRegistryValues()
         {
-            xbs_settings.setRegistryValue(xbs_settings.REG_CAPTURE_DEVICE_NAME, comboBox_captureDevice.SelectedItem);
-            xbs_settings.setRegistryValue(xbs_settings.REG_LOCAL_IP, comboBox_localIP.SelectedItem);
-            xbs_settings.setRegistryValue(xbs_settings.REG_LOCAL_PORT, textBox_local_Port.Text);
-            xbs_settings.setRegistryValue(xbs_settings.REG_REMOTE_HOST, comboBox_RemoteHost.Text);
-            xbs_settings.setRegistryValue(xbs_settings.REG_REMOTE_PORT, textBox_remote_port.Text);
-            xbs_settings.setRegistryValue(xbs_settings.REG_USE_UPNP, checkbox_UPnP.Checked);
-            xbs_settings.setRegistryValue(xbs_settings.REG_ADVANCED_BROADCAST_FORWARDING, checkBox_all_broadcasts.Checked);
-            xbs_settings.setRegistryValue(xbs_settings.REG_ENABLE_SPECIAL_MAC_LIST, checkBox_enable_MAC_list.Checked);
-            xbs_settings.setRegistryValue(xbs_settings.REG_ONLY_FORWARD_SPECIAL_MACS, checkBox_mac_restriction.Checked);
-            xbs_settings.setRegistryValue(xbs_settings.REG_SPECIAL_MAC_LIST, getMacListString());
-            xbs_settings.setRegistryValue(xbs_settings.REG_REMOTE_HOST_HISTORY, getRemoteHostHistoryString());
-            xbs_settings.setRegistryValue(xbs_settings.REG_ENABLE_STUN_SERVER, checkBox_useStunServer.Checked);
-            xbs_settings.setRegistryValue(xbs_settings.REG_STUN_SERVER_HOSTNAME, textBox_stunServerHostname.Text);
-            xbs_settings.setRegistryValue(xbs_settings.REG_STUN_SERVER_PORT, textBox_stunServerPort.Text);
-            xbs_settings.setRegistryValue(xbs_settings.REG_CHAT_NICKNAME, textBox_chatNickname.Text);
-            xbs_settings.setRegistryValue(xbs_settings.REG_CHAT_AUTOSWITCH, checkBox_chatAutoSwitch.Checked);
-            xbs_settings.setRegistryValue(xbs_settings.REG_CHAT_SOUND_NOTIFICATION, checkBox_chat_notify.Checked);
-            xbs_settings.setRegistryValue(xbs_settings.REG_NEW_NODE_SOUND_NOTIFICATION, checkBox_newNodeSound.Checked);
-            xbs_settings.setRegistryValue(xbs_settings.REG_USE_CLOUDLIST_SERVER_TO_CHECK_INCOMING_PORT, checkBox_useCloudServerForPortCheck.Checked);
-            xbs_settings.setRegistryValue(xbs_settings.REG_CHECK4UPDATES, checkBox_checkForUpdates.Checked);
+            Settings s = xbs_settings.settings;
+            int out_int;
+			if (comboBox_captureDevice.SelectedItem!=null)
+            	s.REG_CAPTURE_DEVICE_NAME = comboBox_captureDevice.SelectedItem.ToString();
+            s.REG_LOCAL_IP = comboBox_localIP.SelectedItem.ToString();
+            if (int.TryParse(textBox_local_Port.Text, out out_int)) 
+                s.REG_LOCAL_PORT = out_int;
+            s.REG_REMOTE_HOST = comboBox_RemoteHost.Text;
+            if (int.TryParse(textBox_remote_port.Text, out out_int)) 
+                s.REG_REMOTE_PORT = out_int;            
+            s.REG_USE_UPNP = checkbox_UPnP.Checked;
+            s.REG_ENABLE_SPECIAL_MAC_LIST = checkBox_enable_MAC_list.Checked;
+            s.REG_ONLY_FORWARD_SPECIAL_MACS = checkBox_mac_restriction.Checked;
+            s.REG_SPECIAL_MAC_LIST = getMacListString();
+            s.REG_REMOTE_HOST_HISTORY = getRemoteHostHistoryString();
+            s.REG_CHAT_NICKNAME = textBox_chatNickname.Text;
+            s.REG_CHAT_AUTOSWITCH = checkBox_chatAutoSwitch.Checked;
+            s.REG_CHAT_SOUND_NOTIFICATION = checkBox_chat_notify.Checked;
+            s.REG_NEW_NODE_SOUND_NOTIFICATION = checkBox_newNodeSound.Checked;
+            s.REG_USE_CLOUDLIST_SERVER_TO_CHECK_INCOMING_PORT = checkBox_useCloudServerForPortCheck.Checked;
+            s.REG_CHECK4UPDATES = checkBox_checkForUpdates.Checked;
+            s.REG_NAT_ENABLE = checkBox_nat_enable.Checked;
+            s.REG_NAT_IP_POOL = getNATIPPoolString();
+            s.REG_FILTER_WELLKNOWN_PORTS = checkBox_filter_wellknown_ports.Checked;
+            s.REG_PS3_COMPAT_MODE_ENABLE = checkBox_NAT_enablePS3mode.Checked;
+            s.REG_SNIFFER_EXCLUDE_GATWAY_IPS = checkBox_excludeGatewayIPs.Checked;
+            s.REG_CHAT_NODEINFOMESSAGES = checkBox_chat_nodeInfoMessagesInChat.Checked;
+            s.Save();
         }
 
         // -----------------------------------------------------
@@ -300,23 +346,8 @@ namespace XBSlink
         {
             if (ExceptionMessage.ABORTING)
                 return;
-            LibPcapLiveDeviceList devices;
-            LibPcapLiveDevice pdev;
-            SharpPcap.WinPcap.WinPcapDeviceList devices_win;
-            SharpPcap.WinPcap.WinPcapDevice pdev_win;
-            try
-            {
-                devices = LibPcapLiveDeviceList.Instance;
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("XBSlink failed to get the list of available network adapters."
-                    + Environment.NewLine
-                    +"Does your user have enough system rights? Is the pcap library installed?","XBSlink error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Close();
-                return;
-            }
-            if (devices.Count == 0)
+            ICaptureDevice pdev;
+            if (pcap_devices.Count == 0)
             {
                 MessageBox.Show("XBSlink did not find any available network adapters in your system."
                     + Environment.NewLine
@@ -326,19 +357,7 @@ namespace XBSlink
             }
 
             try {
-                pdev = devices[comboBox_captureDevice.SelectedIndex];
-                if (System.Environment.OSVersion.Platform == PlatformID.Win32NT)
-                {
-                    devices_win = SharpPcap.WinPcap.WinPcapDeviceList.Instance;
-                    for (int i = 0; i < devices_win.Count; i++)
-                    {
-                        pdev_win = devices_win[i];
-                        if (pdev_win.Name.Contains(pdev.Name))
-                            pdev = pdev_win;
-                    }
-
-                }
-
+                pdev = pcap_devices[comboBox_captureDevice.SelectedIndex];
             } 
             catch (Exception)
             {
@@ -353,9 +372,8 @@ namespace XBSlink
             }
             catch (Exception e)
             {
-                xbs_messages.addInfoMessage("!! Socket Exception: could not bind to port " + textBox_local_Port.Text);
-                xbs_messages.addInfoMessage("!! the UDP socket is not ready to send or receive packets.");
-                xbs_messages.addInfoMessage("!! please check if another application is running on this port.");
+                xbs_messages.addInfoMessage("!! Socket Exception: could not bind to port " + textBox_local_Port.Text, xbs_message_sender.GENERAL, xbs_message_type.FATAL_ERROR);
+                xbs_messages.addInfoMessage("!! the UDP socket is not ready to send or receive packets. Please check if another application is running on this port.", xbs_message_sender.GENERAL, xbs_message_type.FATAL_ERROR);
                 System.Windows.Forms.MessageBox.Show(e.Message);
                 abort_start_engine = true;
             }
@@ -367,41 +385,35 @@ namespace XBSlink
 
             try
             {
-                if (use_UPnP && natstun.isUPnPavailable())
+                if (use_UPnP && upnp.isUPnPavailable())
                 {
-                    external_ip = natstun.upnp_getPublicIP();
-                    natstun.upnp_create_mapping(Mono.Nat.Protocol.Udp, udp_listener.udp_socket_port, udp_listener.udp_socket_port);
+                    external_ip = upnp.upnp_getPublicIP();
+                    upnp.upnp_create_mapping(Mono.Nat.Protocol.Udp, udp_listener.udp_socket_port, udp_listener.udp_socket_port);
                 }
             }
             catch (Exception)
             {
-                xbs_messages.addInfoMessage("!! UPnP port mapping failed");
-            }
-            try
-            {
-                if (external_ip == null && use_STUN && natstun.stun_isServerDiscoverySuccessfull())
-                {
-                    stunlib.Client.STUN_Result stun_result = natstun.stun_getResult();
-                    if (stun_result != null)
-                        if (stun_result.PublicEndPoint != null)
-                            if (stun_result.PublicEndPoint.Address != null)
-                                external_ip = stun_result.PublicEndPoint.Address;
-                }
-            }
-            catch (Exception)
-            {
-                xbs_messages.addInfoMessage("!! STUN discovery failed.");
+                xbs_messages.addInfoMessage("!! UPnP port mapping failed", xbs_message_sender.GENERAL, xbs_message_type.ERROR);
             }
             if (external_ip==null)
-                external_ip = xbs_natstun.getExternalIPAddressFromWebsite();                        
+                external_ip = xbs_upnp.getExternalIPAddressFromWebsite();                        
 
             IPAddress local_node_ip = (external_ip == null) ? internal_ip : external_ip;
             node_list.local_node = new xbs_node(local_node_ip, udp_listener.udp_socket_port);
             node_list.local_node.nickname = textBox_chatNickname.Text;
-
-            sniffer = new xbs_sniffer(pdev, checkBox_all_broadcasts.Checked, checkBox_enable_MAC_list.Checked, checkBox_mac_restriction.Checked, node_list);
-            setSnifferMacList();
-            sniffer.start_capture();
+            try
+            {
+                sniffer = new xbs_sniffer((LibPcapLiveDevice)pdev, checkBox_enable_MAC_list.Checked, generateSnifferMacList(), checkBox_mac_restriction.Checked, node_list, NAT, network_device_gateways[internal_ip], checkBox_excludeGatewayIPs.Checked);
+                sniffer.start_capture();
+            }
+            catch (ArgumentException aex)
+            {
+                xbs_messages.addInfoMessage("!! starting Packet sniffer failed: "+aex.Message, xbs_message_sender.GENERAL, xbs_message_type.ERROR);
+                abort_start_engine = true;
+                udp_listener = null;
+                sniffer = null;
+                return;
+            }
 
             if (ExceptionMessage.ABORTING)
                 return;
@@ -413,7 +425,7 @@ namespace XBSlink
             }
             catch (Exception)
             {
-                xbs_messages.addInfoMessage("!! open port check failed");
+                xbs_messages.addInfoMessage("!! open port check failed", xbs_message_sender.GENERAL, xbs_message_type.WARNING);
             }
 
             if (ExceptionMessage.ABORTING)
@@ -422,7 +434,7 @@ namespace XBSlink
             timer1.Enabled = true;
             button_announce.Enabled = true;
             saveRegistryValues();
-            xbs_messages.addInfoMessage("engine ready. waiting for incoming requests.");
+            xbs_messages.addInfoMessage("engine ready. waiting for incoming requests.", xbs_message_sender.GENERAL);
             switch_tab = tabPage_info;
             textBox_chatEntry.ReadOnly = false;
             textBox_chatEntry.Clear();
@@ -449,17 +461,17 @@ namespace XBSlink
 
         private void engine_start()
         {
+            clearMessagesAndNotifications();
             // show Messages to User
             tabControl1.SelectedTab = tabPage_messages;
-            xbs_messages.addInfoMessage("starting Engine");
+            xbs_messages.addInfoMessage("starting Engine", xbs_message_sender.GENERAL);
             if (checkbox_UPnP.Checked)
-                natstun.upnp_startDiscovery();
-            if (use_STUN && textBox_stunServerHostname.Text.Length > 0 && textBox_stunServerPort.Text.Length > 0)
-                natstun.stun_startDiscoverStunType(textBox_stunServerHostname.Text, int.Parse(textBox_stunServerPort.Text));
+                upnp.upnp_startDiscovery();
             start_engine_started_at = DateTime.Now;
             timer_startEngine.Start();
             button_start_engine.Enabled = false;
             textBox_chatNickname.ReadOnly = true;
+            button_reset_settings.Enabled = false;
         }
 
         private void engine_stop()
@@ -469,8 +481,7 @@ namespace XBSlink
                 if (cloudlist.part_of_cloud)
                     cloudlist.LeaveCloud();
             timer1.Stop();
-            //timer_messages.Stop();
-            xbs_settings.saveRegistryValues();
+            xbs_settings.settings.Save();
             if (sniffer != null)
             {
                 sniffer.close();
@@ -482,11 +493,19 @@ namespace XBSlink
                 udp_listener.shutdown();
                 udp_listener = null;
             }
-            if (natstun != null)
-                if (natstun.isUPnPavailable())
-                    natstun.upnp_deleteAllPortMappings();
+            if (upnp != null)
+            {
+                if (upnp.isUPnPavailable())
+                    upnp.upnp_deleteAllPortMappings();
+                upnp.upnp_stopDiscovery();
+            }
             engine_started = false;
-            xbs_messages.addInfoMessage("Engine stopped.");
+            xbs_messages.addInfoMessage("Engine stopped.", xbs_message_sender.GENERAL);
+
+            listView_nodes.Items.Clear();
+            NAT.ip_pool.freeAllIPs();
+            updateNATIPPoolListView();
+
             button_start_engine.Text = "Start Engine";
             textBox1.Text = "Engine not started.";
             textBox_chatEntry.ReadOnly = true;
@@ -497,7 +516,7 @@ namespace XBSlink
             button_CloudJoin.Enabled = false;
             button_CloudLeave.Enabled = false;
             textBox_chatNickname.ReadOnly = false;
-            listView_nodes.Items.Clear();
+            button_reset_settings.Enabled = true;
         }
 
         private IPAddress Resolver(string Hostname)
@@ -571,15 +590,34 @@ namespace XBSlink
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            updateMainInfo();
-            updateStatusBar();
-
             if (switch_tab != null)
             {
                 tabControl1.SelectedTab = switch_tab;
                 switch_tab = null;
             }
 
+            List<xbs_node> nodes = node_list.getXBSNodeListCopy();
+
+            if (tabControl1.SelectedTab == tabPage_info)
+                updateMainInfo(nodes);
+
+            DateTime last_change_time = node_list.getLastChangeTime();
+            if (last_change_time > last_nodelist_update)
+            {
+                if (tabControl1.SelectedTab == tabPage_info)
+                    updateMainInfoListview(nodes, false);
+                if (tabControl1.SelectedTab == tabPage_chat)
+                    updateChatUserList(nodes);
+                last_nodelist_update = last_change_time;
+            }
+            last_change_time = NAT.ip_pool.last_update;
+            if (last_change_time > last_nat_ippool_update && tabControl1.SelectedTab == tabPage_nat)
+            {
+                updateNATIPPoolListView();
+                last_nat_ippool_update = last_change_time;
+            }
+
+            updateStatusBar();
         }
 
         private void statusStrip1_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -616,10 +654,11 @@ namespace XBSlink
             //if (this.Width!=form1_width) this.Width = form1_width;
         }
 
-        private void updateMainInfo()
+        private void updateMainInfo(List<xbs_node> nodes)
         {
+            if (tabControl1.SelectedTab != tabPage_info)
+                return;
             String text = "";
-            List<xbs_node> nodes = node_list.getXBSNodeListCopy();
 
             if (cloudlist.part_of_cloud)
             {
@@ -637,62 +676,98 @@ namespace XBSlink
                 if (node_list.local_node!=null)
                     text += Environment.NewLine + "Local node: " + node_list.local_node;
 
-            PhysicalAddress[] local_xbox_macs = sniffer.getSniffedMACs();
-            if (local_xbox_macs.Length > 0)
+            if (sniffer != null)
             {
-                text += Environment.NewLine+"Discovered local device(s):" + Environment.NewLine;
-                foreach (PhysicalAddress phy in local_xbox_macs)
-                    text += " => " + phy + Environment.NewLine;
+                PhysicalAddress[] local_xbox_macs = sniffer.getSniffedMACs();
+                if (local_xbox_macs.Length > 0)
+                {
+                    text += Environment.NewLine + "Discovered local device(s):" + Environment.NewLine;
+                    foreach (PhysicalAddress phy in local_xbox_macs)
+                        text += " => " + phy + Environment.NewLine;
+                }
             }
             textBox1.Text = text;
 
-            DateTime last_change_time = node_list.getLastChangeTime();
-            if (last_change_time > last_nodelist_update)
-            {
-                updateMainInfoListview(nodes);
-                updateChatUserList(nodes);
-                last_nodelist_update = last_change_time;
-            }
         }
 
         private void updateChatUserList( List<xbs_node> nodes )
         {
+            if (tabControl1.SelectedTab != tabPage_chat)
+                return;
             listBox_chatUserList.Items.Clear();
             label_num_persons_in_chat.Text = nodes.Count.ToString();
             foreach (xbs_node node in nodes)
-            {
                 listBox_chatUserList.Items.Add(node.nickname);
-            }
-
         }
 
-        private void updateMainInfoListview(List<xbs_node> nodes )
+        private void updateMainInfoListview(List<xbs_node> nodes, bool update_all)
         {
+            if (tabControl1.SelectedTab != tabPage_info)
+                return;
             listView_nodes.BeginUpdate();
-            listView_nodes.Items.Clear();
             foreach (xbs_node node in nodes)
-            {
-                ListViewItem lv_item = new ListViewItem(node.ip_public.ToString());
-                lv_item.SubItems.Add((node.port_sendfrom == node.port_public) ? node.port_public.ToString() : node.port_public+"/"+node.port_sendfrom );
-                    
-                String ping = (node.last_ping_delay_ms >= 0) ? node.last_ping_delay_ms + "ms" : "N/A";
-                lv_item.SubItems.Add(ping);
-
-                lv_item.SubItems.Add(node.client_version);
-                lv_item.SubItems.Add(node.nickname);
-
-                if (node.get_xbox_count() == 0)
-                    lv_item.BackColor = Color.FromArgb(255,235,235);
-                else
-                    lv_item.BackColor = Color.FromArgb(235, 255, 235);
-                listView_nodes.Items.Add(lv_item);
-            }
+                if (node.lastChangeTime > last_nodelist_update || update_all)
+                    updateNodeInMainInfoList(node);
+            if (node_list.getNodeCount() < listView_nodes.Items.Count)
+                purgeDeletedNodesInMainInfo();
             listView_nodes.EndUpdate();
+        }
+
+        private void purgeDeletedNodesInMainInfo()
+        {
+            if (listView_nodes.Items.Count==0)
+                return;
+            try
+            {
+                for (int i = listView_nodes.Items.Count - 1; i > 0; i--)
+                {
+                    ListViewItem lv_item = listView_nodes.Items[i];
+                    IPAddress ip = IPAddress.Parse(lv_item.Text);
+                    int port = int.Parse(lv_item.SubItems[1].Text.Split('/')[0]);
+                    if (node_list.findNode(ip, port) == null)
+                    {
+#if DEBUG
+                        xbs_messages.addDebugMessage(String.Format("purged Node {0}:{1} from nodeListView", ip, port), xbs_message_sender.GENERAL);
+#endif
+                        listView_nodes.Items.RemoveAt(i);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                xbs_messages.addInfoMessage( "!! Error while purging node from main nodeListView", xbs_message_sender.GENERAL, xbs_message_type.ERROR);
+            }
+        }
+
+        private void updateNodeInMainInfoList(xbs_node node)
+        {
+            ListViewItem lv_item = new ListViewItem(node.ip_public.ToString());
+            
+            lv_item.SubItems.Add((node.port_sendfrom == node.port_public) ? node.port_public.ToString() : node.port_public + "/" + node.port_sendfrom);
+            String ping = (node.last_ping_delay_ms >= 0) ? node.last_ping_delay_ms + "ms" : "N/A";
+            lv_item.SubItems.Add(ping);
+            lv_item.SubItems.Add(node.client_version);
+            lv_item.SubItems.Add(node.nickname);
+            lv_item.BackColor = (node.get_xbox_count() == 0) ? Color.FromArgb(255, 235, 235) : Color.FromArgb(235, 255, 235);
+            lv_item.Name = lv_item.Text + lv_item.SubItems[1];
+
+            int index = listView_nodes.Items.IndexOfKey(lv_item.Name);
+            ListViewItem lv_item_in_list = (index>=0) ? listView_nodes.Items[index] : null;
+            if (lv_item_in_list != null)
+            {
+                for (int i=2; i<=4; i++)
+                    if (lv_item_in_list.SubItems[i].Text != lv_item.SubItems[i].Text)
+                        lv_item_in_list.SubItems[i].Text = lv_item.SubItems[i].Text;
+                if (lv_item.BackColor != lv_item_in_list.BackColor)
+                    lv_item_in_list.BackColor = lv_item.BackColor;
+            }
+            else
+                listView_nodes.Items.Add(lv_item);
         }
 
         private void updateStatusBar()
         {
-            UInt32 sniffer_packet_count = xbs_sniffer_statistics.getPacketCount();
+            UInt32 sniffer_packet_count = xbs_sniffer_statistics.packet_count;
             uint pps = sniffer_packet_count - old_sniffer_packet_count;
             toolStripStatusLabel_sniffer_in.Text = pps.ToString();
             old_sniffer_packet_count = sniffer_packet_count;
@@ -708,22 +783,9 @@ namespace XBSlink
             old_udp_out_count = udp_out;
         }
 
-        private void checkBox_all_broadcasts_CheckedChanged(object sender, EventArgs e)
-        {
-            if (sniffer != null)
-            {
-                if (sniffer.pdev_sniff_additional_broadcast != checkBox_all_broadcasts.Checked)
-                {
-                    sniffer.pdev_sniff_additional_broadcast = checkBox_all_broadcasts.Checked;
-                    sniffer.setPdevFilter();
-                }
-            }
-        }
-
         private void button_save_settings_Click(object sender, EventArgs e)
         {
             saveRegistryValues();
-            xbs_settings.saveRegistryValues();
             toolTip2.Show("settings saved.", button_save_settings, 0, -20, 2000);
         }
 
@@ -774,12 +836,14 @@ namespace XBSlink
                 return;
             textBox_add_MAC.Text = (String)listBox_MAC_list.Items[listBox_MAC_list.SelectedIndex];
             listBox_MAC_list.Items.RemoveAt(listBox_MAC_list.SelectedIndex);
-            setSnifferMacList();
             if (listBox_MAC_list.Items.Count < 1)
             {
                 button_del_MAC.Enabled = false;
-                checkBox_mac_restriction.Checked = false;
+                //checkBox_mac_restriction.Checked = false;
+                checkBox_enable_MAC_list.Checked = false;
+                sniffer.pdev_filter_use_special_macs = false;
             }
+            setSnifferMacList();
         }
 
         private String getMacListString()
@@ -793,6 +857,7 @@ namespace XBSlink
 
         private void setMacListFromString(String mac_list)
         {
+            listBox_MAC_list.Items.Clear();
             if (mac_list.Length==0)
                 return;
             String[] macs = mac_list.Split(',');
@@ -800,8 +865,25 @@ namespace XBSlink
                 addMacToMacList(mac);
         }
 
+        private void setNATIPPoolFromString(String data)
+        {
+            listView_nat_IPpool.Items.Clear();
+            NAT.ip_pool.Clear();
+            if (data.Length == 0)
+                return;
+
+            foreach (String ip_str in data.Split(';'))
+                if (ip_str.Length >= 15)
+                {
+                    String[] ip_mask = ip_str.Split('/');
+                    if (ip_mask.Length == 2)
+                        NAT.ip_pool.addIPToPool(ip_mask[0], ip_mask[1]);
+                }
+        }
+
         private void setRemoteHostHistoryFromString(String remoteHostList)
         {
+            comboBox_RemoteHost.Items.Clear();
             if (remoteHostList.Length == 0)
                 return;
             foreach (String remoteHost in remoteHostList.Split(','))
@@ -817,6 +899,17 @@ namespace XBSlink
             return String.Join(",", strs);
         }
 
+        private String getNATIPPoolString()
+        {
+            xbs_nat_entry[] items = NAT.ip_pool.getEntriesArray();
+            if (items.Length == 0)
+                return null;
+            String ip_str = "";
+            for (int i = 0; i < items.Length; i++)
+                ip_str += items[i].natted_source_ip + "/" + items[i].natted_source_ip_netmask + ";";
+            return ip_str;
+        }
+
         private void addMacToMacList(String mac)
         {
             if (!listBox_MAC_list.Items.Contains(mac))
@@ -826,32 +919,52 @@ namespace XBSlink
             }
         }
 
+        private List<PhysicalAddress> generateSnifferMacList()
+        {
+            List<PhysicalAddress> mac_list = new List<PhysicalAddress>();
+            foreach (String mac in listBox_MAC_list.Items)
+                mac_list.Add(PhysicalAddress.Parse(mac));
+            return mac_list;
+        }
+
         private void setSnifferMacList()
         {
             if (sniffer != null)
-            {
-                List<PhysicalAddress> mac_list = new List<PhysicalAddress>();
-                foreach (String mac in listBox_MAC_list.Items)
-                    mac_list.Add(PhysicalAddress.Parse(mac));
-                sniffer.setSpecialMacPacketFilter(mac_list);
-            }
+                sniffer.setSpecialMacPacketFilter( generateSnifferMacList() );
         }
 
         private void checkBox_enable_MAC_list_CheckedChanged(object sender, EventArgs e)
         {
-            if (sniffer != null)
+            if (listBox_MAC_list.Items.Count != 0)
             {
-                sniffer.pdev_filter_use_special_macs = checkBox_enable_MAC_list.Checked;
-                sniffer.setPdevFilter();
+                if (sniffer != null)
+                {
+                    sniffer.pdev_filter_use_special_macs = checkBox_enable_MAC_list.Checked;
+                    sniffer.setPdevFilter();
+                }
             }
-            checkBox_mac_restriction.Checked = (listBox_MAC_list.Items.Count > 0) ? checkBox_mac_restriction.Checked : false;
-            checkBox_mac_restriction.Enabled = checkBox_enable_MAC_list.Checked;
+            else
+            {
+                if (checkBox_enable_MAC_list.Checked)
+                {
+                    MessageBox.Show(Resources.message_specialmaclist_empty, "XBSlink information", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    checkBox_enable_MAC_list.Checked = false;
+                }
+            }
         }
 
-        private void button_clearMessages_Click(object sender, EventArgs e)
+        private void clearMessagesAndNotifications()
         {
             lock (listBox_messages)
                 listBox_messages.Items.Clear();
+            toolStripStatusLabel_icon.Image = Resources.ok_16;
+            notify_icon_warning_message_shown = false;
+            notify_icon_fatalerror_message_shown = false;
+            notify_icon_error_message_shown = false;
+        }
+        private void button_clearMessages_Click(object sender, EventArgs e)
+        {
+            clearMessagesAndNotifications();
         }
 
         private void timer_messages_Tick(object sender, EventArgs e)
@@ -861,13 +974,47 @@ namespace XBSlink
             try
             {
 #endif
+            bool fatal_error_message = false;
+            bool error_message = false;
+            bool warning_message = false;
             while (xbs_messages.getInfoMessageCount() > 0)
             {
                 added_messages = true;
-                listBox_messages.Items.Add( xbs_messages.DequeueInfoMessageString() );
+                xbs_message msg = xbs_messages.DequeueInfoMessage();
+                listBox_messages.Items.Add( msg.ToString() );
+                if (msg.type == xbs_message_type.FATAL_ERROR)
+                    fatal_error_message = true;
+                else if (msg.type == xbs_message_type.ERROR)
+                    error_message = true;
+                else if (msg.type == xbs_message_type.WARNING)
+                    warning_message = true;
             }
             if (added_messages)
                 listBox_messages.SelectedIndex = listBox_messages.Items.Count - 1;
+
+            if (error_message || fatal_error_message && toolStripStatusLabel_icon.Image != Resources.error_16)
+                toolStripStatusLabel_icon.Image = Resources.error_16;
+            else if (warning_message && toolStripStatusLabel_icon.Image!=Resources.error_16)
+                toolStripStatusLabel_icon.Image = Resources.warning_16;
+
+            if (notify_icon != null)
+            {
+                if (fatal_error_message && notify_icon_fatalerror_message_shown == false)
+                {
+                    notify_icon_fatalerror_message_shown = true;
+                    notify_icon.ShowBalloonTip(10000, "XBSlink fatal error", Resources.notifyicon_fatal_error_message, ToolTipIcon.Error);
+                }
+                else if (error_message && notify_icon_error_message_shown == false && notify_icon_fatalerror_message_shown == false)
+                {
+                    notify_icon_error_message_shown = true;
+                    notify_icon.ShowBalloonTip(10000, "XBSlink error", Resources.notifyicon_error_message, ToolTipIcon.Error);
+                }
+                else if (warning_message && notify_icon_warning_message_shown == false && notify_icon_error_message_shown == false && notify_icon_fatalerror_message_shown == false)
+                {
+                    notify_icon_warning_message_shown = true;
+                    notify_icon.ShowBalloonTip(10000, "XBSlink warning", Resources.notifyicon_warning_message, ToolTipIcon.Warning);
+                }
+            }
 
             added_messages = false;
             while (xbs_messages.getChatMessageCount() > 0)
@@ -895,11 +1042,6 @@ namespace XBSlink
 #endif
         }
 
-        private void checkBox_useStunServer_CheckedChanged(object sender, EventArgs e)
-        {
-            use_STUN = checkBox_useStunServer.Checked;
-        }
-
         private bool isDigitOrControlChar( char c )
         {
             return (Char.IsControl(c) || Char.IsDigit(c));
@@ -915,33 +1057,15 @@ namespace XBSlink
             e.Handled = ( handlePlusMinusInTextBox( (char)e.KeyChar, textBox_local_Port, 1, 65536) || !isDigitOrControlChar(e.KeyChar));
         }
 
-        private void textBox_stunServerPort_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            e.Handled = (handlePlusMinusInTextBox((char)e.KeyChar, textBox_stunServerPort, 1, 65536) || !isDigitOrControlChar(e.KeyChar));
-        }
-
         private void timer_startEngine_Tick(object sender, EventArgs e)
         {
             TimeSpan elapes_time = DateTime.Now - start_engine_started_at;
-            bool stun_discovery_finished = (checkBox_useStunServer.Checked && natstun.stun_isDiscoveryFinished()) || checkBox_useStunServer.Checked==false;
-            bool upnp_discovery_finished = (checkbox_UPnP.Checked && natstun.isUPnPavailable()) || checkbox_UPnP.Checked==false;
-            if ((stun_discovery_finished && upnp_discovery_finished) || elapes_time.TotalSeconds >= MAX_WAIT_START_ENGINE_SECONDS)
+            bool upnp_discovery_finished = (checkbox_UPnP.Checked && upnp.isUPnPavailable()) || checkbox_UPnP.Checked==false;
+            if (upnp_discovery_finished || elapes_time.TotalSeconds >= MAX_WAIT_START_ENGINE_SECONDS)
             {
                 timer_startEngine.Stop();
                 resume_start_engine();
             }
-        }
-
-        private void textBox_stunServerHostname_Leave(object sender, EventArgs e)
-        {
-            if (textBox_stunServerHostname.Text.Length == 0)
-                textBox_stunServerHostname.Text = xbs_natstun.STUN_SERVER_DEFAULT_HOSTNAME;
-        }
-
-        private void textBox_stunServerPort_Leave(object sender, EventArgs e)
-        {
-            if (textBox_stunServerPort.Text.Length == 0)
-                textBox_stunServerPort.Text = xbs_natstun.STUN_SERVER_DEFAULT_PORT.ToString();
         }
 
         private void textBox_local_Port_Leave(object sender, EventArgs e)
@@ -1040,7 +1164,7 @@ namespace XBSlink
                 else
                     toolTip2.Show("no clouds available on server.", buttonLoadCloudlist, 0, -20, 2000);
 
-                xbs_settings.setRegistryValue(xbs_settings.REG_CLOUDLIST_SERVER, textBox_cloudlist.Text);
+                xbs_settings.settings.REG_CLOUDLIST_SERVER = textBox_cloudlist.Text;
             }
         }
 
@@ -1085,7 +1209,7 @@ namespace XBSlink
 
         private void join_cloud()
         {
-            bool ret = cloudlist.JoinOrCreateCloud(textBox_cloudlist.Text, textBox_CloudName.Text, textBox_CloudMaxNodes.Text, textBox_CloudPassword.Text, node_list.local_node.ip_public, node_list.local_node.port_public, node_list.local_node.nickname, xbs_natstun.isPortReachable);
+            bool ret = cloudlist.JoinOrCreateCloud(textBox_cloudlist.Text, textBox_CloudName.Text, textBox_CloudMaxNodes.Text, textBox_CloudPassword.Text, node_list.local_node.ip_public, node_list.local_node.port_public, node_list.local_node.nickname, xbs_upnp.isPortReachable);
             if (ret)
             {
                 toolTip2.Show("joined " + textBox_CloudName.Text, button_CloudJoin, 0, -20, 2000);
@@ -1134,18 +1258,18 @@ namespace XBSlink
 
         private void checkIncomingPortWithCloudServer()
         {
-            xbs_messages.addInfoMessage(" contacting cloud server...");
+            xbs_messages.addInfoMessage("contacting cloud server...", xbs_message_sender.GENERAL);
             if (xbs_cloudlist.askCloudServerForHello(textBox_cloudlist.Text, node_list.local_node.ip_public, node_list.local_node.port_public))
             {
                 lock (udp_listener._locker_HELLO)
                 {
-                    if (!xbs_natstun.isPortReachable)
+                    if (!xbs_upnp.isPortReachable)
                         Monitor.Wait(udp_listener._locker_HELLO, 1000);
                 }
 
-                if (xbs_natstun.isPortReachable == false)
+                if (xbs_upnp.isPortReachable == false)
                 {
-                    xbs_messages.addInfoMessage("!! cloudlist server HELLO timeout. incoming Port is CLOSED");
+                    xbs_messages.addInfoMessage("!! cloudlist server HELLO timeout. incoming Port is CLOSED", xbs_message_sender.GENERAL, xbs_message_type.WARNING);
                     MessageBox.Show(
                         "Your XBSlink is not reachable from the internet (port closed)." + Environment.NewLine +
                         "Please configure your router and firewall to forward a port to your computer or use UPnP where available." + Environment.NewLine + Environment.NewLine + 
@@ -1156,7 +1280,7 @@ namespace XBSlink
                     );
                 }
                 else
-                    xbs_messages.addInfoMessage("incoming Port is OPEN");
+                    xbs_messages.addInfoMessage("incoming Port is OPEN", xbs_message_sender.GENERAL);
             }
         }
 
@@ -1174,9 +1298,9 @@ namespace XBSlink
                         System.Diagnostics.Process.Start(Resources.url_xbslink_website);
                 }
                 else if (new_version_found < 0)
-                    xbs_messages.addInfoMessage("Latest XBSlink version found: v" + result);
+                    xbs_messages.addInfoMessage("Latest XBSlink version found: v" + result, xbs_message_sender.GENERAL);
                 else
-                    xbs_messages.addInfoMessage("You are using the latest XBSlink version.");
+                    xbs_messages.addInfoMessage("You are using the latest XBSlink version.", xbs_message_sender.GENERAL);
             }
         }
 
@@ -1198,12 +1322,6 @@ namespace XBSlink
 
         private void checkBox_mac_restriction_CheckedChanged(object sender, EventArgs e)
         {
-            if (listBox_MAC_list.Items.Count < 1 && checkBox_mac_restriction.Checked)
-            {
-                MessageBox.Show("you need to enter at least one MAC address to enable this option.", "XBSlink info", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                checkBox_mac_restriction.Checked = false;
-            }
-
             if (sniffer != null)
             {
                 sniffer.pdev_filter_only_forward_special_macs = checkBox_mac_restriction.Checked;
@@ -1213,20 +1331,269 @@ namespace XBSlink
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            List<xbs_node> nodes = node_list.getXBSNodeListCopy();
             if (tabControl1.SelectedTab == tabPage_chat)
             {
                 textBox_chatMessages.SelectionStart = textBox_chatMessages.Text.Length;
                 textBox_chatMessages.ScrollToCaret();
+                updateChatUserList(nodes);
+            }
+            else if (tabControl1.SelectedTab == tabPage_info)
+            {
+                updateMainInfo(nodes);
+                updateMainInfoListview(nodes, true);
+            }
+            else if (tabControl1.SelectedTab == tabPage_nat)
+                updateNATIPPoolListView();
+            else if (tabControl1.SelectedTab == tabPage_clouds)
+                resizeCloudListHeader();
+        }
+
+        private void resizeNodeListHeader()
+        {
+            if ((DateTime.Now - last_resizeNodeListHeader).TotalMilliseconds < 100)
+                return;
+            last_resizeNodeListHeader = DateTime.Now;
+            int size = listView_nodes.ClientSize.Width - columnHeader_nodeIP.Width - columnHeader_nodePort.Width - columnHeader_nodePing.Width - columnHeader_nodeVersion.Width - 2;
+            if (size > 0 && columnHeader_nodeNickname.Width != size)
+                columnHeader_nodeNickname.Width = size;
+        }
+
+        private void resizeCloudListHeader()
+        {
+            if ((DateTime.Now - last_resizeCloudListHeader).TotalMilliseconds < 100)
+                return;
+            last_resizeCloudListHeader = DateTime.Now;
+            int size = listView_clouds.ClientSize.Width - columnHeader_cloudlistmaxnodes.Width - columnHeader_cloudlistnodecount.Width - 2;
+            if (size>0 && columnHeader_cloudlistname.Width != size)
+                columnHeader_cloudlistname.Width = size;
+        }
+
+        private void resizeNATIPPoolHeaderHeader()
+        {
+            if ((DateTime.Now - last_resizeNATIPPoolHeaderHeader).TotalMilliseconds < 100)
+                return;
+            last_resizeNATIPPoolHeaderHeader = DateTime.Now;
+            int size = listView_nat_IPpool.ClientSize.Width - columnHeader_nat_ippool_localIP.Width - columnHeader_nat_ippool_device.Width - columnHeader_nat_ippool__originalIP.Width - 2;
+            if (size > 0 && columnHeader_nat_ippool_node.Width != size)
+                columnHeader_nat_ippool_node.Width = size;
+        }
+
+        private void listView_nodes_Resize(object sender, EventArgs e)
+        {
+            try
+            {
+                listView_nodes.BeginUpdate();
+                resizeNodeListHeader();
+                listView_nodes.Refresh();
+                listView_nodes.EndUpdate();
+            }
+            catch (Exception)
+            {
             }
         }
 
-        private void tabControl1_TabIndexChanged(object sender, EventArgs e)
+        private void listView_clouds_Resize(object sender, EventArgs e)
         {
-            if (tabControl1.SelectedTab == tabPage_chat)
+            try
             {
-                textBox_chatMessages.SelectionStart = textBox_chatMessages.Text.Length;
-                textBox_chatMessages.ScrollToCaret();
+                listView_clouds.BeginUpdate();
+                resizeCloudListHeader();
+                listView_clouds.Refresh();
+                listView_clouds.EndUpdate();
+            }
+            catch (Exception)
+            {
             }
         }
+
+        private void listView_nat_IPpool_Resize(object sender, EventArgs e)
+        {
+            try
+            {
+                listView_nat_IPpool.BeginUpdate();
+                resizeNATIPPoolHeaderHeader();
+                listView_nat_IPpool.Refresh();
+                listView_nat_IPpool.EndUpdate();
+            }
+            catch (Exception)
+            {
+            }
+
+        }
+
+        private void textBox_nat_iprange_from_TextChanged(object sender, EventArgs e)
+        {
+            if (textBox_nat_iprange_from.Text == "From")
+                textBox_nat_iprange_from.ForeColor = Color.LightGray;
+            else
+                textBox_nat_iprange_from.ForeColor = SystemColors.WindowText;
+        }
+
+        private void textBox_nat_iprange_from_Enter(object sender, EventArgs e)
+        {
+            if (textBox_nat_iprange_from.Text == "From")
+                textBox_nat_iprange_from.Text = "";
+        }
+
+        private void textBox_nat_iprange_from_Leave(object sender, EventArgs e)
+        {
+            if (textBox_nat_iprange_from.Text == "")
+                textBox_nat_iprange_from.Text = "From";
+        }
+
+        private void textBox_nat_iprange_to_TextChanged(object sender, EventArgs e)
+        {
+            if (textBox_nat_iprange_to.Text == "To")
+                textBox_nat_iprange_to.ForeColor = Color.LightGray;
+            else
+                textBox_nat_iprange_to.ForeColor = SystemColors.WindowText;
+        }
+
+        private void textBox_nat_iprange_to_Enter(object sender, EventArgs e)
+        {
+            if (textBox_nat_iprange_to.Text == "To")
+                textBox_nat_iprange_to.Text = (textBox_nat_iprange_from.Text.Length >= 7) ? textBox_nat_iprange_from.Text : "";
+        }
+
+        private void textBox_nat_iprange_to_Leave(object sender, EventArgs e)
+        {
+            if (textBox_nat_iprange_to.Text == "")
+                textBox_nat_iprange_to.Text = "To";
+        }
+
+        private void checkBox_nat_enable_CheckedChanged(object sender, EventArgs e)
+        {
+            NAT.NAT_enabled = checkBox_nat_enable.Checked;
+            //checkBox_NAT_enablePS3mode.Enabled = NAT.NAT_enabled;
+        }
+
+        private void button_nat_add_iprange_Click(object sender, EventArgs e)
+        {
+            IPAddress ip_start;
+            IPAddress ip_end;
+            IPAddress ip_netmask;
+            if (!IPAddress.TryParse(textBox_nat_iprange_from.Text, out ip_start))
+            {
+                MessageBox.Show("Error! Malformed IP address in IP range FROM field.", "XBSlink error", MessageBoxButtons.OK ,MessageBoxIcon.Error);
+                return;
+            }
+            if (!IPAddress.TryParse(textBox_nat_iprange_to.Text, out ip_end))
+            {
+                MessageBox.Show("Error! Malformed IP address in IP range TO field.", "XBSlink error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            if (!IPAddress.TryParse(comboBox_nat_netmask.Text, out ip_netmask))
+            {
+                MessageBox.Show("Error! Malformed address in IP netmask field.", "XBSlink error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            byte[] data;
+            data = ip_start.GetAddressBytes();
+            UInt32 range_start = EndianBitConverter.Big.ToUInt32(data, 0);
+            data = ip_end.GetAddressBytes();
+            UInt32 range_stop = EndianBitConverter.Big.ToUInt32(data, 0);
+            if (range_start>range_stop)
+            {
+                MessageBox.Show("Error! IP address range start is higher than IP address range end. ", "XBSlink error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            int count = NAT.ip_pool.addIPRangeToPool(ip_start, ip_end, ip_netmask);
+            if (count<=0)
+                MessageBox.Show("Error! could not add IPs to NAT IP pool.", "XBSlink error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            else
+                toolTip2.Show("Added "+count+" IPs to the pool.", button_nat_add_iprange, 0, -20, 2000);
+            updateNATIPPoolListView();
+        }
+
+        private void updateNATIPPoolListView()
+        {
+            if (tabControl1.SelectedTab != tabPage_nat)
+                return;
+            listView_nat_IPpool.BeginUpdate();
+            listView_nat_IPpool.Items.Clear();
+            xbs_nat_entry[] entries = NAT.ip_pool.getEntriesArray();
+            foreach (xbs_nat_entry entry in entries)
+            {
+                ListViewItem lv_item = listView_nat_IPpool.Items.Add(entry.natted_source_ip.ToString() + "/" + entry.natted_source_ip_netmask.ToString());
+                if (entry.original_source_ip!=null)
+                {
+                    lv_item.SubItems.Add(entry.source_mac.ToString());
+                    lv_item.SubItems.Add(entry.original_source_ip.ToString());
+                    xbs_node node = node_list.findNode(entry.source_mac);
+                    if (node != null)
+                        lv_item.SubItems.Add( node.nickname + " | "+node.ip_public+":"+node.port_public);
+                }
+            }
+            listView_nat_IPpool.EndUpdate();
+        }
+
+        private void button_nat_ippool_del_Click(object sender, EventArgs e)
+        {
+            ListView.SelectedListViewItemCollection items = listView_nat_IPpool.SelectedItems;
+            if (items == null || items.Count <= 0)
+                return;
+            IPAddress ip;
+            foreach (ListViewItem lv_item in items)
+            {
+                if (IPAddress.TryParse(lv_item.Text.Split('/')[0], out ip))
+                    NAT.ip_pool.removeIPFromPool(ip);
+#if DEBUG
+                else
+                    xbs_messages.addDebugMessage("!! could not delete NAT IP from pool. Error 0. " + lv_item.Text, xbs_message_sender.GENERAL, xbs_message_type.ERROR);
+#endif
+            }
+            updateNATIPPoolListView();
+        }
+
+        private void button_reset_settings_Click(object sender, EventArgs e)
+        {
+            if (engine_started)
+                return;
+            if (MessageBox.Show("Do you really want to discard your personal settings and reset to default values?", "XBSlink", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+            {
+                xbs_settings.settings.Reset();
+                initWithRegistryValues();
+                xbs_messages.addInfoMessage("settings have been reset to default values.", xbs_message_sender.GENERAL);
+            }
+        }
+
+        private void checkBox_filter_wellknown_ports_CheckedChanged(object sender, EventArgs e)
+        {
+            if (sniffer != null)
+            {
+                sniffer.pdev_filter_wellknown_ports = checkBox_filter_wellknown_ports.Checked;
+                if (engine_started)
+                    sniffer.setPdevFilter();
+            }
+        }
+
+        private void checkBox_nat_useDHCP_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void checkBox_NAT_enablePS3mode_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox_NAT_enablePS3mode.Checked)
+                checkBox_NAT_enablePS3mode.Checked = false;
+            //NAT.NAT_enablePS3mode = checkBox_NAT_enablePS3mode.Checked;
+        }
+
+        private void checkBox_excludeGatewayIPs_CheckedChanged(object sender, EventArgs e)
+        {
+            if (sniffer != null)
+            {
+                sniffer.pdev_filter_exclude_gatway_ips = checkBox_excludeGatewayIPs.Checked;
+                sniffer.setPdevFilter();
+            }
+        }
+
+        private void checkBox_chat_nodeInfoMessagesInChat_CheckedChanged(object sender, EventArgs e)
+        {
+            xbs_chat.message_when_nodes_join_or_leave = checkBox_chat_nodeInfoMessagesInChat.Checked;
+        }
+
     }
 }

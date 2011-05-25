@@ -21,6 +21,7 @@ along with SharpPcap.  If not, see <http://www.gnu.org/licenses/>.
 using System;
 using System.Text;
 using System.Runtime.InteropServices;
+using System.Threading;
 using SharpPcap.LibPcap;
 
 namespace SharpPcap.WinPcap
@@ -45,6 +46,30 @@ namespace SharpPcap.WinPcap
         /// For network captured packets this event is invoked only when working in "PcapMode.Statistics" mode.
         /// </summary>
         public event StatisticsModeEventHandler OnPcapStatistics;
+
+        /// <summary>
+        /// Starts the capturing process via a background thread
+        /// OnPacketArrival() will be called for each captured packet
+        ///
+        /// NOTE: Winpcap devices can capture packets or statistics updates
+        ///       so only if both a packet handler AND a statistics handler
+        ///       are defined will an exception be thrown
+        /// </summary>
+        public override void StartCapture()
+        {
+            if (!Started)
+            {
+                if (!Opened)
+                    throw new DeviceNotReadyException("Can't start capture, the pcap device is not opened.");
+
+                if ((IsOnPacketArrivalNull == true) && (OnPcapStatistics == null))
+                    throw new DeviceNotReadyException("No delegates assigned to OnPacketArrival or OnPcapStatistics, no where for captured packets to go.");
+
+                shouldCaptureThreadStop = false;
+                captureThread = new Thread(new ThreadStart(this.CaptureThread));
+                captureThread.Start();
+            }
+        }
 
         /// <summary>
         /// Open the device
@@ -171,9 +196,9 @@ namespace SharpPcap.WinPcap
         /// Notify the OnPacketArrival delegates about a newly captured packet
         /// </summary>
         /// <param name="p">
-        /// A <see cref="PacketDotNet.RawPacket"/>
+        /// A <see cref="RawCapture"/>
         /// </param>
-        new protected virtual void SendPacketArrivalEvent(PacketDotNet.RawPacket p)
+        new protected virtual void SendPacketArrivalEvent(RawCapture p)
         {
             if(Mode == CaptureMode.Packets)
             {

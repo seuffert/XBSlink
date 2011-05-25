@@ -58,6 +58,43 @@ namespace XBSlink
         }
     }
 
+    class xbs_node_statistics
+    {
+        public UInt64 packet_count_in = 0;
+        public UInt64 packet_count_out = 0;
+        public UInt64 bytes_in = 0;
+        public UInt64 bytes_out = 0;
+        DateTime last_update = DateTime.Now;
+#if DEBUG
+        public xbs_node node = null;
+#endif
+        public void sentPacket(uint bytes)
+        {
+            packet_count_out++;
+            bytes_out += bytes;
+            last_update = DateTime.Now;
+#if DEBUG
+            log_stats();
+#endif
+        }
+        public void receivedPacket(uint bytes)
+        {
+            packet_count_in++;
+            bytes_in += bytes;
+            last_update = DateTime.Now;
+#if DEBUG
+            log_stats();
+#endif
+        }
+
+#if DEBUG
+        public void log_stats()
+        {
+            //xbs_messages.addDebugMessage(" ~ STATS for \""+node.nickname+"\" IN:"+packet_count_in+"/"+bytes_in+" OUT:"+packet_count_out+"/"+bytes_out);
+        }
+#endif
+    }
+
     class xbs_node
     {
         public IPAddress ip_public;
@@ -70,28 +107,43 @@ namespace XBSlink
 
         public xbs_node_type node_type;
         public const String CLIENT_VERSION_UNKNOWN = "(unknown)";
-        public volatile String client_version = CLIENT_VERSION_UNKNOWN;
-        public volatile String nickname = "Anonymous";
-        public volatile bool nickname_received = false;
+        public volatile String _client_version;
+        public String client_version { get { return _client_version; } set { _client_version = value; changed(); } }
+        private volatile String _nickname;
+        public String nickname { get { return _nickname; } set { _nickname = value; changed(); } }
+        private volatile bool _nickname_received;
+        public bool nickname_received { get { return _nickname_received; } set { _nickname_received = value; changed(); } } 
+
+        public volatile xbs_node_statistics statistics = new xbs_node_statistics();
 
         private List<xbs_xbox> xbox_list;
 
-        private static PhysicalAddress broadcast_mac = new PhysicalAddress(new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF });
-
-        public volatile int last_ping_delay_ms = -1;
-        public DateTime lastPingTime = new DateTime(0);
-        public DateTime lastPongTime = DateTime.Now;
+        private volatile int _last_ping_delay_ms;
+        public int last_ping_delay_ms { get { return _last_ping_delay_ms; } private set { _last_ping_delay_ms = value; } } 
+        private DateTime lastPingTime = new DateTime(0);
+        public TimeSpan timeSinceLastPing { get { return (DateTime.Now - lastPingTime); } }
+        private DateTime lastPongTime = DateTime.Now;
+        public TimeSpan timeSinceLastPong { get { return (DateTime.Now - lastPongTime); } }
 
         public DateTime addedTime = DateTime.Now;
+        public DateTime lastChangeTime = DateTime.Now;
 
         public xbs_node(IPAddress ip_from, int port_from)
         {
+#if DEBUG
+            statistics.node = this;
+#endif
             this.ip_announced = null;
             this.port_announced = -1;
             this.ip_sendfrom = ip_from;
             this.port_sendfrom = port_from;
             this.ip_public = ip_from;
             this.port_public = port_from;
+            
+            client_version = CLIENT_VERSION_UNKNOWN;
+            nickname = "{Anonymous}";
+            nickname_received = false;
+            last_ping_delay_ms = -1;
 
             this.xbox_list = new List<xbs_xbox>();
             this.node_type = xbs_node_type.UDP;
@@ -117,7 +169,7 @@ namespace XBSlink
 
         public bool has_xbox(PhysicalAddress xbox_addr)
         {
-            if (xbox_addr.Equals(broadcast_mac))
+            if (xbox_addr.Equals(xbs_nat.broadcast_mac) || xbox_addr.Equals(xbs_nat.zero_mac))
                 return true;
             int hash = xbox_addr.GetHashCode();
             bool ret = false;
@@ -130,17 +182,34 @@ namespace XBSlink
             return ret;
         }
 
+        public void sendNodeMessage(xbs_node_message msg)
+        {
+            if (xbs_udp_listener.getInstance() != null)
+            {
+                xbs_udp_listener.getInstance().send_xbs_node_message(msg);
+                statistics.sentPacket(msg.getMessageByteArraySize());
+            }
+        }
+        public void sendNodeMessageHighPrio(xbs_node_message msg)
+        {
+            if (xbs_udp_listener.getInstance() != null)
+            {
+                xbs_udp_listener.getInstance().send_xbs_node_message_high_prio(msg);
+                statistics.sentPacket(msg.getMessageByteArraySize());
+            }
+        }
+
         public void sendDataMessage( ref byte[] data)
         {
             xbs_node_message_data msg = new xbs_node_message_data(this, data);
-            xbs_udp_listener.getInstance().send_xbs_node_message_high_prio(msg);
+            sendNodeMessageHighPrio( msg );
         }
 
         public void sendAddNodeMessage(IPAddress ip, int port)
         {
             xbs_node_message_addnode msg_addnode = new xbs_node_message_addnode( ip, (UInt16)port);
             msg_addnode.receiver = this;
-            xbs_udp_listener.getInstance().send_xbs_node_message(msg_addnode);
+            sendNodeMessage(msg_addnode);
         }
 
         public void sendAddNodeMessage(xbs_node node)
@@ -152,7 +221,8 @@ namespace XBSlink
         {
             xbs_node_message_knownnode msg_knownnode = new xbs_node_message_knownnode(ip, (UInt16)port);
             msg_knownnode.receiver = this;
-            xbs_udp_listener.getInstance().send_xbs_node_message(msg_knownnode);
+            sendNodeMessage(msg_knownnode);
+            
         }
 
         public void sendKnownNodeMessage(xbs_node node)
@@ -160,7 +230,7 @@ namespace XBSlink
             sendKnownNodeMessage(node.ip_public, (UInt16)node.port_public);
         }
 
-        public void addXbox(PhysicalAddress mac)
+        public bool addXbox(PhysicalAddress mac)
         {
             int hash = mac.GetHashCode();
             bool xbox_found = false;
@@ -173,7 +243,11 @@ namespace XBSlink
                     xbox_list.Add(new xbs_xbox(mac));
             }
             if (!xbox_found)
-                xbs_messages.addInfoMessage(" ~ added new device " + mac + " for node " + this);
+            {
+                xbs_messages.addInfoMessage(" ~ added new device " + mac + " for node " + this, xbs_message_sender.NODE);
+                changed();
+            }
+            return (!xbox_found);
         }
 
         public bool Equals(xbs_node node)
@@ -193,35 +267,36 @@ namespace XBSlink
         public void sendDelNodeMessage(xbs_node node)
         {
 #if DEBUG
-            xbs_messages.addInfoMessage(" ~ sending DelNodeMessage to " + this + " for node " + node);
+            xbs_messages.addInfoMessage(" ~ sending DelNodeMessage to " + this + " for node " + node, xbs_message_sender.NODE);
 #endif
             xbs_node_message_delnode msg = new xbs_node_message_delnode(node.ip_public, (UInt16)node.port_public);
             msg.receiver = this;
-            xbs_udp_listener.getInstance().send_xbs_node_message(msg);
+            sendNodeMessage(msg);
         }
 
         public void sendPing()
         {
             xbs_node_message_ping msg_ping = new xbs_node_message_ping(this);
-            xbs_udp_listener.getInstance().send_xbs_node_message(msg_ping);
+            sendNodeMessage(msg_ping);
+            lastPingTime = DateTime.Now;
         }
 
         public void sendGetClientVersion()
         {
             xbs_node_message_getclientversion msg = new xbs_node_message_getclientversion(this);
-            xbs_udp_listener.getInstance().send_xbs_node_message(msg);
+            sendNodeMessage(msg);
         }
 
         public void sendChatMessage(String chat_message)
         {
             xbs_node_message_chatmsg msg = new xbs_node_message_chatmsg(this, chat_message);
-            xbs_udp_listener.getInstance().send_xbs_node_message(msg);
+            sendNodeMessage(msg);
         }
 
         public void sendGetNickname()
         {
             xbs_node_message_getnickname msg = new xbs_node_message_getnickname(this);
-            xbs_udp_listener.getInstance().send_xbs_node_message(msg);
+            sendNodeMessage(msg);
         }
 
         public IPAddress getSendToIP()
@@ -236,7 +311,11 @@ namespace XBSlink
 
         public void pong( int ms )
         {
-            last_ping_delay_ms = ms;
+            if (last_ping_delay_ms != ms)
+            {
+                changed();
+                last_ping_delay_ms = ms;
+            }
             lastPongTime = DateTime.Now;
         }
 
@@ -244,14 +323,14 @@ namespace XBSlink
         {
             xbs_node_message_toCloudHelper_HelpWithNode msg = new xbs_node_message_toCloudHelper_HelpWithNode(node.ip_public, (UInt16)node.port_public);
             msg.receiver = this;
-            xbs_udp_listener.getInstance().send_xbs_node_message(msg);
+            sendNodeMessage(msg);
         }
 
         public void send_fromCloudhelper_helpWithAddingNode(xbs_node node)
         {
             xbs_node_message_fromCloudHelper_ContactNode msg = new xbs_node_message_fromCloudHelper_ContactNode(node.ip_public, (UInt16)node.port_public);
             msg.receiver = this;
-            xbs_udp_listener.getInstance().send_xbs_node_message(msg);
+            sendNodeMessage(msg);
         }
 
         public int get_xbox_count()
@@ -260,6 +339,17 @@ namespace XBSlink
             lock (this)
                 count = this.xbox_list.Count;
             return count;
+        }
+
+        private void changed()
+        {
+            lastChangeTime = DateTime.Now;
+        }
+
+        public xbs_xbox[] getXboxArray()
+        {
+            lock (this)
+                return xbox_list.ToArray();
         }
     }
 }

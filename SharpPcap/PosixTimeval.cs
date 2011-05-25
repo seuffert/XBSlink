@@ -1,25 +1,25 @@
 /*
-This file is part of PacketDotNet
+This file is part of SharpPcap
 
-PacketDotNet is free software: you can redistribute it and/or modify
+SharpPcap is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-PacketDotNet is distributed in the hope that it will be useful,
+SharpPcap is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
-along with PacketDotNet.  If not, see <http://www.gnu.org/licenses/>.
+along with SharpPcap.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*
- * Copyright 2009 Chris Morgan <chmorgan@gmail.com>
+ * Copyright 2009-2011 Chris Morgan <chmorgan@gmail.com>
  */
 
 using System;
-namespace PacketDotNet
+namespace SharpPcap
 {
     /// <summary> POSIX.4 timeval</summary>
     public class PosixTimeval : IComparable<PosixTimeval>
@@ -152,8 +152,8 @@ namespace PacketDotNet
         /// </returns>
         public static bool operator==(PosixTimeval a, PosixTimeval b)
         {
-            return ((a.Seconds == b.Seconds) &&
-                    (a.MicroSeconds == b.MicroSeconds));
+            // Object.Equals() checks for null and then calls a.Equals(b)
+            return Object.Equals(a, b);
         }
 
         /// <summary>
@@ -221,11 +221,9 @@ namespace PacketDotNet
 
         private static DateTime UnixTimeValToDateTime(UInt64 tvSec, UInt64 tvUsec)
         {
-            // add the tvSec value
-            DateTime dt = epochDateTime.AddSeconds(tvSec);
-            dt = dt.AddMilliseconds(tvUsec / 1000); // convert microseconds to milliseconds
-
-            return dt;
+            ulong ticks = (tvUsec * (TimeSpan.TicksPerMillisecond / 1000)) +
+                         (tvSec * TimeSpan.TicksPerSecond);
+            return epochDateTime.AddTicks((long)ticks);
         }
 
         /// <summary>
