@@ -190,21 +190,32 @@ namespace XBSlink
         private bool initializeCaptureDeviceList()
         {
             DialogResult res = DialogResult.No;
-            pcap_devices = CaptureDeviceList.Instance;
-            if (pcap_devices.Count < 1 && System.Environment.OSVersion.Platform == PlatformID.Win32NT)
+            try
+            {
+                pcap_devices = CaptureDeviceList.Instance;
+            }
+            catch (PcapException pex)
+            {
+            }
+            if (System.Environment.OSVersion.Platform == PlatformID.Win32NT && (pcap_devices==null || pcap_devices.Count < 1) )
             {
                 res = MessageBox.Show(Resources.message_no_capture_devices_startNPF, "XBSlink error", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
                 if (res == DialogResult.Yes)
                 {
                     startNPFdriver();
-                    pcap_devices = CaptureDeviceList.New();
+                    try
+                    {
+                        pcap_devices = CaptureDeviceList.New();
+                    }
+                    catch (PcapException pex)
+                    {
+                    }
                 }
             }
 
-            foreach (LibPcapLiveDevice dev in pcap_devices)
-            {
-                comboBox_captureDevice.Items.Add(dev.Interface.FriendlyName + " (" + dev.Interface.Description + ")");
-            }
+            if (pcap_devices!=null)
+                foreach (LibPcapLiveDevice dev in pcap_devices)
+                    comboBox_captureDevice.Items.Add(dev.Interface.FriendlyName + " (" + dev.Interface.Description + ")");
 
             if (comboBox_captureDevice.Items.Count > 0)
                 comboBox_captureDevice.SelectedIndex = 0;
