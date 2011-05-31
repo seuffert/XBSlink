@@ -1,12 +1,14 @@
 <?php
 /*
  * simple cloud list server script for XBSlink
- * Version v1.7
+ * Version v1.7.1
  * by Oliver Seuffert 2011
  * 
  * php sqlite3 plugin is needed
  *  
  *  Changelog:
+ *  v1.7.1
+ *   - bugfix in updateNode
  *  v1.7
  *   - send nodelist to client on UPDATE
  *  v1.6.1
@@ -285,7 +287,7 @@ class xbslink_cloudlist_server
 		return RETURN_CODE_OK;
 	}
 	
-	private function updateNode($cloudname, $uuid)
+	private function updateNode($cloudname, $uuid )
 	{
 		$row = $this->findCloud($cloudname);
 		if ($row==false)
@@ -304,7 +306,8 @@ class xbslink_cloudlist_server
 			{
 				$ip = $nodes[$n]["ip"];
 				$port = $nodes[$n]["port"];
-				if ($ip!=$node_ip || ( $ip!=$node_ip && $port!=$node_port) )
+				$node_uuid = $nodes[$n]['uuid'];
+				if ( $uuid != $node_uuid )
 					$ret_str .= "\n" . PARAM_NODEIP ."=".urlencode(long2ip($ip))."&". PARAM_NODEPORT . "=".urlencode($port);
 			}
 		}
@@ -423,7 +426,7 @@ class xbslink_cloudlist_server
 				return $this->leaveCloud( $cloudname, $uuid);
 				break;
 			case CMD_UPDATE:
-				return $this->updateNode($cloudname, $uuid);
+				return $this->updateNode($cloudname, $uuid );
 			case CMD_STATS:
 				return $this->list_stats();
 				break;
