@@ -209,7 +209,8 @@ namespace XBSlink
             }
             if (!result.StartsWith(xbs_cloudlist_returncode.RETURN_CODE_OK))
             {
-                MessageBox.Show("could not join cloud "+cloudname);
+                MessageBox.Show("could not join cloud "+cloudname+Environment.NewLine+"Error: \""+result+"\""+
+                                    Environment.NewLine+Environment.NewLine + "remember, only XBSlink nodes with an open port can create clouds", "XBSlink error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
 #if DEBUG
