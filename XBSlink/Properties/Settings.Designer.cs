@@ -310,5 +310,17 @@ namespace XBSlink.Properties {
                 this["SettingsUpdateNeeded"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool REG_SNIFFER_FORWARD_ALL_HIGH_PORT_BROADCASTS {
+            get {
+                return ((bool)(this["REG_SNIFFER_FORWARD_ALL_HIGH_PORT_BROADCASTS"]));
+            }
+            set {
+                this["REG_SNIFFER_FORWARD_ALL_HIGH_PORT_BROADCASTS"] = value;
+            }
+        }
     }
 }

@@ -49,6 +49,7 @@ namespace XBSlink
         public bool pdev_filter_only_forward_special_macs = true;
         public bool pdev_filter_wellknown_ports = true;
         public bool pdev_filter_exclude_gatway_ips = true;
+        public bool pdev_filter_forward_high_port_broadcasts = false;
 
         private const String pdev_filter_template_include = "{include_filters}";
         private const String pdev_filter_template_exclude = "{exlude_filters}";
@@ -415,7 +416,11 @@ namespace XBSlink
                 exclude_filter_list.Add("ip and (dst portrange 1-1023 or src portrange 1-1023)");
             // include packets to game console specific ports/IPs
             if (!(pdev_filter_use_special_macs && pdev_filter_only_forward_special_macs))
+            {
                 include_filter_list.Add(pdev_filter_gameconsoles);
+                if (pdev_filter_forward_high_port_broadcasts)
+                    include_filter_list.Add("ether dst ff:ff:ff:ff:ff:ff and udp and dst portrange 1024-65535");
+            }
 
             // include packets TO MACs from remote users
             // exclude packets FROM MACs from remote users

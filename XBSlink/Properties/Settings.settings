@@ -74,5 +74,8 @@
     <Setting Name="SettingsUpdateNeeded" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="REG_SNIFFER_FORWARD_ALL_HIGH_PORT_BROADCASTS" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

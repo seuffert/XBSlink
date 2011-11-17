@@ -157,6 +157,7 @@ namespace XBSlink
             this.timer_startEngine = new System.Windows.Forms.Timer(this.components);
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.toolTip2 = new System.Windows.Forms.ToolTip(this.components);
+            this.checkBox_forward_all_high_port_broadcast = new System.Windows.Forms.CheckBox();
             this.statusStrip.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage_info.SuspendLayout();
@@ -240,8 +241,8 @@ namespace XBSlink
             // 
             // comboBox_captureDevice
             // 
-            this.comboBox_captureDevice.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.comboBox_captureDevice.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBox_captureDevice.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_captureDevice.FormattingEnabled = true;
             this.comboBox_captureDevice.Location = new System.Drawing.Point(9, 29);
@@ -341,7 +342,7 @@ namespace XBSlink
             this.label2.TabIndex = 12;
             this.label2.Text = "Capture Device (connected to same network as game console)";
             this.toolTip1.SetToolTip(this.label2, "select the network device thats connected to the same network as your Xbox360. Wi" +
-                    "reless adpaters will most likely NOT work!");
+        "reless adpaters will most likely NOT work!");
             // 
             // label3
             // 
@@ -372,9 +373,9 @@ namespace XBSlink
             // 
             // tabControl1
             // 
-            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.tabPage_info);
             this.tabControl1.Controls.Add(this.tabPage_clouds);
             this.tabControl1.Controls.Add(this.tabPage_chat);
@@ -414,9 +415,9 @@ namespace XBSlink
             // 
             // listView_nodes
             // 
-            this.listView_nodes.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.listView_nodes.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.listView_nodes.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader_nodeIP,
             this.columnHeader_nodePort,
@@ -463,8 +464,8 @@ namespace XBSlink
             // 
             // textBox1
             // 
-            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox1.Location = new System.Drawing.Point(0, 312);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
@@ -573,8 +574,8 @@ namespace XBSlink
             // 
             // textBox_CloudName
             // 
-            this.textBox_CloudName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox_CloudName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_CloudName.Enabled = false;
             this.textBox_CloudName.Location = new System.Drawing.Point(6, 382);
             this.textBox_CloudName.Name = "textBox_CloudName";
@@ -594,8 +595,8 @@ namespace XBSlink
             // 
             // textBox_cloudlist
             // 
-            this.textBox_cloudlist.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox_cloudlist.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_cloudlist.Location = new System.Drawing.Point(61, 2);
             this.textBox_cloudlist.Name = "textBox_cloudlist";
             this.textBox_cloudlist.Size = new System.Drawing.Size(203, 20);
@@ -613,9 +614,9 @@ namespace XBSlink
             // 
             // listView_clouds
             // 
-            this.listView_clouds.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.listView_clouds.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.listView_clouds.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.listView_clouds.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader_cloudlistname,
@@ -659,9 +660,9 @@ namespace XBSlink
             // 
             // splitContainer1
             // 
-            this.splitContainer1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.splitContainer1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.splitContainer1.Location = new System.Drawing.Point(0, 3);
             this.splitContainer1.Name = "splitContainer1";
             // 
@@ -681,9 +682,9 @@ namespace XBSlink
             // 
             // textBox_chatMessages
             // 
-            this.textBox_chatMessages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox_chatMessages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_chatMessages.BackColor = System.Drawing.Color.WhiteSmoke;
             this.textBox_chatMessages.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.textBox_chatMessages.Location = new System.Drawing.Point(3, 0);
@@ -696,9 +697,9 @@ namespace XBSlink
             // 
             // listBox_chatUserList
             // 
-            this.listBox_chatUserList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.listBox_chatUserList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.listBox_chatUserList.FormattingEnabled = true;
             this.listBox_chatUserList.IntegralHeight = false;
             this.listBox_chatUserList.Location = new System.Drawing.Point(3, 17);
@@ -740,8 +741,8 @@ namespace XBSlink
             // 
             // textBox_chatEntry
             // 
-            this.textBox_chatEntry.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox_chatEntry.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_chatEntry.Location = new System.Drawing.Point(0, 385);
             this.textBox_chatEntry.MaxLength = 1400;
             this.textBox_chatEntry.Name = "textBox_chatEntry";
@@ -775,9 +776,9 @@ namespace XBSlink
             // 
             // listBox_messages
             // 
-            this.listBox_messages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.listBox_messages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.listBox_messages.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.listBox_messages.FormattingEnabled = true;
             this.listBox_messages.HorizontalScrollbar = true;
@@ -802,6 +803,7 @@ namespace XBSlink
             // 
             this.tabPage_settings.AutoScroll = true;
             this.tabPage_settings.BackColor = System.Drawing.SystemColors.Control;
+            this.tabPage_settings.Controls.Add(this.checkBox_forward_all_high_port_broadcast);
             this.tabPage_settings.Controls.Add(this.checkBox_excludeGatewayIPs);
             this.tabPage_settings.Controls.Add(this.checkBox_filter_wellknown_ports);
             this.tabPage_settings.Controls.Add(this.button_reset_settings);
@@ -850,7 +852,7 @@ namespace XBSlink
             this.checkBox_filter_wellknown_ports.TabIndex = 35;
             this.checkBox_filter_wellknown_ports.Text = "filter packets to well known ports (p<1024)";
             this.toolTip1.SetToolTip(this.checkBox_filter_wellknown_ports, "This security feature prevents XBSlink from accidently forwarding packets of loca" +
-                    "l services.");
+        "l services.");
             this.checkBox_filter_wellknown_ports.UseVisualStyleBackColor = true;
             this.checkBox_filter_wellknown_ports.CheckedChanged += new System.EventHandler(this.checkBox_filter_wellknown_ports_CheckedChanged);
             // 
@@ -942,7 +944,7 @@ namespace XBSlink
             this.checkBox_chatAutoSwitch.TabIndex = 2;
             this.checkBox_chatAutoSwitch.Text = "auto switch to chat tab";
             this.toolTip1.SetToolTip(this.checkBox_chatAutoSwitch, "enable this option if you whish to automatically switch to the chat tab when mess" +
-                    "ages arrive");
+        "ages arrive");
             this.checkBox_chatAutoSwitch.UseVisualStyleBackColor = true;
             this.checkBox_chatAutoSwitch.CheckedChanged += new System.EventHandler(this.checkBox_chatAutoSwitch_CheckedChanged);
             // 
@@ -1011,7 +1013,7 @@ namespace XBSlink
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "\"always forward\" MAC list";
             this.toolTip1.SetToolTip(this.groupBox1, "XBSlink will always forward packets from network devices with a MAC address liste" +
-                    "d here.");
+        "d here.");
             // 
             // checkBox_mac_restriction
             // 
@@ -1195,9 +1197,9 @@ namespace XBSlink
             // 
             // listView_nat_IPpool
             // 
-            this.listView_nat_IPpool.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.listView_nat_IPpool.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.listView_nat_IPpool.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader_nat_ippool_localIP,
             this.columnHeader_nat_ippool_device,
@@ -1234,8 +1236,8 @@ namespace XBSlink
             // 
             // groupBox3
             // 
-            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox3.Controls.Add(this.checkBox_NAT_enablePS3mode);
             this.groupBox3.Controls.Add(this.checkBox_nat_useDHCP);
             this.groupBox3.Controls.Add(this.checkBox_nat_enable);
@@ -1303,9 +1305,9 @@ namespace XBSlink
             // 
             // richTextBox_about
             // 
-            this.richTextBox_about.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.richTextBox_about.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.richTextBox_about.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.richTextBox_about.Location = new System.Drawing.Point(0, 3);
             this.richTextBox_about.Name = "richTextBox_about";
@@ -1320,8 +1322,8 @@ namespace XBSlink
             // 
             // comboBox_RemoteHost
             // 
-            this.comboBox_RemoteHost.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.comboBox_RemoteHost.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBox_RemoteHost.FormattingEnabled = true;
             this.comboBox_RemoteHost.Location = new System.Drawing.Point(86, 39);
             this.comboBox_RemoteHost.Name = "comboBox_RemoteHost";
@@ -1340,6 +1342,20 @@ namespace XBSlink
             // toolTip2
             // 
             this.toolTip2.ShowAlways = true;
+            // 
+            // checkBox_forward_all_high_port_broadcast
+            // 
+            this.checkBox_forward_all_high_port_broadcast.AutoSize = true;
+            this.checkBox_forward_all_high_port_broadcast.Checked = true;
+            this.checkBox_forward_all_high_port_broadcast.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_forward_all_high_port_broadcast.Location = new System.Drawing.Point(9, 202);
+            this.checkBox_forward_all_high_port_broadcast.Name = "checkBox_forward_all_high_port_broadcast";
+            this.checkBox_forward_all_high_port_broadcast.Size = new System.Drawing.Size(254, 17);
+            this.checkBox_forward_all_high_port_broadcast.TabIndex = 37;
+            this.checkBox_forward_all_high_port_broadcast.Text = "forward all udp broadcast on high ports (p>1024)";
+            this.toolTip1.SetToolTip(this.checkBox_forward_all_high_port_broadcast, "Protects your network from being disrupted by a faulty XBSlink node.");
+            this.checkBox_forward_all_high_port_broadcast.UseVisualStyleBackColor = true;
+            this.checkBox_forward_all_high_port_broadcast.CheckedChanged += new System.EventHandler(this.checkBox_forward_all_high_port_broadcast_CheckedChanged);
             // 
             // FormMain
             // 
@@ -1501,6 +1517,7 @@ namespace XBSlink
         private System.Windows.Forms.CheckBox checkBox_excludeGatewayIPs;
         private System.Windows.Forms.CheckBox checkBox_chat_nodeInfoMessagesInChat;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel_icon;
+        private System.Windows.Forms.CheckBox checkBox_forward_all_high_port_broadcast;
     }
 }
 

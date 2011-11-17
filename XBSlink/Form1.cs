@@ -297,6 +297,7 @@ namespace XBSlink
             checkBox_NAT_enablePS3mode.Checked = s.REG_PS3_COMPAT_MODE_ENABLE;
             checkBox_excludeGatewayIPs.Checked = s.REG_SNIFFER_EXCLUDE_GATWAY_IPS;
             checkBox_chat_nodeInfoMessagesInChat.Checked = s.REG_CHAT_NODEINFOMESSAGES;
+            checkBox_forward_all_high_port_broadcast.Checked = s.REG_SNIFFER_FORWARD_ALL_HIGH_PORT_BROADCASTS;
             xbs_chat.message_when_nodes_join_or_leave = s.REG_CHAT_NODEINFOMESSAGES;
 
             if (checkBox_enable_MAC_list.Checked)
@@ -335,6 +336,7 @@ namespace XBSlink
             s.REG_PS3_COMPAT_MODE_ENABLE = checkBox_NAT_enablePS3mode.Checked;
             s.REG_SNIFFER_EXCLUDE_GATWAY_IPS = checkBox_excludeGatewayIPs.Checked;
             s.REG_CHAT_NODEINFOMESSAGES = checkBox_chat_nodeInfoMessagesInChat.Checked;
+            s.REG_SNIFFER_FORWARD_ALL_HIGH_PORT_BROADCASTS = checkBox_forward_all_high_port_broadcast.Checked;
             s.Save();
         }
 
@@ -1605,6 +1607,16 @@ namespace XBSlink
         private void checkBox_chat_nodeInfoMessagesInChat_CheckedChanged(object sender, EventArgs e)
         {
             xbs_chat.message_when_nodes_join_or_leave = checkBox_chat_nodeInfoMessagesInChat.Checked;
+        }
+
+        private void checkBox_forward_all_high_port_broadcast_CheckedChanged(object sender, EventArgs e)
+        {
+            if (sniffer != null)
+            {
+                sniffer.pdev_filter_forward_high_port_broadcasts = checkBox_forward_all_high_port_broadcast.Checked;
+                sniffer.setPdevFilter();
+            }
+
         }
 
     }
