@@ -128,6 +128,8 @@ namespace XBSlink
         public DateTime addedTime = DateTime.Now;
         public DateTime lastChangeTime = DateTime.Now;
 
+        public int ask_cloudhelper_count = 0;
+
         public xbs_node(IPAddress ip_from, int port_from)
         {
 #if DEBUG

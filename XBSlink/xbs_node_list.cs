@@ -42,6 +42,7 @@ namespace XBSlink
         public const int MIN_PING_DELAY_SECONDS = 20;
         public const int MAX_PING_NO_RESPONSE_SECONDS = 30;
         public const int MAX_ADD_NODE_TIMEOUT_SECONDS = 2;
+        public const int MAX_ASK_CLOUDHELPER_COUNT = 3;
         private volatile bool run_ping_nodes_loop = true;
 
         public volatile bool notify_on_new_node = true;
@@ -50,6 +51,8 @@ namespace XBSlink
 
         private DateTime last_change_time;
         private Object last_change_lock = new Object();
+
+        private Random my_random = new Random();
 
         public xbs_node_list()
         {
@@ -364,38 +367,39 @@ namespace XBSlink
 
         private void checkNodesInAddingList()
         {
-            int count;
             TimeSpan time_elapsed;
             List<xbs_node> cloud_helper_node_list = new List<xbs_node>();
 
             lock (node_list_adding)
-                count = node_list_adding.Count;
-            if (count == 0)
-                return;
-            lock (node_list_adding)
             {
+                if (node_list_adding.Count == 0)
+                    return;
                 foreach (xbs_node node in node_list_adding)
                 {
                     time_elapsed = DateTime.Now - node.addedTime;
-                    if (time_elapsed.TotalSeconds>=MAX_ADD_NODE_TIMEOUT_SECONDS)
-                        cloud_helper_node_list.Add(node);                        
+                    if (time_elapsed.TotalSeconds >= MAX_ADD_NODE_TIMEOUT_SECONDS)
+                    {
+                        cloud_helper_node_list.Add(node);
+                        node.ask_cloudhelper_count++;
+                        node.addedTime = DateTime.Now;
+                    }
                 }
                 foreach (xbs_node node in cloud_helper_node_list)
-                    node_list_adding.Remove(node);
+                    if (node.ask_cloudhelper_count >= MAX_ASK_CLOUDHELPER_COUNT)
+                        node_list_adding.Remove(node);
             }
 
             foreach (xbs_node node in cloud_helper_node_list)
-            {
                 askCloudHelperToSendAddNodeMessage(node);
-            }
-
         }
 
         private void askCloudHelperToSendAddNodeMessage(xbs_node node)
         {
             xbs_node cloud_helper;
-            lock (node_list_adding)
-                cloud_helper = node_list.Count == 0 ? null : node_list[0];
+            lock (node_list)
+            {
+                cloud_helper = node_list.Count == 0 ? null : node_list[my_random.Next(0, node_list.Count - 1)];
+            }
             if (cloud_helper == null)
                 return;
             xbs_messages.addInfoMessage("+ asking cloud_helper (" + cloud_helper + ") for help to add node " + node, xbs_message_sender.NODELIST);
