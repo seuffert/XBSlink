@@ -730,7 +730,7 @@ namespace XBSlink
                 return;
             try
             {
-                for (int i = listView_nodes.Items.Count - 1; i > 0; i--)
+                for (int i = listView_nodes.Items.Count - 1; i >= 0; i--)
                 {
                     ListViewItem lv_item = listView_nodes.Items[i];
                     IPAddress ip = IPAddress.Parse(lv_item.Text);
@@ -1215,6 +1215,7 @@ namespace XBSlink
                 textBox_CloudPassword.Enabled = true;
                 sniffer.clearKnownMACsFromRemoteNodes();
                 sniffer.setPdevFilter();
+                purgeDeletedNodesInMainInfo();
             }
         }
 
