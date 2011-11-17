@@ -54,7 +54,7 @@ namespace XBSlink
         private const String pdev_filter_template_exclude = "{exlude_filters}";
         private String pdev_filter_template = "(" + pdev_filter_template_include + ") and not (" + pdev_filter_template_exclude + ")";
         private String pdev_filter_template_only_include = "(" + pdev_filter_template_include + ")";
-        private const String pdev_filter_gameconsoles = "(udp and ((ip host 0.0.0.1) or (dst portrange 3074-3075))) ";
+        private const String pdev_filter_gameconsoles = "(udp and ((ip host 0.0.0.1) or (dst portrange 3074-3075) or (dst portrange 14000-14001))) ";
         private String pdev_filter_gateways = "";
         private String pdev_filter_fallback = pdev_filter_gameconsoles;
 
