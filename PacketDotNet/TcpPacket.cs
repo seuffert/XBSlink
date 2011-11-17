@@ -209,7 +209,11 @@ namespace PacketDotNet
             }
         }
 
-        private int AllFlags
+        /// <summary>
+        /// Flags, 9 bits
+        /// TODO: Handle the NS bit
+        /// </summary>
+        public byte AllFlags
         {
             get
             {
@@ -292,9 +296,9 @@ namespace PacketDotNet
         private void setFlag(bool on, int MASK)
         {
             if (on)
-                AllFlags = AllFlags | MASK;
+                AllFlags = (byte)(AllFlags | MASK);
             else
-                AllFlags = AllFlags & ~MASK;
+                AllFlags = (byte)(AllFlags & ~MASK);
         }
 
         /// <summary> Fetch ascii escape sequence of the color associated with this packet type.</summary>
@@ -482,7 +486,18 @@ namespace PacketDotNet
             while(offset < optionBytes.Length)
             {
                 type = (OptionTypes)optionBytes[offset + Option.KindFieldOffset];
-                length = optionBytes[offset + Option.LengthFieldOffset];
+
+                // some options have no length field, we cannot read
+                // the length field if it isn't present or we risk
+                // out-of-bounds issues
+                if((type == OptionTypes.EndOfOptionList) ||
+                   (type == OptionTypes.NoOperation))
+                {
+                    length = 1;
+                } else
+                {
+                    length = optionBytes[offset + Option.LengthFieldOffset];
+                }
 
                 switch(type)
                 {
