@@ -52,6 +52,13 @@ namespace XBSlink
         public xbs_settings()
         {
             settings = new Settings();
+            if (settings.SettingsUpdateNeeded)
+            {
+                xbs_messages.addInfoMessage("upgraded user settings from previous version", xbs_message_sender.GENERAL);
+                settings.Upgrade();
+                settings.SettingsUpdateNeeded = false;
+                settings.Save();
+            }
             initRegArray();            
         }
         public void initRegArray()
