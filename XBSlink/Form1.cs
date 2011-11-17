@@ -288,7 +288,6 @@ namespace XBSlink
             checkBox_chat_notify.Checked = s.REG_CHAT_SOUND_NOTIFICATION;
             checkBox_newNodeSound.Checked = s.REG_NEW_NODE_SOUND_NOTIFICATION;
             textBox_cloudlist.Text = (s.REG_CLOUDLIST_SERVER.Length!=0) ? s.REG_CLOUDLIST_SERVER : xbs_cloudlist.DEFAULT_CLOUDLIST_SERVER;
-            //textBox_cloudlist.Text = "http://www.secudb.de/~seuffert/xbslink/cloudlist_test/";
             checkBox_useCloudServerForPortCheck.Checked = s.REG_USE_CLOUDLIST_SERVER_TO_CHECK_INCOMING_PORT;
             textBox_chatNickname.Text = (s.REG_CHAT_NICKNAME.Length!=0) ? s.REG_CHAT_NICKNAME : xbs_chat.STANDARD_NICKNAME;
             checkBox_checkForUpdates.Checked = s.REG_CHECK4UPDATES;
@@ -707,10 +706,23 @@ namespace XBSlink
         {
             if (tabControl1.SelectedTab != tabPage_chat)
                 return;
-            listBox_chatUserList.Items.Clear();
-            label_num_persons_in_chat.Text = nodes.Count.ToString();
+            
+            List<String> chat_names = new List<string>();
             foreach (xbs_node node in nodes)
-                listBox_chatUserList.Items.Add(node.nickname);
+                chat_names.Add(node.nickname);
+
+            label_num_persons_in_chat.Text = nodes.Count.ToString();
+
+            foreach (String name in chat_names)
+                if (!listBox_chatUserList.Items.Contains(name))
+                    listBox_chatUserList.Items.Add(name);
+            
+            List<String> to_remove = new List<String>();
+            foreach (String name in listBox_chatUserList.Items)
+                if (!chat_names.Contains(name))
+                    to_remove.Add(name);
+            foreach (String name in to_remove)
+                listBox_chatUserList.Items.Remove(name);
         }
 
         private void updateMainInfoListview(List<xbs_node> nodes, bool update_all)
