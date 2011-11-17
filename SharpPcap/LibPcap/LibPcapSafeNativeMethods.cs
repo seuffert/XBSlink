@@ -16,8 +16,8 @@ along with SharpPcap.  If not, see <http://www.gnu.org/licenses/>.
 */
 /* 
  * Copyright 2005 Tamir Gal <tamir@tamirgal.com>
- * Copyright 2008-2009 Chris Morgan <chmorgan@gmail.com>
  * Copyright 2008-2009 Phillip Lemon <lucidcomms@gmail.com>
+ * Copyright 2008-2011 Chris Morgan <chmorgan@gmail.com>
  */
 
 using System;
@@ -47,7 +47,7 @@ namespace SharpPcap.LibPcap
         internal extern static void pcap_freealldevs(IntPtr /* pcap_if_t * */ alldevs);
 
         [DllImport(PCAP_DLL, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal extern static IntPtr /* pcap_t* */ pcap_open_live(string dev, int packetLen, short mode, short timeout, StringBuilder errbuf);
+        internal extern static IntPtr /* pcap_t* */ pcap_open_live(string dev, int packetLen, int promisc, int to_ms, StringBuilder errbuf);
 
         [DllImport(PCAP_DLL, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal extern static IntPtr /* pcap_t* */ pcap_open_offline( string/*const char* */ fname, StringBuilder/* char* */ errbuf );
@@ -183,6 +183,18 @@ namespace SharpPcap.LibPcap
         /// </returns>
         [DllImport(PCAP_DLL, CallingConvention = CallingConvention.Cdecl)]
         internal extern static int pcap_stats(IntPtr /* pcap_t* */ adapter, IntPtr /* struct pcap_stat* */ stat);
+
+        /// <summary>
+        /// Returns the snapshot length
+        /// </summary>
+        /// <param name="adapter">
+        /// A <see cref="IntPtr"/>
+        /// </param>
+        /// <returns>
+        /// A <see cref="System.Int32"/>
+        /// </returns>
+        [DllImport(PCAP_DLL, CallingConvention = CallingConvention.Cdecl)]
+        internal extern static int pcap_snapshot(IntPtr /* pcap_t... */ adapter);
 
         #region libpcap specific
         /// <summary>

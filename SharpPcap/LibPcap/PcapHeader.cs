@@ -25,35 +25,43 @@ using System.Runtime.InteropServices;
 namespace SharpPcap.LibPcap
 {
     /// <summary>
-    ///  A wrapper class for libpcap's pcap_pkthdr structure
+    ///  A wrapper for libpcap's pcap_pkthdr structure
     /// </summary>
-    public class PcapHeader
+    [StructLayout(LayoutKind.Sequential, Pack = 1)] // Force it to match a 32-bit native header exactly
+    public struct PcapHeader
     {
+        static readonly bool isWindows = Environment.OSVersion.Platform != PlatformID.Unix;
+        static readonly bool is32BitTs = IntPtr.Size == 4 || isWindows;
+
         /// <summary>
-        /// Constructs a new PcapHeader
+        ///  A wrapper class for libpcap's pcap_pkthdr structure
         /// </summary>
-        public PcapHeader()
+        private unsafe PcapHeader(IntPtr pcap_pkthdr)
         {
+            if (!isWindows) {
+                var pkthdr = *(PcapUnmanagedStructures.pcap_pkthdr_unix*)pcap_pkthdr;
+                this.CaptureLength = pkthdr.caplen;
+                this.PacketLength = pkthdr.len;
+                this.Seconds = (uint)pkthdr.ts.tv_sec;
+                this.MicroSeconds = (uint)pkthdr.ts.tv_usec;
+            } else {
+                var pkthdr = *(PcapUnmanagedStructures.pcap_pkthdr_windows*)pcap_pkthdr;
+                this.CaptureLength = pkthdr.caplen;
+                this.PacketLength = pkthdr.len;
+                this.Seconds = (uint)pkthdr.ts.tv_sec;
+                this.MicroSeconds = (uint)pkthdr.ts.tv_usec;
+            }
         }
 
-        internal PcapHeader (IntPtr pcap_pkthdr)
+        /// <summary>
+        /// Get a PcapHeader structure from a pcap_pkthdr pointer.
+        /// </summary>
+        public unsafe static PcapHeader FromPointer(IntPtr pcap_pkthdr)
         {
-            if(Environment.OSVersion.Platform == PlatformID.Unix)
-            {
-                var pkthdr = (PcapUnmanagedStructures.pcap_pkthdr_unix)Marshal.PtrToStructure(pcap_pkthdr,
-                                                                                              typeof(PcapUnmanagedStructures.pcap_pkthdr_unix));
-                this.CaptureLength = pkthdr.caplen;
-                this.PacketLength = pkthdr.len;
-                this.Seconds = (ulong)pkthdr.ts.tv_sec;
-                this.MicroSeconds = (ulong)pkthdr.ts.tv_usec;
-            } else
-            {
-                var pkthdr = (PcapUnmanagedStructures.pcap_pkthdr_windows)Marshal.PtrToStructure(pcap_pkthdr,
-                                                                                                 typeof(PcapUnmanagedStructures.pcap_pkthdr_windows));
-                this.CaptureLength = pkthdr.caplen;
-                this.PacketLength = pkthdr.len;
-                this.Seconds = (ulong)pkthdr.ts.tv_sec;
-                this.MicroSeconds = (ulong)pkthdr.ts.tv_usec;
+            if (is32BitTs) {
+                return *(PcapHeader*)pcap_pkthdr;
+            } else {
+                return new PcapHeader(pcap_pkthdr);
             }
         }
 
@@ -64,7 +72,7 @@ namespace SharpPcap.LibPcap
         /// <param name="microseconds">The microseconds value of the packet's timestamp</param>
         /// <param name="packetLength">The actual length of the packet</param>
         /// <param name="captureLength">The length of the capture</param>
-        public PcapHeader( ulong seconds, ulong microseconds, uint packetLength, uint captureLength )
+        public PcapHeader( uint seconds, uint microseconds, uint packetLength, uint captureLength )
         {
             this.Seconds = seconds;
             this.MicroSeconds = microseconds;
@@ -72,61 +80,40 @@ namespace SharpPcap.LibPcap
             this.CaptureLength = captureLength;
         }
 
-        private ulong _seconds;
-
         /// <summary>
         /// The seconds value of the packet's timestamp
         /// </summary>
-        public ulong Seconds
-        {
-            get { return _seconds; }
-            set { _seconds = value; }
-        }
-
-        private ulong _usec;
+        public uint Seconds;
 
         /// <summary>
         /// The microseconds value of the packet's timestamp
         /// </summary>
-        public ulong MicroSeconds
-        {
-            get { return _usec; }
-            set { _usec = value; }
-        }
-
-        private uint _packetlength;
+        public uint MicroSeconds;
 
         /// <summary>
-        /// The actual length of the packet
+        /// The length of the packet on the line
         /// </summary>
-        public uint PacketLength
-        {
-            get { return _packetlength; }
-            set { _packetlength = value; }
-        }
-
-        private uint _capturelength;
+        public uint PacketLength;
 
         /// <summary>
-        /// The length of the capture
+        /// The the bytes actually captured. If the capture length
+        /// is small CaptureLength might be less than PacketLength
         /// </summary>
-        public uint CaptureLength
-        {
-            get { return _capturelength; }
-            set { _capturelength = value; }
-        }
+        public uint CaptureLength;
+
+        /// <summary>
+        /// DateTime(1970, 1, 1).Ticks, saves cpu cycles in the Date property
+        /// </summary>
+        const long epochTicks = 621355968000000000L;
 
         /// <summary>
         /// Return the DateTime value of this pcap header
         /// </summary>
-        virtual public System.DateTime Date
+        public System.DateTime Date
         {
             get
             {
-                DateTime time = new DateTime(1970,1,1); 
-                time = time.AddSeconds(Seconds); 
-                time = time.AddMilliseconds(MicroSeconds / 1000); 
-                return time.ToLocalTime();
+                return new DateTime(epochTicks + (Seconds * 10000000L) + (MicroSeconds * 10L));
             }
         }
 
@@ -143,7 +130,7 @@ namespace SharpPcap.LibPcap
         {
             IntPtr hdrPtr;
 
-            if(Environment.OSVersion.Platform == PlatformID.Unix)
+            if(!isWindows)
             {
                 // setup the structure to marshal
                 var pkthdr = new PcapUnmanagedStructures.pcap_pkthdr_unix();

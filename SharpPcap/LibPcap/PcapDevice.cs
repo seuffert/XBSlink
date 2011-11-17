@@ -34,11 +34,6 @@ namespace SharpPcap.LibPcap
         protected PcapInterface m_pcapIf;
 
         /// <summary>
-        /// Handle to an open dump file, not equal to IntPtr.Zero if a dump file is open
-        /// </summary>
-        protected IntPtr       m_pcapDumpHandle    = IntPtr.Zero;
-
-        /// <summary>
         /// Handle to a pcap adapter, not equal to IntPtr.Zero if an adapter is open
         /// </summary>
         protected IntPtr       m_pcapAdapterHandle = IntPtr.Zero;
@@ -97,19 +92,19 @@ namespace SharpPcap.LibPcap
         }
 
         /// <summary>
+        /// Cached open and linkType variables, avoids a unsafe pointer comparison
+        /// and a pinvoke call for each packet retrieved as MarshalRawPacket
+        /// retrieves the LinkType
+        /// </summary>
+        private bool isOpen = false;
+        private PacketDotNet.LinkLayers linkType;
+
+        /// <summary>
         /// Return a value indicating if this adapter is opened
         /// </summary>
         public virtual bool Opened
         {
-            get { return (PcapHandle != IntPtr.Zero); }
-        }
-
-        /// <summary>
-        /// Gets a value indicating wether pcap dump file is already associated with this device
-        /// </summary>
-        public virtual bool DumpOpened
-        {
-            get { return m_pcapDumpHandle!=IntPtr.Zero; }
+            get { return isOpen; }
         }
 
         /// <summary>
@@ -118,7 +113,22 @@ namespace SharpPcap.LibPcap
         internal virtual IntPtr PcapHandle
         {
             get { return m_pcapAdapterHandle; }
-            set { m_pcapAdapterHandle = value; }
+            set
+            {
+                m_pcapAdapterHandle = value;
+
+                // update the cached values
+                if(PcapHandle == IntPtr.Zero)
+                {
+                    isOpen = false;
+                } else
+                {
+                    isOpen = true;
+
+                    // update the cached linktype value
+                    linkType = (PacketDotNet.LinkLayers)LibPcapSafeNativeMethods.pcap_datalink(PcapHandle);
+                }
+            }
         }
 
         /// <summary>
@@ -152,7 +162,7 @@ namespace SharpPcap.LibPcap
             get
             {
                 ThrowIfNotOpen("Cannot get datalink, the pcap device is not opened");
-                return (PacketDotNet.LinkLayers)LibPcapSafeNativeMethods.pcap_datalink(PcapHandle);
+                return linkType;
             }
         }
 
@@ -330,6 +340,18 @@ namespace SharpPcap.LibPcap
         }
 
         /// <summary>
+        /// Gets pointers to the next PCAP header and packet data.
+        /// Data is only valid until next call to GetNextPacketNative.
+        ///
+        /// Advanced use only. Intended to allow unmanaged code to avoid the overhead of
+        /// marshalling PcapHeader and packet contents to allocated memory.
+        /// </summary>
+        public int GetNextPacketPointers(ref IntPtr header, ref IntPtr data)
+        {
+            return LibPcapSafeNativeMethods.pcap_next_ex(PcapHandle, ref header, ref data);
+        }
+
+        /// <summary>
         /// Pcap_loop callback method.
         /// </summary>
         protected virtual void PacketHandler(IntPtr param, IntPtr /* pcap_pkthdr* */ header, IntPtr data)
@@ -355,108 +377,18 @@ namespace SharpPcap.LibPcap
             RawCapture p;
 
             // marshal the header
-            var pcapHeader = new PcapHeader(header);
+            var pcapHeader = PcapHeader.FromPointer(header);
 
             var pkt_data = new byte[pcapHeader.CaptureLength];
             Marshal.Copy(data, pkt_data, 0, (int)pcapHeader.CaptureLength);
 
             p = new RawCapture(LinkType,
-                              new PosixTimeval(pcapHeader.Seconds,
-                                               pcapHeader.MicroSeconds),
-                              pkt_data);
+                               new PosixTimeval(pcapHeader.Seconds,
+                                                pcapHeader.MicroSeconds),
+                               pkt_data);
 
             return p;
         }
-
-        #region Dump methods
-        /// <summary>
-        /// Opens a file for packet writings
-        /// </summary>
-        /// <param name="fileName"></param>
-        public void DumpOpen(string fileName)
-        {
-            ThrowIfNotOpen("Dump requires an open device");
-
-            if(DumpOpened)
-            {
-                throw new PcapException("A dump file is already opened");
-            }
-            m_pcapDumpHandle = LibPcapSafeNativeMethods.pcap_dump_open(PcapHandle, fileName);
-            if(!DumpOpened)
-                throw new PcapException("Error openning dump file.");
-        }
-
-        /// <summary>
-        /// Closes the opened dump file
-        /// </summary>
-        public void DumpClose()
-        {
-            if(DumpOpened)
-            {
-                LibPcapSafeNativeMethods.pcap_dump_close(m_pcapDumpHandle);
-                m_pcapDumpHandle = IntPtr.Zero;
-            }
-        }
-
-        /// <summary>
-        /// Flushes all write buffers of the opened dump file
-        /// </summary>
-        public void DumpFlush()
-        {
-            if (DumpOpened)
-            {
-                int result = LibPcapSafeNativeMethods.pcap_dump_flush(m_pcapDumpHandle);
-                if (result < 0)
-                    throw new PcapException("Error writing buffer to dumpfile. " + LastError);
-            }
-        }
-
-        /// <summary>
-        /// Writes a packet to the pcap dump file associated with this device.
-        /// </summary>
-        public void Dump(byte[] p, PcapHeader h)
-        {
-            ThrowIfNotOpen("Cannot dump packet, device is not opened");
-            if(!DumpOpened)
-                throw new DeviceNotReadyException("Cannot dump packet, dump file is not opened");
-
-            //Marshal packet
-            IntPtr pktPtr;
-            pktPtr = Marshal.AllocHGlobal(p.Length);
-            Marshal.Copy(p, 0, pktPtr, p.Length);
-
-            //Marshal header
-            IntPtr hdrPtr = h.MarshalToIntPtr();
-
-            LibPcapSafeNativeMethods.pcap_dump(m_pcapDumpHandle, hdrPtr, pktPtr);
-
-            Marshal.FreeHGlobal(pktPtr);
-            Marshal.FreeHGlobal(hdrPtr);
-        }
-
-        /// <summary>
-        /// Writes a packet to the pcap dump file associated with this device.
-        /// </summary>
-        /// <param name="p">The packet to write</param>
-        public void Dump(byte[] p)
-        {
-            Dump(p, new PcapHeader(0, 0, (uint)p.Length, (uint)p.Length));
-        }
-
-        /// <summary>
-        /// Writes a packet to the pcap dump file associated with this device.
-        /// </summary>
-        /// <param name="p">The packet to write</param>
-        public void Dump(RawCapture p)
-        {
-            var data = p.Data;
-            var timeval = p.Timeval;
-            var header = new PcapHeader(timeval.Seconds, timeval.MicroSeconds,
-                                        (uint)data.Length, (uint)data.Length);
-            Dump(data, header);
-        }
-
-        #endregion
 
         #region Filtering
         /// <summary>

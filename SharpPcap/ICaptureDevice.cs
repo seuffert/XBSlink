@@ -58,35 +58,6 @@ namespace SharpPcap
         /// </summary>
         System.Net.NetworkInformation.PhysicalAddress MacAddress { get; }
 
-#region Dump related
-        /// <summary>
-        /// Gets a value indicating whether a dump file is already associated with this device
-        /// </summary>
-        bool DumpOpened { get; }
-
-        /// <summary>
-        /// Writes a packet to the pcap dump file associated with this device.
-        /// </summary>
-        /// <param name="p">The packet to write</param>
-        void Dump(RawCapture p);
-
-        /// <summary>
-        /// Opens a file for packet writings
-        /// </summary>
-        /// <param name="fileName"></param>
-        void DumpOpen(string fileName);
-
-        /// <summary>
-        /// Closes the opened dump file
-        /// </summary>
-        void DumpClose();
-
-        /// <summary>
-        /// Flushes all write buffers of the opened dump file
-        /// </summary>
-        void DumpFlush();
-#endregion
-
         /// <summary>
         /// Opens the adapter
         /// </summary>
@@ -162,6 +133,15 @@ namespace SharpPcap
         /// </summary>
         /// <returns></returns>
         RawCapture GetNextPacket();
+
+        /// <summary>
+        /// Gets pointers to the next PCAP header and packet data.
+        /// Data is only valid until next call to GetNextPacketNative.
+        ///
+        /// Advanced use only. Intended to allow unmanaged code to avoid the overhead of
+        /// marshalling PcapHeader and packet contents to allocated memory.
+        /// </summary>
+        int GetNextPacketPointers(ref IntPtr header, ref IntPtr data);
 
         /// <summary>
         /// Sends a raw packet throgh this device

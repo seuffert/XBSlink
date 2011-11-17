@@ -59,6 +59,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>SharpPcap</RootNamespace>
     <GenerateDocumentation>true</GenerateDocumentation>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -72,11 +73,13 @@
     <RegisterForComInterop>false</RegisterForComInterop>
     <RemoveIntegerChecks>false</RemoveIntegerChecks>
     <WarningLevel>4</WarningLevel>
-    <DebugType>none</DebugType>
+    <DebugType>pdbonly</DebugType>
     <ErrorReport>prompt</ErrorReport>
     <OutputType>Library</OutputType>
     <RootNamespace>SharpPcap</RootNamespace>
     <GenerateDocumentation>true</GenerateDocumentation>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -112,14 +115,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CaptureDeviceList.cs" />
-    <Compile Include="OfflineCaptureDevice.cs" />
     <Compile Include="PcapException.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="LibPcap\PcapHeader.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="LibPcap\OfflinePcapDevice.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Pcap.cs">
@@ -137,7 +136,6 @@
     <Compile Include="DeviceNotReadyException.cs" />
     <Compile Include="LibPcap\PcapStatistics.cs" />
     <Compile Include="WinPcapRequiredException.cs" />
-    <Compile Include="NotSupportedOnOfflineDeviceException.cs" />
     <Compile Include="PacketArrivalEventHandler.cs" />
     <Compile Include="CaptureStoppedEventHandler.cs" />
     <Compile Include="DeviceMode.cs" />
@@ -173,6 +171,9 @@
     <Compile Include="LibPcap\LibPcapLiveDeviceList.cs" />
     <Compile Include="RawCapture.cs" />
     <Compile Include="PosixTimeval.cs" />
+    <Compile Include="LibPcap\CaptureFileReaderDevice.cs" />
+    <Compile Include="LibPcap\CaptureFileWriterDevice.cs" />
+    <Compile Include="NotSupportedOnCaptureFileException.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">
@@ -220,4 +221,5 @@
       <Name>PacketDotNet</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
 </Project>
