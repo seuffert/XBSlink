@@ -1285,11 +1285,12 @@ namespace XBSlink
 
         private void listView_clouds_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (listView_clouds.SelectedItems.Count == 1)
-            {
-                textBox_CloudName.Text = listView_clouds.SelectedItems[0].Text;
-                textBox_CloudMaxNodes.Text = listView_clouds.SelectedItems[0].SubItems[2].Text;
-            }
+            if (cloudlist!=null && cloudlist.part_of_cloud==false)
+                if (listView_clouds.SelectedItems.Count == 1)
+                {
+                    textBox_CloudName.Text = listView_clouds.SelectedItems[0].Text;
+                    textBox_CloudMaxNodes.Text = listView_clouds.SelectedItems[0].SubItems[2].Text;
+                }
         }
 
         private void textBox_cloudlist_Leave(object sender, EventArgs e)
@@ -1665,5 +1666,11 @@ namespace XBSlink
 
         }
 
+        private void listView_clouds_DoubleClick(object sender, EventArgs e)
+        {
+            if (engine_started && cloudlist.part_of_cloud==false)
+                if (listView_clouds.SelectedItems.Count>0)
+                    join_cloud();
+        }
     }
 }

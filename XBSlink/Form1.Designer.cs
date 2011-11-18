@@ -631,6 +631,7 @@ namespace XBSlink
             this.listView_clouds.UseCompatibleStateImageBehavior = false;
             this.listView_clouds.View = System.Windows.Forms.View.Details;
             this.listView_clouds.SelectedIndexChanged += new System.EventHandler(this.listView_clouds_SelectedIndexChanged);
+            this.listView_clouds.DoubleClick += new System.EventHandler(this.listView_clouds_DoubleClick);
             this.listView_clouds.Resize += new System.EventHandler(this.listView_clouds_Resize);
             // 
             // columnHeader_cloudlistname
