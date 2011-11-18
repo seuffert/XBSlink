@@ -454,7 +454,15 @@ namespace XBSlink
             }
             catch (ArgumentException aex)
             {
-                xbs_messages.addInfoMessage("!! starting Packet sniffer failed: "+aex.Message, xbs_message_sender.GENERAL, xbs_message_type.ERROR);
+                xbs_messages.addInfoMessage("!! starting Packet sniffer failed (1): " + aex.Message, xbs_message_sender.GENERAL, xbs_message_type.ERROR);
+                abort_start_engine = true;
+                udp_listener = null;
+                sniffer = null;
+                return;
+            }
+            catch (PcapException pcex)
+            {
+                xbs_messages.addInfoMessage("!! starting Packet sniffer failed (2): " + pcex.Message, xbs_message_sender.GENERAL, xbs_message_type.ERROR);
                 abort_start_engine = true;
                 udp_listener = null;
                 sniffer = null;
