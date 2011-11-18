@@ -110,6 +110,7 @@ namespace XBSlink
             this.listBox_messages = new System.Windows.Forms.ListBox();
             this.button_clearMessages = new System.Windows.Forms.Button();
             this.tabPage_settings = new System.Windows.Forms.TabPage();
+            this.checkBox_forward_all_high_port_broadcast = new System.Windows.Forms.CheckBox();
             this.checkBox_excludeGatewayIPs = new System.Windows.Forms.CheckBox();
             this.checkBox_filter_wellknown_ports = new System.Windows.Forms.CheckBox();
             this.button_reset_settings = new System.Windows.Forms.Button();
@@ -157,7 +158,6 @@ namespace XBSlink
             this.timer_startEngine = new System.Windows.Forms.Timer(this.components);
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.toolTip2 = new System.Windows.Forms.ToolTip(this.components);
-            this.checkBox_forward_all_high_port_broadcast = new System.Windows.Forms.CheckBox();
             this.statusStrip.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage_info.SuspendLayout();
@@ -827,6 +827,20 @@ namespace XBSlink
             this.tabPage_settings.TabIndex = 1;
             this.tabPage_settings.Text = "Settings";
             // 
+            // checkBox_forward_all_high_port_broadcast
+            // 
+            this.checkBox_forward_all_high_port_broadcast.AutoSize = true;
+            this.checkBox_forward_all_high_port_broadcast.Checked = true;
+            this.checkBox_forward_all_high_port_broadcast.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_forward_all_high_port_broadcast.Location = new System.Drawing.Point(9, 202);
+            this.checkBox_forward_all_high_port_broadcast.Name = "checkBox_forward_all_high_port_broadcast";
+            this.checkBox_forward_all_high_port_broadcast.Size = new System.Drawing.Size(254, 17);
+            this.checkBox_forward_all_high_port_broadcast.TabIndex = 37;
+            this.checkBox_forward_all_high_port_broadcast.Text = "forward all udp broadcast on high ports (p>1024)";
+            this.toolTip1.SetToolTip(this.checkBox_forward_all_high_port_broadcast, "This option can be usefull if XBSlink can not see the traffic from your console.");
+            this.checkBox_forward_all_high_port_broadcast.UseVisualStyleBackColor = true;
+            this.checkBox_forward_all_high_port_broadcast.CheckedChanged += new System.EventHandler(this.checkBox_forward_all_high_port_broadcast_CheckedChanged);
+            // 
             // checkBox_excludeGatewayIPs
             // 
             this.checkBox_excludeGatewayIPs.AutoSize = true;
@@ -1342,20 +1356,6 @@ namespace XBSlink
             // toolTip2
             // 
             this.toolTip2.ShowAlways = true;
-            // 
-            // checkBox_forward_all_high_port_broadcast
-            // 
-            this.checkBox_forward_all_high_port_broadcast.AutoSize = true;
-            this.checkBox_forward_all_high_port_broadcast.Checked = true;
-            this.checkBox_forward_all_high_port_broadcast.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_forward_all_high_port_broadcast.Location = new System.Drawing.Point(9, 202);
-            this.checkBox_forward_all_high_port_broadcast.Name = "checkBox_forward_all_high_port_broadcast";
-            this.checkBox_forward_all_high_port_broadcast.Size = new System.Drawing.Size(254, 17);
-            this.checkBox_forward_all_high_port_broadcast.TabIndex = 37;
-            this.checkBox_forward_all_high_port_broadcast.Text = "forward all udp broadcast on high ports (p>1024)";
-            this.toolTip1.SetToolTip(this.checkBox_forward_all_high_port_broadcast, "Protects your network from being disrupted by a faulty XBSlink node.");
-            this.checkBox_forward_all_high_port_broadcast.UseVisualStyleBackColor = true;
-            this.checkBox_forward_all_high_port_broadcast.CheckedChanged += new System.EventHandler(this.checkBox_forward_all_high_port_broadcast_CheckedChanged);
             // 
             // FormMain
             // 

@@ -341,9 +341,43 @@ namespace XBSlink
 
         // -----------------------------------------------------
 
+        private NetworkInterface getNetworkInterfaceForPDEV(ICaptureDevice pdev)
+        {
+            List<PcapAddress> addresses = new List<PcapAddress>();
+            PhysicalAddress mac = null;
+            if (pdev is LibPcapLiveDevice)
+            {
+                foreach (PcapAddress pa in ((LibPcapLiveDevice)pdev).Addresses)
+                    if (pa.Addr.type == Sockaddr.AddressTypes.HARDWARE)
+                        mac = pa.Addr.hardwareAddress;
+            }
+            else
+            {
+                return null;
+            }
+            if (mac == null)
+                return null;
+            NetworkInterface[] network_interfaces = NetworkInterface.GetAllNetworkInterfaces();
+            foreach (NetworkInterface ni in network_interfaces)
+            {
+                if (ni.GetPhysicalAddress().Equals(mac))
+                    return ni;
+            }
+            return null;
+        }
+
         private void comboBox_captureDevice_SelectedIndexChanged(object sender, EventArgs e)
         {
             button_start_engine.Enabled = true;
+            if (pcap_devices!=null)
+                if (pcap_devices.Count > 0)
+                {
+                    ICaptureDevice pdev = pcap_devices[comboBox_captureDevice.SelectedIndex];
+                    NetworkInterface ni = getNetworkInterfaceForPDEV( pdev );
+                    if (ni!=null)
+                        if (ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211)
+                            MessageBox.Show("Please note that using a wireless connection as the capture device is very likely not going to work on Windows. sorry...", "XBSlink warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
         }
 
         private void button_start_engine_Click(object sender, EventArgs e)
