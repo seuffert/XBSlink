@@ -481,7 +481,7 @@ namespace XBSlink
             button_announce.Enabled = true;
             saveRegistryValues();
             xbs_messages.addInfoMessage("engine ready. waiting for incoming requests.", xbs_message_sender.GENERAL);
-            switch_tab = tabPage_info;
+            switch_tab = tabPage_clouds;
             textBox_chatEntry.ReadOnly = false;
             textBox_chatEntry.Clear();
             autoswitch_on_chat_message = checkBox_chatAutoSwitch.Checked;
