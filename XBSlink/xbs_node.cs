@@ -128,6 +128,7 @@ namespace XBSlink
         public DateTime addedTime = DateTime.Now;
         public DateTime lastChangeTime = DateTime.Now;
 
+        // used to count the trys when cloudhelper is asked to help addig this node
         public int ask_cloudhelper_count = 0;
 
         public xbs_node(IPAddress ip_from, int port_from)
