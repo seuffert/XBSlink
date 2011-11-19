@@ -61,6 +61,11 @@ namespace XBSlink
             return (xbs_node_message_type)bytes[0];
         }
 
+        public static UInt16 getDataLengthFromUDPPacket(byte[] bytes)
+        {
+            return BitConverter.ToUInt16(bytes, sizeof(xbs_node_message_type));
+        }
+
         public uint getMessageByteArraySize()
         {
             return (data == null) ? 1 : (uint)(sizeof(xbs_node_message_type) + sizeof(UInt16) + data.Length);

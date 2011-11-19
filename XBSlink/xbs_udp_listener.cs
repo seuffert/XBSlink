@@ -37,6 +37,7 @@ namespace XBSlink
         public xbs_node_message_type msg_type;
         public UInt16 data_len;
         public byte[] data;
+        public const int HEADER_LENGTH = sizeof(xbs_node_message_type) + sizeof(UInt16);
     }
 
     class xbs_udp_listener_statistics
@@ -160,10 +161,9 @@ namespace XBSlink
         {
             xbs_messages.addInfoMessage(" * udp receiver thread started", xbs_message_sender.UDP_LISTENER);
             byte[] data = new byte[2048];
-            byte[] data2 = new byte[2048];
             IPEndPoint remote_endpoint = new IPEndPoint(IPAddress.Any, 0);
             EndPoint ep = (EndPoint)remote_endpoint;
-            int bytes = 0;
+            int bytes_received = 0;
             xbs_udp_message msg = null;
 #if !DEBUG
             try
@@ -173,41 +173,51 @@ namespace XBSlink
                 {
                     try
                     {
-                        bytes = udp_socket.ReceiveFrom(data, ref ep);
+                        bytes_received = udp_socket.ReceiveFrom(data, ref ep);
                     }
                     catch (SocketException)
                     {
-                        bytes = 0;
+                        bytes_received = 0;
                     }
-                    if (!exiting && bytes > 0)
+                    if (!exiting && bytes_received > 0)
                     {
                         xbs_node_message_type command = xbs_node_message.getMessageTypeFromUDPPacket(data);
                         msg = new xbs_udp_message();
                         msg.msg_type = command;
-                        if (bytes > 3)
+                        if (bytes_received > 3)
                         {
-                            msg.data = new byte[bytes - 3];
-                            Buffer.BlockCopy(data, 3, msg.data, 0, bytes - 3);
-                            msg.data_len = (UInt16)(bytes - 3); // TODO: FIXME?
+                            msg.data_len = xbs_node_message.getDataLengthFromUDPPacket(data);
+                            if (msg.data_len + sizeof(UInt16) + sizeof(xbs_node_message_type) == bytes_received)
+                            {
+                                msg.data = new byte[msg.data_len];
+                                Buffer.BlockCopy(data, xbs_udp_message.HEADER_LENGTH, msg.data, 0, msg.data_len);
+                            }
+                            else
+                            {
+#if DEBUG
+                                xbs_messages.addInfoMessage("received packet with wrong length! expected " + msg.data_len + " but got " + (bytes_received - sizeof(UInt16) - sizeof(xbs_node_message_type)) + " bytes.", xbs_message_sender.UDP_LISTENER, xbs_message_type.ERROR);
+#endif
+                                msg = null;
+                            }
                         }
                         else
                             msg.data_len = 0;
-                        remote_endpoint = (IPEndPoint)ep;
-                        msg.src_ip = remote_endpoint.Address;
-                        msg.src_port = remote_endpoint.Port;
 
-#if DEBUG
-                        //xbs_messages.addDebugMessage(" * added UDP packet size "+msg.data_len+" command "+msg.msg_type);
-#endif
-                        lock (_locker)
+                        if (msg != null)
                         {
-                            if (command == xbs_node_message_type.DATA)
-                                lock (in_msgs_high_prio)
-                                    in_msgs_high_prio.Enqueue(msg);
-                            else
-                                lock (in_msgs)
-                                    in_msgs.Enqueue(msg);
-                            Monitor.PulseAll(_locker);
+                            remote_endpoint = (IPEndPoint)ep;
+                            msg.src_ip = remote_endpoint.Address;
+                            msg.src_port = remote_endpoint.Port;
+                            lock (_locker)
+                            {
+                                if (command == xbs_node_message_type.DATA)
+                                    lock (in_msgs_high_prio)
+                                        in_msgs_high_prio.Enqueue(msg);
+                                else
+                                    lock (in_msgs)
+                                        in_msgs.Enqueue(msg);
+                                Monitor.PulseAll(_locker);
+                            }
                         }
                     }
                 }
@@ -473,7 +483,8 @@ namespace XBSlink
             }
 
             if (sending_node != null)
-                sending_node.statistics.receivedPacket((uint)udp_msg.data_len+3);        }
+                sending_node.statistics.receivedPacket((uint)udp_msg.data_len + xbs_udp_message.HEADER_LENGTH);
+        }
 
         private void dispatch_DATA_message(ref xbs_udp_message udp_msg, ref xbs_node sending_node)
         {
