@@ -706,7 +706,6 @@ namespace XBSlink
             this.listBox_chatUserList.Location = new System.Drawing.Point(3, 17);
             this.listBox_chatUserList.Name = "listBox_chatUserList";
             this.listBox_chatUserList.Size = new System.Drawing.Size(69, 363);
-            this.listBox_chatUserList.Sorted = true;
             this.listBox_chatUserList.TabIndex = 6;
             // 
             // label16

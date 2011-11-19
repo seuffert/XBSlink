@@ -744,6 +744,20 @@ namespace XBSlink
 
         }
 
+        private void addUserToChatUserList(String name)
+        {
+            lock (listBox_chatUserList)
+            {
+                for (int i=1; i<=listBox_chatUserList.Items.Count; i++)
+                    if ( ((String)listBox_chatUserList.Items[i-1]).CompareTo(name) >= 0 )
+                    {
+                        listBox_chatUserList.Items.Insert(i-1, name);
+                        return;
+                    }
+                listBox_chatUserList.Items.Add(name);
+            }
+        }
+
         private void updateChatUserList( List<xbs_node> nodes )
         {
             if (tabControl1.SelectedTab != tabPage_chat)
@@ -757,14 +771,15 @@ namespace XBSlink
 
             foreach (String name in chat_names)
                 if (!listBox_chatUserList.Items.Contains(name))
-                    listBox_chatUserList.Items.Add(name);
+                    addUserToChatUserList(name);
             
             List<String> to_remove = new List<String>();
             foreach (String name in listBox_chatUserList.Items)
                 if (!chat_names.Contains(name))
                     to_remove.Add(name);
-            foreach (String name in to_remove)
-                listBox_chatUserList.Items.Remove(name);
+            lock (listBox_chatUserList)
+                foreach (String name in to_remove)
+                    listBox_chatUserList.Items.Remove(name);
         }
 
         private void updateMainInfoListview(List<xbs_node> nodes, bool update_all)
