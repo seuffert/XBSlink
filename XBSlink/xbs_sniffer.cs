@@ -291,6 +291,12 @@ namespace XBSlink
 
         public void injectRemotePacket(ref byte[] data, PhysicalAddress dstMAC, PhysicalAddress srcMAC)
         {
+            Packet p = null;
+            ARPPacket p_arp = null;
+            IpPacket p_ipv4 = null;
+            UdpPacket p_udp = null;
+            TcpPacket p_tcp = null;
+
             int srcMac_hash = srcMAC.GetHashCode();
             // collect all injected source MACs. sniffer needs this to filter packets out
             lock (injected_macs_hash)
@@ -302,12 +308,49 @@ namespace XBSlink
                 }
             }
 
+            try
+            {
+                p = Packet.ParsePacket(LinkLayers.Ethernet, data);
+            }
+            catch (PcapException pcex)
+            {
 #if DEBUG
-            Packet p = Packet.ParsePacket(LinkLayers.Ethernet, data);
+                xbs_messages.addDebugMessage("parse packet failed in injectRemotePacket (1): " + pcex.ToString(), xbs_message_sender.SNIFFER, xbs_message_type.ERROR);
+#endif
+                return;
+            }
+            catch (NotImplementedException niex)
+            {
+#if DEBUG
+                xbs_messages.addDebugMessage("parse packet failed in injectRemotePacket (2): " + niex.ToString(), xbs_message_sender.SNIFFER, xbs_message_type.ERROR);
+#endif
+                return;
+            }
+
             if (p.PayloadPacket is IPv4Packet)
-                if ( ((IPv4Packet)p.PayloadPacket).PayloadPacket is UdpPacket )
-                    if ( ((UdpPacket)((IPv4Packet)p.PayloadPacket).PayloadPacket).DestinationPort<1024 )
-                        return;
+                p_ipv4 = p as IPv4Packet;
+            else if (p.PayloadPacket is ARPPacket)
+                p_arp = p as ARPPacket;
+
+            if (p_ipv4 != null)
+            {
+                if (p_ipv4.PayloadPacket is UdpPacket)
+                    p_udp = p_ipv4.PayloadPacket as UdpPacket;
+                else if (p_ipv4.PayloadPacket is TcpPacket)
+                    p_tcp = p_ipv4.PayloadPacket as TcpPacket;
+            }
+
+            if (p_udp != null)
+            {
+                if (pdev_filter_wellknown_ports && p_udp.DestinationPort > 1023)
+                    return;
+            }
+            if (p_tcp != null)
+            {
+                if (pdev_filter_wellknown_ports && p_tcp.DestinationPort > 1023)
+                    return;
+            }
+#if DEBUG
             xbs_messages.addDebugMessage("i> " + p, xbs_message_sender.SNIFFER);
 #endif
 
