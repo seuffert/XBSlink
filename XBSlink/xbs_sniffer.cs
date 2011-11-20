@@ -298,7 +298,7 @@ namespace XBSlink
         {
             Packet p = null;
             ARPPacket p_arp = null;
-            IpPacket p_ipv4 = null;
+            IPv4Packet p_ipv4 = null;
             ICMPv4Packet p_icmp = null;
             UdpPacket p_udp = null;
             TcpPacket p_tcp = null;
@@ -407,7 +407,7 @@ namespace XBSlink
                 System.Diagnostics.Stopwatch stopWatch = new System.Diagnostics.Stopwatch();
                 stopWatch.Start();
 #endif
-                EthernetPacketType p_type = NAT.NAT_incoming_packet_PacketDotNet(ref data, dstMAC, srcMAC);
+                EthernetPacketType p_type = NAT.NAT_incoming_packet_PacketDotNet(ref data, dstMAC, srcMAC, ref p, ref p_ipv4, ref p_arp);
 #if DEBUG
                 stopWatch.Stop();
                 if (p_type == EthernetPacketType.IpV4)
