@@ -59,6 +59,8 @@ namespace XBSlink
         private String pdev_filter_gateways = "";
         private String pdev_filter_fallback = pdev_filter_gameconsoles;
 
+        private List<IPAddress> gateway_ips = new List<IPAddress>();
+
         private List<PhysicalAddress> pdev_filter_known_macs_from_remote_nodes = new List<PhysicalAddress>();
         private List<PhysicalAddress> pdev_filter_special_macs = new List<PhysicalAddress>();
 
@@ -116,7 +118,10 @@ namespace XBSlink
                 return;
             String[] ips = new String[gateways.Count];
             for (int i = 0; i < gateways.Count; i++)
+            {
                 ips[i] = gateways[i].Address.ToString();
+                gateway_ips.Add(gateways[i].Address);
+            }
             pdev_filter_gateways = "host " + String.Join(" or host ", ips);
         }
 
@@ -294,6 +299,7 @@ namespace XBSlink
             Packet p = null;
             ARPPacket p_arp = null;
             IpPacket p_ipv4 = null;
+            ICMPv4Packet p_icmp = null;
             UdpPacket p_udp = null;
             TcpPacket p_tcp = null;
 
@@ -327,26 +333,67 @@ namespace XBSlink
                 return;
             }
 
+            // DETERMINE PACKET TYPE
             if (p.PayloadPacket is IPv4Packet)
                 p_ipv4 = p as IPv4Packet;
             else if (p.PayloadPacket is ARPPacket)
                 p_arp = p as ARPPacket;
+            else if (p.PayloadPacket is ICMPv4Packet)
+                p_icmp = p as ICMPv4Packet;
+            else
+            {
+                // UNKNOWN OR UNSUPPORTED PACKET TYPE
+#if DEBUG
+                xbs_messages.addDebugMessage("unknown incoming packet type: " + p.ToString(), xbs_message_sender.SNIFFER, xbs_message_type.WARNING);
+#endif
+                return;
+            }
 
+            // FILTER ARP PACKETS
+            if (p_arp != null)
+            {
+                // FILTER ARP PACKETS TO OR FROM GATEWAY IPs
+                foreach (IPAddress ip in gateway_ips)
+                {
+                    if (p_arp.TargetProtocolAddress.Equals(ip))
+                        return;
+                    else if (p_arp.SenderProtocolAddress.Equals(ip))
+                        return;
+                }
+            }
+
+            // FILTER IPv4 PACKETS
             if (p_ipv4 != null)
             {
+                // FILTER IP PACKETS TO OR FROM GATEWAY IPs
+                if (pdev_filter_exclude_gatway_ips)
+                {
+                    foreach (IPAddress ip in gateway_ips)
+                    {
+                        if (p_ipv4.DestinationAddress.Equals(ip))
+                            return;
+                        else if (p_ipv4.SourceAddress.Equals(ip))
+                            return;
+                    }
+                }
+
                 if (p_ipv4.PayloadPacket is UdpPacket)
                     p_udp = p_ipv4.PayloadPacket as UdpPacket;
                 else if (p_ipv4.PayloadPacket is TcpPacket)
                     p_tcp = p_ipv4.PayloadPacket as TcpPacket;
             }
 
+            // FILTER UDP PACKETS
             if (p_udp != null)
             {
+                // FILTER UDP PACKETS TO WELL KNOWN PORTS
                 if (pdev_filter_wellknown_ports && p_udp.DestinationPort > 1023)
                     return;
             }
+            // FILTER TCP PACKETS
             if (p_tcp != null)
             {
+                // FILTER TCP PACKETS TO WELL KNOWN PORTS
                 if (pdev_filter_wellknown_ports && p_tcp.DestinationPort > 1023)
                     return;
             }
