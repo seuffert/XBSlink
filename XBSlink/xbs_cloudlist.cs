@@ -227,29 +227,6 @@ namespace XBSlink
             xbs_messages.addDebugMessage(" x cloud node UUID: " + uuid, xbs_message_sender.CLOUDLIST);
 #endif
             cloudlist_url = url;
-            if (result_rows.Length >= 2)
-            {
-                for (int row_num = 1; row_num < result_rows.Length; row_num++)
-                {
-                    IPAddress ip;
-                    int port;
-                    try
-                    {
-                        NameValueCollection node_data = HttpUtility.ParseQueryString(result_rows[row_num]);
-                        ip = IPAddress.Parse(node_data[xbs_cloudlist_getparameters.NODEIP]);
-                        port = int.Parse(node_data[xbs_cloudlist_getparameters.NODEPORT]);
-                    }
-                    catch (Exception)
-                    {
-                        xbs_messages.addInfoMessage("!! Error getting node contact from cloudlist server: " + result_rows[1], xbs_message_sender.CLOUDLIST, xbs_message_type.ERROR);
-                        return false;
-                    }
-                    xbs_node_message_announce msg = new xbs_node_message_announce(ip, port);
-                    msg.addOption(xbs_node_message_announce.OPTION_CLOUDNAME, cloudname);
-                    if (xbs_udp_listener.getInstance()!=null)
-                        xbs_udp_listener.getInstance().send_xbs_node_message(msg);
-                }
-            }
             startUpdateThread();
             return true;
         }
@@ -306,14 +283,8 @@ namespace XBSlink
 
         private void update_cloudlist_threadstart()
         {
-            DateTime last_update = DateTime.Now;
-            List<String> get_params = new List<String>();
+            DateTime last_update = DateTime.MinValue;
             TimeSpan ts = new TimeSpan();
-            get_params.Add(xbs_cloudlist_getparameters.CMD + "=" + xbs_cloudlist_command.CMD_UPDATE);
-            get_params.Add(xbs_cloudlist_getparameters.CLOUDNAME + "=" + HttpUtility.UrlEncode(current_cloudname));
-            get_params.Add(xbs_cloudlist_getparameters.UUID + "=" + HttpUtility.UrlEncode(uuid));
-            string result = null;
-            String url = cloudlist_url + "?" + String.Join("&", get_params.ToArray());
             xbs_messages.addInfoMessage(" x started cloudlist updater", xbs_message_sender.CLOUDLIST);
 #if !DEBUG
             try
@@ -324,32 +295,7 @@ namespace XBSlink
                     ts = DateTime.Now - last_update;
                     if (ts.TotalSeconds > xbs_cloudlist.UPDATE_INTERVAL_SECONDS)
                     {
-                        url = cloudlist_url + "?" + String.Join("&", get_params.ToArray());
-                        xbs_messages.addDebugMessage(" x update of cloud status: " + url, xbs_message_sender.CLOUDLIST);
-                        WebClient client = new WebClient();
-                        client.Proxy = null;
-                        try
-                        {
-                            result = client.DownloadString(url);
-                        }
-                        catch (WebException wex)
-                        {
-                            xbs_messages.addInfoMessage("!! could not updated status on cloudlist server. Error: " + wex.Message, xbs_message_sender.CLOUDLIST, xbs_message_type.ERROR);
-                        }
-                        if (result==null || !(result is String))
-                        {
-                            
-                        }
-                        else if (!result.StartsWith(xbs_cloudlist_returncode.RETURN_CODE_OK))
-                            xbs_messages.addInfoMessage("!! cloudlist server returned error on update", xbs_message_sender.CLOUDLIST, xbs_message_type.ERROR);
-                        else
-                        {
-                            String[] result_rows = result.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
-                            xbs_messages.addDebugMessage(" x cloud list update returned rows: " + result_rows.Length, xbs_message_sender.CLOUDLIST);
-                            if (result_rows.Length >= 2)
-                                for (int row_num = 1; row_num < result_rows.Length; row_num++)
-                                    updateNodeInCloud(result_rows[row_num]);
-                        }
+                        sendUpdateToCloudlistserver();
                         last_update = DateTime.Now;
                     }
                     Thread.Sleep(1000);
@@ -361,6 +307,43 @@ namespace XBSlink
                 ExceptionMessage.ShowExceptionDialog("update_cloudlist service", ex);
             }
 #endif
+        }
+
+        public void sendUpdateToCloudlistserver()
+        {
+            List<String> get_params = new List<String>();
+            get_params.Add(xbs_cloudlist_getparameters.CMD + "=" + xbs_cloudlist_command.CMD_UPDATE);
+            get_params.Add(xbs_cloudlist_getparameters.CLOUDNAME + "=" + HttpUtility.UrlEncode(current_cloudname));
+            get_params.Add(xbs_cloudlist_getparameters.UUID + "=" + HttpUtility.UrlEncode(uuid));
+            string result = null;
+            String url = cloudlist_url + "?" + String.Join("&", get_params.ToArray());
+            url = cloudlist_url + "?" + String.Join("&", get_params.ToArray());
+            xbs_messages.addDebugMessage(" x update of cloud status: " + url, xbs_message_sender.CLOUDLIST);
+            WebClient client = new WebClient();
+            client.Proxy = null;
+            try
+            {
+                result = client.DownloadString(url);
+            }
+            catch (WebException wex)
+            {
+                xbs_messages.addInfoMessage("!! could not updated status on cloudlist server. Error: " + wex.Message, xbs_message_sender.CLOUDLIST, xbs_message_type.ERROR);
+            }
+            if (result == null || !(result is String))
+            {
+
+            }
+            else if (!result.StartsWith(xbs_cloudlist_returncode.RETURN_CODE_OK))
+                xbs_messages.addInfoMessage("!! cloudlist server returned error on update", xbs_message_sender.CLOUDLIST, xbs_message_type.ERROR);
+            else
+            {
+                String[] result_rows = result.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                xbs_messages.addDebugMessage(" x cloud list update returned rows: " + result_rows.Length, xbs_message_sender.CLOUDLIST);
+                if (result_rows.Length >= 2)
+                    for (int row_num = 1; row_num < result_rows.Length; row_num++)
+                        updateNodeInCloud(result_rows[row_num]);
+            }
+
         }
 
         public void updateNodeInCloud( String row_data )

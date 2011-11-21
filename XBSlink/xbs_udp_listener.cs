@@ -380,11 +380,12 @@ namespace XBSlink
 #endif
                             node_list.tryAddingNode(tmp_node, xbs_cloudlist.getInstance().current_cloudname);
                         }
-                    }
 #if DEBUG
-                    else
-                        xbs_messages.addDebugMessage(" * already in contact with node: " + tmp_node, xbs_message_sender.UDP_LISTENER);
+                        else
+                            xbs_messages.addDebugMessage(" * already in contact with node: " + tmp_node, xbs_message_sender.UDP_LISTENER);
 #endif
+                    }
+
                     break;
 
                 case xbs_node_message_type.ADDNODE:
@@ -488,7 +489,7 @@ namespace XBSlink
                 case xbs_node_message_type.FROM_CLOUDHELPER_CONTACTNODE:
                     xbs_node_message_fromCloudHelper_ContactNode msg_fromCloudContactNode = new xbs_node_message_fromCloudHelper_ContactNode(udp_msg.data);
                     tmp_node = new xbs_node(msg_fromCloudContactNode.ip, msg_fromCloudContactNode.port);
-                    tmp_node.sendAddNodeMessage(node_list.local_node);
+                    node_list.tryAddingNode(tmp_node, xbs_cloudlist.getInstance().current_cloudname);
                     break;
             }
 
