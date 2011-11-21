@@ -81,7 +81,7 @@ namespace XBSlink
         private TabPage switch_tab = null;
         private bool autoswitch_on_chat_message = false;
 
-        private xbs_cloudlist cloudlist = null;
+        public static xbs_cloudlist cloudlist = null;
         public static Object askedCloudServerForHelloMessage_locker = new Object();
 
         private DateTime last_update_check = new DateTime(0);

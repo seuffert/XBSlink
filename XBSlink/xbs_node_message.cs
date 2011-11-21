@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Diagnostics;
@@ -101,6 +102,114 @@ namespace XBSlink
 
     }
 
+    class xbs_node_message_string : xbs_node_message
+    {
+        public String message_string = "";
+
+        public xbs_node_message_string(xbs_node node, String str)
+        {
+            this.message_string = str;
+            if (str != null && str.Length > 0)
+                updateBinarydata();
+            else
+                data_len = 0;
+            receiver = node;
+        }
+
+        protected void updateBinarydata()
+        {
+            data = xbs_node_message.getUTF8BytesFromString(message_string);
+            data_len = (UInt16)data.Length;
+        }
+
+        public xbs_node_message_string(byte[] packet_data)
+        {
+            if (packet_data != null)
+            {
+                data_len = (UInt16)packet_data.Length;
+                if (data_len > 0)
+                    this.message_string = xbs_node_message.getStringFromUTF8Bytes(packet_data);
+                else
+                    this.message_string = "";
+            }
+        }
+    }
+
+    class xbs_node_message_options : xbs_node_message_string
+    {
+        private Dictionary<String, String> options = new Dictionary<string, string>();
+        private const char OPTIONS_DELIMITER_CHAR = '\u0000';
+        private const char OPTIONS_EQUALS_CHAR = '\u0009';
+
+        public xbs_node_message_options(IPAddress ip, int port)
+            : this(new xbs_node(ip, port))
+        {
+        }
+
+        public xbs_node_message_options(xbs_node node)
+            : base(node, null)
+        {
+            data_len = 0;
+            receiver = node;
+        }
+
+        protected xbs_node_message_options(xbs_node node, String options)
+            : base(node, options)
+        {
+            receiver = node;
+        }
+
+        public xbs_node_message_options(byte[] packet_data)
+            : base(packet_data)
+        {
+            if (this.message_string != null && this.message_string.Length > 0)
+                createOptionsDictionaryFromString(this.message_string);
+        }
+
+        private void createOptionsDictionaryFromString(String str)
+        {
+            if (str.Length == 0)
+                return;
+            String[] options_strings = str.Split(OPTIONS_DELIMITER_CHAR);
+            foreach (String s in options_strings)
+            {
+                String[] values = s.Split(OPTIONS_EQUALS_CHAR);
+                if (values.Length != 2)
+                    return;
+                options.Add(values[0], values[1]);
+            }
+        }
+
+        private void updateStringFromOptionsDictionary()
+        {
+            message_string = "";
+            if (options.Count == 0)
+                return;
+            StringBuilder s = new StringBuilder();
+            foreach (KeyValuePair<string, string> item in options)
+                s.Append(item.Key + OPTIONS_EQUALS_CHAR + item.Value + OPTIONS_DELIMITER_CHAR);
+            s.Remove(s.Length - 1, 1);
+            message_string = s.ToString();
+        }
+
+        public void addOption(String name, String value)
+        {
+            this.options.Add(name, value);
+            updateStringFromOptionsDictionary();
+            updateBinarydata();
+        }
+
+        public bool hasOption(String name)
+        {
+            return options.ContainsKey(name);
+        }
+
+        public String getOption(String name)
+        {
+            return (options.ContainsKey(name) ? options[name] : null);
+        }
+    }
+
     class xbs_node_message_data : xbs_node_message
     {
         public xbs_node_message_type ttype = xbs_node_message_type.DATA;
@@ -119,9 +228,10 @@ namespace XBSlink
         }
     }
 
-    class xbs_node_message_announce : xbs_node_message
+    class xbs_node_message_announce : xbs_node_message_options
     {
         public xbs_node_message_type ttype = xbs_node_message_type.ANNOUNCE;
+        public const String OPTION_CLOUDNAME = "CLOUD";
 
         public xbs_node_message_announce(IPAddress ip, int port)
             : this(new xbs_node(ip, port))
@@ -129,10 +239,21 @@ namespace XBSlink
         }
 
         public xbs_node_message_announce(xbs_node node)
+            : base(node)
         {
             type = ttype;
-            data_len = 0;
-            receiver = node;
+        }
+
+        private xbs_node_message_announce(xbs_node node, String options)
+            : base(node, options)
+        {
+            type = ttype;
+        }
+
+        public xbs_node_message_announce(byte[] packet_data)
+            : base(packet_data)
+        {
+            type = ttype;
         }
     }
 
@@ -286,28 +407,6 @@ namespace XBSlink
                 for (int i = 0; i < 4; i++)
                     ret[i] = Byte.Parse(sa[i]);
             return ret;
-        }
-    }
-
-    class xbs_node_message_string : xbs_node_message
-    {
-        public String message_string = "";
-
-        public xbs_node_message_string( xbs_node node, String str)
-        {
-            this.message_string = str;
-            data = xbs_node_message.getUTF8BytesFromString(str);
-            data_len = (UInt16)data.Length;
-            receiver = node;
-        }
-
-        public xbs_node_message_string(byte[] packet_data)
-        {
-            if (packet_data != null)
-            {
-                data_len = (UInt16)packet_data.Length;
-                this.message_string = xbs_node_message.getStringFromUTF8Bytes(packet_data);
-            }
         }
     }
 

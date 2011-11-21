@@ -332,7 +332,7 @@ namespace XBSlink
             listHasJustChanged();
         }
 
-        public void tryAddingNode(xbs_node new_node)
+        public void tryAddingNode(xbs_node new_node, String cloudname)
         {
             if (findNodeInAddingList(new_node.ip_public, new_node.port_public) != null)
             {
@@ -343,7 +343,11 @@ namespace XBSlink
             }
             lock (node_list_adding)
                 node_list_adding.Add(new_node);
-            new_node.sendAddNodeMessage(local_node);
+            //new_node.sendAddNodeMessage(local_node);
+            xbs_node_message_announce msg = new xbs_node_message_announce(new_node.getSendToIP(), new_node.getSendToPort());
+            if (cloudname!=null)
+                msg.addOption(xbs_node_message_announce.OPTION_CLOUDNAME, cloudname);
+            new_node.sendNodeMessage(msg);
         }
 
         private void purgeAddedNodeFromAddingList(xbs_node new_node)

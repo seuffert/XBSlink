@@ -23,7 +23,7 @@ namespace XBSlink
         public static xbs_node_list node_list = null;
         public static xbs_nat NAT = null;
         private xbs_upnp upnp = null;
-        private xbs_cloudlist cloudlist = null;
+        public static xbs_cloudlist cloudlist = null;
 
         private Thread MessageThread = null;
         volatile bool exiting = false;

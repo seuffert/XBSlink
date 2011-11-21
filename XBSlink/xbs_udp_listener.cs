@@ -357,21 +357,29 @@ namespace XBSlink
                     break;
 
                 case xbs_node_message_type.ANNOUNCE:
+                    xbs_node_message_announce msg_announce = new xbs_node_message_announce(udp_msg.data);
                     tmp_node = new xbs_node(udp_msg.src_ip, udp_msg.src_port);
-                    tmp_node.sendAddNodeMessage(node_list.local_node);
-                    node_list.sendNodeListToNode(tmp_node);
+                    bool send_packet = true;
+                    if (msg_announce.hasOption(xbs_node_message_announce.OPTION_CLOUDNAME))
+                        if (!msg_announce.getOption(xbs_node_message_announce.OPTION_CLOUDNAME).Equals(xbs_cloudlist.getInstance().current_cloudname))
+                            send_packet = false;
+                    if (send_packet)
+                        tmp_node.sendAddNodeMessage(node_list.local_node);
                     break;
 
                 case xbs_node_message_type.KNOWNNODE:
                     xbs_node_message_knownnode msg_knownnode = new xbs_node_message_knownnode(udp_msg.data);
-                    tmp_node = node_list.findNode(msg_knownnode.ip, msg_knownnode.port);
-                    if (tmp_node == null)
+                    if (!xbs_cloudlist.getInstance().part_of_cloud)
                     {
-                        tmp_node = new xbs_node(msg_knownnode.ip, msg_knownnode.port);
+                        tmp_node = node_list.findNode(msg_knownnode.ip, msg_knownnode.port);
+                        if (tmp_node == null)
+                        {
+                            tmp_node = new xbs_node(msg_knownnode.ip, msg_knownnode.port);
 #if DEBUG
                         xbs_messages.addDebugMessage(" * trying to add known node: " + tmp_node, xbs_message_sender.UDP_LISTENER);
 #endif
-                        node_list.tryAddingNode(tmp_node);
+                            node_list.tryAddingNode(tmp_node, xbs_cloudlist.getInstance().current_cloudname);
+                        }
                     }
 #if DEBUG
                     else
@@ -388,6 +396,8 @@ namespace XBSlink
                     {   // node not known, add to nodelist
                         tmp_node = node_list.addNode(msg_addnode.ip, msg_addnode.port, udp_msg.src_ip, udp_msg.src_port);
                         tmp_node.sendAddNodeMessage(node_list.local_node);
+                        if (!xbs_cloudlist.getInstance().part_of_cloud)
+                            node_list.sendNodeListToNode(tmp_node);
                     }
                     break;
 

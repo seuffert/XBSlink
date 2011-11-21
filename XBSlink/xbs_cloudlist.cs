@@ -50,17 +50,18 @@ namespace XBSlink
 
     class xbs_cloudlist_getparameters
     {
-        public const String CMD         = "cmd";
-        public const String CLOUDNAME   = "cloudname";
-        public const String PASSWORD    = "password";
-        public const String MAXNODES    = "maxnodes";
-        public const String NODEIP      = "node_ip";
-        public const String NODEPORT    = "node_port";
-        public const String NICKNAME    = "nick";
-        public const String COUNTNODES  = "countnodes";
-        public const String UUID        = "uuid";
-        public const String REACHABLE   = "reachable";
-        public const String GETALLNODES = "getallnodes";
+        public const String CMD             = "cmd";
+        public const String CLOUDNAME       = "cloudname";
+        public const String PASSWORD        = "password";
+        public const String MAXNODES        = "maxnodes";
+        public const String NODEIP          = "node_ip";
+        public const String NODEPORT        = "node_port";
+        public const String NICKNAME        = "nick";
+        public const String COUNTNODES      = "countnodes";
+        public const String UUID            = "uuid";
+        public const String REACHABLE       = "reachable";
+        public const String GETALLNODES     = "getallnodes";
+        public const String CLIENTVERSION   = "clientversion";
     }
 
     class xbs_cloud
@@ -85,8 +86,8 @@ namespace XBSlink
         public const int MIN_CLOUDNAME_LENGTH = 3;
         public const int UPDATE_INTERVAL_SECONDS = 29;
 
-        public bool part_of_cloud = false;
-        public String current_cloudname = null;
+        public volatile bool part_of_cloud = false;
+        public volatile String current_cloudname = null;
         public String uuid = null;
         public String cloudlist_url = null;
 
@@ -174,7 +175,7 @@ namespace XBSlink
             return hex.ToString();
         }
 
-        public bool JoinOrCreateCloud(String url, String cloudname, String max_nodes, String password, IPAddress node_ip, int node_port, String nickname, bool reachable)
+        public bool JoinOrCreateCloud(String url, String cloudname, String max_nodes, String password, IPAddress node_ip, int node_port, String nickname, bool reachable, String clientversion)
         {
             string result = null;
 
@@ -191,6 +192,7 @@ namespace XBSlink
             get_params.Add(xbs_cloudlist_getparameters.NICKNAME + "=" + HttpUtility.UrlEncode(nickname));
             get_params.Add(xbs_cloudlist_getparameters.REACHABLE + "=" + (reachable ? 1 : 0));
             get_params.Add(xbs_cloudlist_getparameters.GETALLNODES + "=1");
+            get_params.Add(xbs_cloudlist_getparameters.CLIENTVERSION + "=" + HttpUtility.UrlEncode(clientversion));
             String full_url = url + "?" + String.Join("&", get_params.ToArray());
 #if DEBUG
             xbs_messages.addDebugMessage(" x joining cloud: " + full_url, xbs_message_sender.CLOUDLIST);
@@ -243,6 +245,7 @@ namespace XBSlink
                         return false;
                     }
                     xbs_node_message_announce msg = new xbs_node_message_announce(ip, port);
+                    msg.addOption(xbs_node_message_announce.OPTION_CLOUDNAME, cloudname);
                     if (xbs_udp_listener.getInstance()!=null)
                         xbs_udp_listener.getInstance().send_xbs_node_message(msg);
                 }
@@ -387,7 +390,7 @@ namespace XBSlink
 #if DEBUG
                         xbs_messages.addDebugMessage(" x found new node in cloudlist update: " + node, xbs_message_sender.CLOUDLIST);
 #endif
-                        node_list.tryAddingNode(node);
+                        node_list.tryAddingNode(node, current_cloudname);
                     }
                 }
             }
@@ -431,5 +434,11 @@ namespace XBSlink
                 count = cloudlist.Count;
             return count;
         }
+
+        public static xbs_cloudlist getInstance()
+        {
+            return (FormMain.cloudlist != null) ? FormMain.cloudlist : xbs_console_app.cloudlist;
+        }
+
     }
 }
