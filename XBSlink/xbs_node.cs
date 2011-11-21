@@ -119,8 +119,8 @@ namespace XBSlink
         private List<xbs_xbox> xbox_list;
 
         private volatile int _last_ping_delay_ms;
-        public int last_ping_delay_ms { get { return _last_ping_delay_ms; } private set { _last_ping_delay_ms = value; } } 
-        private DateTime lastPingTime = new DateTime(0);
+        public int last_ping_delay_ms { get { return _last_ping_delay_ms; } private set { _last_ping_delay_ms = value; } }
+        private DateTime lastPingTime = DateTime.MinValue;
         public TimeSpan timeSinceLastPing { get { return (DateTime.Now - lastPingTime); } }
         private DateTime lastPongTime = DateTime.Now;
         public TimeSpan timeSinceLastPong { get { return (DateTime.Now - lastPongTime); } }

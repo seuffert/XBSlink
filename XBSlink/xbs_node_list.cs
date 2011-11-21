@@ -43,6 +43,7 @@ namespace XBSlink
         public const int MAX_PING_NO_RESPONSE_SECONDS = 30;
         public const int MAX_ADD_NODE_TIMEOUT_SECONDS = 2;
         public const int MAX_ASK_CLOUDHELPER_COUNT = 3;
+        public const int MIN_REFRESH_NODE_DELAY = 2;
         private volatile bool run_ping_nodes_loop = true;
 
         public volatile bool notify_on_new_node = true;
@@ -238,7 +239,7 @@ namespace XBSlink
             informNodesOnDelNode(local_node);
         }
 
-        public void pingAllnodes()
+        public void refreshAllNodes()
         {
             DateTime now = DateTime.Now;
             List<xbs_node> del_list = new List<xbs_node>();
@@ -253,15 +254,20 @@ namespace XBSlink
                     time_since_last_ping = (int)n.timeSinceLastPing.TotalSeconds;
                     time_since_last_pong = (int)n.timeSinceLastPong.TotalSeconds;
                     if (time_since_last_ping > xbs_node_list.MIN_PING_DELAY_SECONDS || time_since_last_pong > xbs_node_list.MIN_PING_DELAY_SECONDS)
-                    {
                         n.sendPing();
-                        if (n.client_version == xbs_node.CLIENT_VERSION_UNKNOWN)
-                            n.sendGetClientVersion();
-                        if (n.nickname_received == false)
-                            n.sendGetNickname();
-                    }
+                    
                     if (time_since_last_pong > xbs_node_list.MAX_PING_NO_RESPONSE_SECONDS)
                         del_list.Add(n);
+                    else
+                        if ((DateTime.Now.Second % 2) == 0) // every 2 seconds check if all node data is available
+                        {
+                            if (n.client_version == xbs_node.CLIENT_VERSION_UNKNOWN)
+                                n.sendGetClientVersion();
+                            if (n.nickname_received == false)
+                                n.sendGetNickname();
+                            if (n.last_ping_delay_ms < 0 )
+                                n.sendPing();
+                        }
                 }
                 foreach (xbs_node n in del_list)
                 {
@@ -302,7 +308,7 @@ namespace XBSlink
                 while (run_ping_nodes_loop)
                 {
                     if(xbs_udp_listener.getInstance()!=null)
-                        pingAllnodes();
+                        refreshAllNodes();
                     checkNodesInAddingList();
                     if (run_ping_nodes_loop)
                         Thread.Sleep(1000);

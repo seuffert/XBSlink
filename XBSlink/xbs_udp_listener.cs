@@ -369,6 +369,8 @@ namespace XBSlink
 
                 case xbs_node_message_type.KNOWNNODE:
                     xbs_node_message_knownnode msg_knownnode = new xbs_node_message_knownnode(udp_msg.data);
+                    
+                    // only accept KNOWNNODE messages when not part of a cloud
                     if (!xbs_cloudlist.getInstance().part_of_cloud)
                     {
                         tmp_node = node_list.findNode(msg_knownnode.ip, msg_knownnode.port);
