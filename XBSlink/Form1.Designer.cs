@@ -110,21 +110,28 @@ namespace XBSlink
             this.listBox_messages = new System.Windows.Forms.ListBox();
             this.button_clearMessages = new System.Windows.Forms.Button();
             this.tabPage_settings = new System.Windows.Forms.TabPage();
-            this.checkBox_forward_all_high_port_broadcast = new System.Windows.Forms.CheckBox();
-            this.checkBox_excludeGatewayIPs = new System.Windows.Forms.CheckBox();
-            this.checkBox_filter_wellknown_ports = new System.Windows.Forms.CheckBox();
-            this.button_reset_settings = new System.Windows.Forms.Button();
-            this.checkBox_checkForUpdates = new System.Windows.Forms.CheckBox();
-            this.checkBox_useCloudServerForPortCheck = new System.Windows.Forms.CheckBox();
-            this.groupBox_chatsettings = new System.Windows.Forms.GroupBox();
-            this.checkBox_chat_nodeInfoMessagesInChat = new System.Windows.Forms.CheckBox();
-            this.checkBox_chat_notify = new System.Windows.Forms.CheckBox();
-            this.checkBox_chatAutoSwitch = new System.Windows.Forms.CheckBox();
+            this.tabControl_settings = new System.Windows.Forms.TabControl();
+            this.tabPageSettings_general = new System.Windows.Forms.TabPage();
+            this.groupBox_usersettings = new System.Windows.Forms.GroupBox();
             this.label_nickname = new System.Windows.Forms.Label();
             this.textBox_chatNickname = new System.Windows.Forms.TextBox();
+            this.groupBox_updates = new System.Windows.Forms.GroupBox();
+            this.checkBox_checkForUpdates = new System.Windows.Forms.CheckBox();
+            this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.checkBox_chat_notify = new System.Windows.Forms.CheckBox();
             this.checkBox_newNodeSound = new System.Windows.Forms.CheckBox();
-            this.button_save_settings = new System.Windows.Forms.Button();
+            this.groupBox_chatsettings = new System.Windows.Forms.GroupBox();
+            this.checkBox_chat_nodeInfoMessagesInChat = new System.Windows.Forms.CheckBox();
+            this.checkBox_chatAutoSwitch = new System.Windows.Forms.CheckBox();
+            this.tabPageSettings_network = new System.Windows.Forms.TabPage();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.groupBox_portoptions = new System.Windows.Forms.GroupBox();
+            this.checkBox_useCloudServerForPortCheck = new System.Windows.Forms.CheckBox();
             this.label6 = new System.Windows.Forms.Label();
+            this.groupBox_packetfilter = new System.Windows.Forms.GroupBox();
+            this.checkBox_forward_all_high_port_broadcast = new System.Windows.Forms.CheckBox();
+            this.checkBox_filter_wellknown_ports = new System.Windows.Forms.CheckBox();
+            this.checkBox_excludeGatewayIPs = new System.Windows.Forms.CheckBox();
             this.groupBox_MAClist = new System.Windows.Forms.GroupBox();
             this.checkBox_mac_restriction = new System.Windows.Forms.CheckBox();
             this.checkBox_enable_MAC_list = new System.Windows.Forms.CheckBox();
@@ -132,6 +139,8 @@ namespace XBSlink
             this.button_add_MAC = new System.Windows.Forms.Button();
             this.textBox_add_MAC = new System.Windows.Forms.TextBox();
             this.listBox_MAC_list = new System.Windows.Forms.ListBox();
+            this.button_reset_settings = new System.Windows.Forms.Button();
+            this.button_save_settings = new System.Windows.Forms.Button();
             this.tabPage_nat = new System.Windows.Forms.TabPage();
             this.label18 = new System.Windows.Forms.Label();
             this.comboBox_nat_netmask = new System.Windows.Forms.ComboBox();
@@ -158,15 +167,7 @@ namespace XBSlink
             this.timer_startEngine = new System.Windows.Forms.Timer(this.components);
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.toolTip2 = new System.Windows.Forms.ToolTip(this.components);
-            this.tabControl_settings = new System.Windows.Forms.TabControl();
-            this.tabPageSettings_network = new System.Windows.Forms.TabPage();
-            this.tabPageSettings_general = new System.Windows.Forms.TabPage();
-            this.groupBox_packetfilter = new System.Windows.Forms.GroupBox();
-            this.groupBox_portoptions = new System.Windows.Forms.GroupBox();
-            this.groupBox5 = new System.Windows.Forms.GroupBox();
-            this.groupBox_updates = new System.Windows.Forms.GroupBox();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.groupBox_usersettings = new System.Windows.Forms.GroupBox();
+            this.checkBox_minimize2systray = new System.Windows.Forms.CheckBox();
             this.statusStrip.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage_info.SuspendLayout();
@@ -177,20 +178,20 @@ namespace XBSlink
             this.splitContainer1.SuspendLayout();
             this.tabPage_messages.SuspendLayout();
             this.tabPage_settings.SuspendLayout();
+            this.tabControl_settings.SuspendLayout();
+            this.tabPageSettings_general.SuspendLayout();
+            this.groupBox_usersettings.SuspendLayout();
+            this.groupBox_updates.SuspendLayout();
+            this.groupBox5.SuspendLayout();
             this.groupBox_chatsettings.SuspendLayout();
+            this.tabPageSettings_network.SuspendLayout();
+            this.groupBox1.SuspendLayout();
+            this.groupBox_portoptions.SuspendLayout();
+            this.groupBox_packetfilter.SuspendLayout();
             this.groupBox_MAClist.SuspendLayout();
             this.tabPage_nat.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.tabPage_about.SuspendLayout();
-            this.tabControl_settings.SuspendLayout();
-            this.tabPageSettings_network.SuspendLayout();
-            this.tabPageSettings_general.SuspendLayout();
-            this.groupBox_packetfilter.SuspendLayout();
-            this.groupBox_portoptions.SuspendLayout();
-            this.groupBox5.SuspendLayout();
-            this.groupBox_updates.SuspendLayout();
-            this.groupBox1.SuspendLayout();
-            this.groupBox_usersettings.SuspendLayout();
             this.SuspendLayout();
             // 
             // statusStrip
@@ -418,7 +419,7 @@ namespace XBSlink
             this.tabPage_info.Location = new System.Drawing.Point(4, 22);
             this.tabPage_info.Name = "tabPage_info";
             this.tabPage_info.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage_info.Size = new System.Drawing.Size(348, 656);
+            this.tabPage_info.Size = new System.Drawing.Size(348, 489);
             this.tabPage_info.TabIndex = 0;
             this.tabPage_info.Text = "Info";
             // 
@@ -511,7 +512,7 @@ namespace XBSlink
             this.tabPage_clouds.Location = new System.Drawing.Point(4, 22);
             this.tabPage_clouds.Margin = new System.Windows.Forms.Padding(1);
             this.tabPage_clouds.Name = "tabPage_clouds";
-            this.tabPage_clouds.Size = new System.Drawing.Size(348, 656);
+            this.tabPage_clouds.Size = new System.Drawing.Size(348, 489);
             this.tabPage_clouds.TabIndex = 5;
             this.tabPage_clouds.Text = "Clouds";
             // 
@@ -673,7 +674,7 @@ namespace XBSlink
             this.tabPage_chat.Controls.Add(this.textBox_chatEntry);
             this.tabPage_chat.Location = new System.Drawing.Point(4, 22);
             this.tabPage_chat.Name = "tabPage_chat";
-            this.tabPage_chat.Size = new System.Drawing.Size(348, 656);
+            this.tabPage_chat.Size = new System.Drawing.Size(348, 489);
             this.tabPage_chat.TabIndex = 4;
             this.tabPage_chat.Text = "Chat";
             // 
@@ -778,7 +779,7 @@ namespace XBSlink
             this.tabPage_messages.Controls.Add(this.button_clearMessages);
             this.tabPage_messages.Location = new System.Drawing.Point(4, 22);
             this.tabPage_messages.Name = "tabPage_messages";
-            this.tabPage_messages.Size = new System.Drawing.Size(348, 656);
+            this.tabPage_messages.Size = new System.Drawing.Size(348, 489);
             this.tabPage_messages.TabIndex = 2;
             this.tabPage_messages.Text = "Messages";
             // 
@@ -831,66 +832,85 @@ namespace XBSlink
             this.tabPage_settings.TabIndex = 1;
             this.tabPage_settings.Text = "Settings";
             // 
-            // checkBox_forward_all_high_port_broadcast
+            // tabControl_settings
             // 
-            this.checkBox_forward_all_high_port_broadcast.AutoSize = true;
-            this.checkBox_forward_all_high_port_broadcast.Checked = true;
-            this.checkBox_forward_all_high_port_broadcast.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_forward_all_high_port_broadcast.Location = new System.Drawing.Point(6, 65);
-            this.checkBox_forward_all_high_port_broadcast.Name = "checkBox_forward_all_high_port_broadcast";
-            this.checkBox_forward_all_high_port_broadcast.Size = new System.Drawing.Size(254, 17);
-            this.checkBox_forward_all_high_port_broadcast.TabIndex = 37;
-            this.checkBox_forward_all_high_port_broadcast.Text = "forward all udp broadcast on high ports (p>1024)";
-            this.toolTip1.SetToolTip(this.checkBox_forward_all_high_port_broadcast, "This option can be usefull if XBSlink can not see the traffic from your console.");
-            this.checkBox_forward_all_high_port_broadcast.UseVisualStyleBackColor = true;
-            this.checkBox_forward_all_high_port_broadcast.CheckedChanged += new System.EventHandler(this.checkBox_forward_all_high_port_broadcast_CheckedChanged);
+            this.tabControl_settings.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tabControl_settings.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
+            this.tabControl_settings.Controls.Add(this.tabPageSettings_general);
+            this.tabControl_settings.Controls.Add(this.tabPageSettings_network);
+            this.tabControl_settings.Location = new System.Drawing.Point(0, 6);
+            this.tabControl_settings.Name = "tabControl_settings";
+            this.tabControl_settings.SelectedIndex = 0;
+            this.tabControl_settings.Size = new System.Drawing.Size(348, 448);
+            this.tabControl_settings.TabIndex = 38;
             // 
-            // checkBox_excludeGatewayIPs
+            // tabPageSettings_general
             // 
-            this.checkBox_excludeGatewayIPs.AutoSize = true;
-            this.checkBox_excludeGatewayIPs.Checked = true;
-            this.checkBox_excludeGatewayIPs.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_excludeGatewayIPs.Location = new System.Drawing.Point(6, 42);
-            this.checkBox_excludeGatewayIPs.Name = "checkBox_excludeGatewayIPs";
-            this.checkBox_excludeGatewayIPs.Size = new System.Drawing.Size(202, 17);
-            this.checkBox_excludeGatewayIPs.TabIndex = 36;
-            this.checkBox_excludeGatewayIPs.Text = "exclude gateway IPs in packet sniffer";
-            this.toolTip1.SetToolTip(this.checkBox_excludeGatewayIPs, "Protects your network from being disrupted by a faulty XBSlink node.");
-            this.checkBox_excludeGatewayIPs.UseVisualStyleBackColor = true;
-            this.checkBox_excludeGatewayIPs.CheckedChanged += new System.EventHandler(this.checkBox_excludeGatewayIPs_CheckedChanged);
+            this.tabPageSettings_general.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.tabPageSettings_general.Controls.Add(this.groupBox_usersettings);
+            this.tabPageSettings_general.Controls.Add(this.groupBox_updates);
+            this.tabPageSettings_general.Controls.Add(this.groupBox5);
+            this.tabPageSettings_general.Controls.Add(this.groupBox_chatsettings);
+            this.tabPageSettings_general.Location = new System.Drawing.Point(4, 25);
+            this.tabPageSettings_general.Name = "tabPageSettings_general";
+            this.tabPageSettings_general.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageSettings_general.Size = new System.Drawing.Size(340, 419);
+            this.tabPageSettings_general.TabIndex = 1;
+            this.tabPageSettings_general.Text = "General";
+            this.tabPageSettings_general.UseVisualStyleBackColor = true;
             // 
-            // checkBox_filter_wellknown_ports
+            // groupBox_usersettings
             // 
-            this.checkBox_filter_wellknown_ports.AutoSize = true;
-            this.checkBox_filter_wellknown_ports.Checked = true;
-            this.checkBox_filter_wellknown_ports.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_filter_wellknown_ports.Location = new System.Drawing.Point(6, 19);
-            this.checkBox_filter_wellknown_ports.Name = "checkBox_filter_wellknown_ports";
-            this.checkBox_filter_wellknown_ports.Size = new System.Drawing.Size(225, 17);
-            this.checkBox_filter_wellknown_ports.TabIndex = 35;
-            this.checkBox_filter_wellknown_ports.Text = "filter packets to well known ports (p<1024)";
-            this.toolTip1.SetToolTip(this.checkBox_filter_wellknown_ports, "This security feature prevents XBSlink from accidently forwarding packets of loca" +
-        "l services.");
-            this.checkBox_filter_wellknown_ports.UseVisualStyleBackColor = true;
-            this.checkBox_filter_wellknown_ports.CheckedChanged += new System.EventHandler(this.checkBox_filter_wellknown_ports_CheckedChanged);
+            this.groupBox_usersettings.Controls.Add(this.label_nickname);
+            this.groupBox_usersettings.Controls.Add(this.textBox_chatNickname);
+            this.groupBox_usersettings.Location = new System.Drawing.Point(6, 6);
+            this.groupBox_usersettings.Name = "groupBox_usersettings";
+            this.groupBox_usersettings.Size = new System.Drawing.Size(326, 60);
+            this.groupBox_usersettings.TabIndex = 36;
+            this.groupBox_usersettings.TabStop = false;
+            this.groupBox_usersettings.Text = "user";
             // 
-            // button_reset_settings
+            // label_nickname
             // 
-            this.button_reset_settings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_reset_settings.Location = new System.Drawing.Point(117, 460);
-            this.button_reset_settings.Name = "button_reset_settings";
-            this.button_reset_settings.Size = new System.Drawing.Size(55, 23);
-            this.button_reset_settings.TabIndex = 34;
-            this.button_reset_settings.Text = "reset";
-            this.button_reset_settings.UseVisualStyleBackColor = true;
-            this.button_reset_settings.Click += new System.EventHandler(this.button_reset_settings_Click);
+            this.label_nickname.AutoSize = true;
+            this.label_nickname.Location = new System.Drawing.Point(6, 16);
+            this.label_nickname.Name = "label_nickname";
+            this.label_nickname.Size = new System.Drawing.Size(55, 13);
+            this.label_nickname.TabIndex = 1;
+            this.label_nickname.Text = "Nickname";
+            // 
+            // textBox_chatNickname
+            // 
+            this.textBox_chatNickname.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox_chatNickname.Location = new System.Drawing.Point(6, 32);
+            this.textBox_chatNickname.Name = "textBox_chatNickname";
+            this.textBox_chatNickname.Size = new System.Drawing.Size(314, 20);
+            this.textBox_chatNickname.TabIndex = 0;
+            this.toolTip1.SetToolTip(this.textBox_chatNickname, "the nickname will appear in the chat as well as in the node list");
+            this.textBox_chatNickname.Leave += new System.EventHandler(this.textBox_chatNickname_Leave);
+            // 
+            // groupBox_updates
+            // 
+            this.groupBox_updates.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox_updates.Controls.Add(this.checkBox_minimize2systray);
+            this.groupBox_updates.Controls.Add(this.checkBox_checkForUpdates);
+            this.groupBox_updates.Location = new System.Drawing.Point(6, 216);
+            this.groupBox_updates.Name = "groupBox_updates";
+            this.groupBox_updates.Size = new System.Drawing.Size(326, 65);
+            this.groupBox_updates.TabIndex = 35;
+            this.groupBox_updates.TabStop = false;
+            this.groupBox_updates.Text = "system";
             // 
             // checkBox_checkForUpdates
             // 
             this.checkBox_checkForUpdates.AutoSize = true;
             this.checkBox_checkForUpdates.Checked = true;
             this.checkBox_checkForUpdates.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_checkForUpdates.Location = new System.Drawing.Point(6, 19);
+            this.checkBox_checkForUpdates.Location = new System.Drawing.Point(6, 42);
             this.checkBox_checkForUpdates.Name = "checkBox_checkForUpdates";
             this.checkBox_checkForUpdates.Size = new System.Drawing.Size(143, 17);
             this.checkBox_checkForUpdates.TabIndex = 33;
@@ -898,18 +918,44 @@ namespace XBSlink
             this.toolTip1.SetToolTip(this.checkBox_checkForUpdates, "Periodically check the XBSlink website for program updates.");
             this.checkBox_checkForUpdates.UseVisualStyleBackColor = true;
             // 
-            // checkBox_useCloudServerForPortCheck
+            // groupBox5
             // 
-            this.checkBox_useCloudServerForPortCheck.AutoSize = true;
-            this.checkBox_useCloudServerForPortCheck.Checked = true;
-            this.checkBox_useCloudServerForPortCheck.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_useCloudServerForPortCheck.Location = new System.Drawing.Point(6, 85);
-            this.checkBox_useCloudServerForPortCheck.Name = "checkBox_useCloudServerForPortCheck";
-            this.checkBox_useCloudServerForPortCheck.Size = new System.Drawing.Size(215, 17);
-            this.checkBox_useCloudServerForPortCheck.TabIndex = 32;
-            this.checkBox_useCloudServerForPortCheck.Text = "use cloud server to check incoming port";
-            this.toolTip1.SetToolTip(this.checkBox_useCloudServerForPortCheck, "if selected, the cloud server wil be asked to send a test packet back");
-            this.checkBox_useCloudServerForPortCheck.UseVisualStyleBackColor = true;
+            this.groupBox5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox5.Controls.Add(this.checkBox_chat_notify);
+            this.groupBox5.Controls.Add(this.checkBox_newNodeSound);
+            this.groupBox5.Location = new System.Drawing.Point(6, 143);
+            this.groupBox5.Name = "groupBox5";
+            this.groupBox5.Size = new System.Drawing.Size(326, 67);
+            this.groupBox5.TabIndex = 34;
+            this.groupBox5.TabStop = false;
+            this.groupBox5.Text = "sound";
+            // 
+            // checkBox_chat_notify
+            // 
+            this.checkBox_chat_notify.AutoSize = true;
+            this.checkBox_chat_notify.Checked = true;
+            this.checkBox_chat_notify.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_chat_notify.Location = new System.Drawing.Point(6, 19);
+            this.checkBox_chat_notify.Name = "checkBox_chat_notify";
+            this.checkBox_chat_notify.Size = new System.Drawing.Size(160, 17);
+            this.checkBox_chat_notify.TabIndex = 3;
+            this.checkBox_chat_notify.Text = "play sound on new message";
+            this.checkBox_chat_notify.UseVisualStyleBackColor = true;
+            this.checkBox_chat_notify.CheckedChanged += new System.EventHandler(this.checkBox_chat_notify_CheckedChanged);
+            // 
+            // checkBox_newNodeSound
+            // 
+            this.checkBox_newNodeSound.AutoSize = true;
+            this.checkBox_newNodeSound.Checked = true;
+            this.checkBox_newNodeSound.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_newNodeSound.Location = new System.Drawing.Point(6, 42);
+            this.checkBox_newNodeSound.Name = "checkBox_newNodeSound";
+            this.checkBox_newNodeSound.Size = new System.Drawing.Size(203, 17);
+            this.checkBox_newNodeSound.TabIndex = 31;
+            this.checkBox_newNodeSound.Text = "play sound when node joins or leaves";
+            this.checkBox_newNodeSound.UseVisualStyleBackColor = true;
+            this.checkBox_newNodeSound.CheckedChanged += new System.EventHandler(this.checkBox_newNodeSound_CheckedChanged);
             // 
             // groupBox_chatsettings
             // 
@@ -937,19 +983,6 @@ namespace XBSlink
             this.checkBox_chat_nodeInfoMessagesInChat.UseVisualStyleBackColor = true;
             this.checkBox_chat_nodeInfoMessagesInChat.CheckedChanged += new System.EventHandler(this.checkBox_chat_nodeInfoMessagesInChat_CheckedChanged);
             // 
-            // checkBox_chat_notify
-            // 
-            this.checkBox_chat_notify.AutoSize = true;
-            this.checkBox_chat_notify.Checked = true;
-            this.checkBox_chat_notify.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_chat_notify.Location = new System.Drawing.Point(6, 19);
-            this.checkBox_chat_notify.Name = "checkBox_chat_notify";
-            this.checkBox_chat_notify.Size = new System.Drawing.Size(160, 17);
-            this.checkBox_chat_notify.TabIndex = 3;
-            this.checkBox_chat_notify.Text = "play sound on new message";
-            this.checkBox_chat_notify.UseVisualStyleBackColor = true;
-            this.checkBox_chat_notify.CheckedChanged += new System.EventHandler(this.checkBox_chat_notify_CheckedChanged);
-            // 
             // checkBox_chatAutoSwitch
             // 
             this.checkBox_chatAutoSwitch.AutoSize = true;
@@ -965,49 +998,64 @@ namespace XBSlink
             this.checkBox_chatAutoSwitch.UseVisualStyleBackColor = true;
             this.checkBox_chatAutoSwitch.CheckedChanged += new System.EventHandler(this.checkBox_chatAutoSwitch_CheckedChanged);
             // 
-            // label_nickname
+            // tabPageSettings_network
             // 
-            this.label_nickname.AutoSize = true;
-            this.label_nickname.Location = new System.Drawing.Point(6, 16);
-            this.label_nickname.Name = "label_nickname";
-            this.label_nickname.Size = new System.Drawing.Size(55, 13);
-            this.label_nickname.TabIndex = 1;
-            this.label_nickname.Text = "Nickname";
+            this.tabPageSettings_network.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.tabPageSettings_network.Controls.Add(this.groupBox1);
+            this.tabPageSettings_network.Controls.Add(this.groupBox_portoptions);
+            this.tabPageSettings_network.Controls.Add(this.groupBox_packetfilter);
+            this.tabPageSettings_network.Controls.Add(this.groupBox_MAClist);
+            this.tabPageSettings_network.Location = new System.Drawing.Point(4, 25);
+            this.tabPageSettings_network.Name = "tabPageSettings_network";
+            this.tabPageSettings_network.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageSettings_network.Size = new System.Drawing.Size(340, 419);
+            this.tabPageSettings_network.TabIndex = 0;
+            this.tabPageSettings_network.Text = "Network";
+            this.tabPageSettings_network.UseVisualStyleBackColor = true;
             // 
-            // textBox_chatNickname
+            // groupBox1
             // 
-            this.textBox_chatNickname.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_chatNickname.Location = new System.Drawing.Point(6, 32);
-            this.textBox_chatNickname.Name = "textBox_chatNickname";
-            this.textBox_chatNickname.Size = new System.Drawing.Size(314, 20);
-            this.textBox_chatNickname.TabIndex = 0;
-            this.toolTip1.SetToolTip(this.textBox_chatNickname, "the nickname will appear in the chat as well as in the node list");
-            this.textBox_chatNickname.Leave += new System.EventHandler(this.textBox_chatNickname_Leave);
+            this.groupBox1.Controls.Add(this.label2);
+            this.groupBox1.Controls.Add(this.comboBox_captureDevice);
+            this.groupBox1.Location = new System.Drawing.Point(6, 6);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(326, 61);
+            this.groupBox1.TabIndex = 40;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "packet sniffer";
             // 
-            // checkBox_newNodeSound
+            // groupBox_portoptions
             // 
-            this.checkBox_newNodeSound.AutoSize = true;
-            this.checkBox_newNodeSound.Checked = true;
-            this.checkBox_newNodeSound.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_newNodeSound.Location = new System.Drawing.Point(6, 42);
-            this.checkBox_newNodeSound.Name = "checkBox_newNodeSound";
-            this.checkBox_newNodeSound.Size = new System.Drawing.Size(203, 17);
-            this.checkBox_newNodeSound.TabIndex = 31;
-            this.checkBox_newNodeSound.Text = "play sound when node joins or leaves";
-            this.checkBox_newNodeSound.UseVisualStyleBackColor = true;
-            this.checkBox_newNodeSound.CheckedChanged += new System.EventHandler(this.checkBox_newNodeSound_CheckedChanged);
+            this.groupBox_portoptions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox_portoptions.Controls.Add(this.checkbox_UPnP);
+            this.groupBox_portoptions.Controls.Add(this.checkBox_useCloudServerForPortCheck);
+            this.groupBox_portoptions.Controls.Add(this.label3);
+            this.groupBox_portoptions.Controls.Add(this.label6);
+            this.groupBox_portoptions.Controls.Add(this.label4);
+            this.groupBox_portoptions.Controls.Add(this.comboBox_localIP);
+            this.groupBox_portoptions.Controls.Add(this.textBox_local_Port);
+            this.groupBox_portoptions.Location = new System.Drawing.Point(6, 73);
+            this.groupBox_portoptions.Name = "groupBox_portoptions";
+            this.groupBox_portoptions.Size = new System.Drawing.Size(326, 107);
+            this.groupBox_portoptions.TabIndex = 39;
+            this.groupBox_portoptions.TabStop = false;
+            this.groupBox_portoptions.Text = "internet connection";
             // 
-            // button_save_settings
+            // checkBox_useCloudServerForPortCheck
             // 
-            this.button_save_settings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_save_settings.Location = new System.Drawing.Point(6, 460);
-            this.button_save_settings.Name = "button_save_settings";
-            this.button_save_settings.Size = new System.Drawing.Size(105, 23);
-            this.button_save_settings.TabIndex = 23;
-            this.button_save_settings.Text = "save settings";
-            this.button_save_settings.UseVisualStyleBackColor = true;
-            this.button_save_settings.Click += new System.EventHandler(this.button_save_settings_Click);
+            this.checkBox_useCloudServerForPortCheck.AutoSize = true;
+            this.checkBox_useCloudServerForPortCheck.Checked = true;
+            this.checkBox_useCloudServerForPortCheck.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_useCloudServerForPortCheck.Location = new System.Drawing.Point(6, 85);
+            this.checkBox_useCloudServerForPortCheck.Name = "checkBox_useCloudServerForPortCheck";
+            this.checkBox_useCloudServerForPortCheck.Size = new System.Drawing.Size(215, 17);
+            this.checkBox_useCloudServerForPortCheck.TabIndex = 32;
+            this.checkBox_useCloudServerForPortCheck.Text = "use cloud server to check incoming port";
+            this.toolTip1.SetToolTip(this.checkBox_useCloudServerForPortCheck, "if selected, the cloud server wil be asked to send a test packet back");
+            this.checkBox_useCloudServerForPortCheck.UseVisualStyleBackColor = true;
             // 
             // label6
             // 
@@ -1017,6 +1065,63 @@ namespace XBSlink
             this.label6.Size = new System.Drawing.Size(70, 13);
             this.label6.TabIndex = 22;
             this.label6.Text = "incoming port";
+            // 
+            // groupBox_packetfilter
+            // 
+            this.groupBox_packetfilter.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox_packetfilter.Controls.Add(this.checkBox_forward_all_high_port_broadcast);
+            this.groupBox_packetfilter.Controls.Add(this.checkBox_filter_wellknown_ports);
+            this.groupBox_packetfilter.Controls.Add(this.checkBox_excludeGatewayIPs);
+            this.groupBox_packetfilter.Location = new System.Drawing.Point(6, 186);
+            this.groupBox_packetfilter.Name = "groupBox_packetfilter";
+            this.groupBox_packetfilter.Size = new System.Drawing.Size(326, 91);
+            this.groupBox_packetfilter.TabIndex = 38;
+            this.groupBox_packetfilter.TabStop = false;
+            this.groupBox_packetfilter.Text = "packet filter";
+            // 
+            // checkBox_forward_all_high_port_broadcast
+            // 
+            this.checkBox_forward_all_high_port_broadcast.AutoSize = true;
+            this.checkBox_forward_all_high_port_broadcast.Checked = true;
+            this.checkBox_forward_all_high_port_broadcast.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_forward_all_high_port_broadcast.Location = new System.Drawing.Point(6, 65);
+            this.checkBox_forward_all_high_port_broadcast.Name = "checkBox_forward_all_high_port_broadcast";
+            this.checkBox_forward_all_high_port_broadcast.Size = new System.Drawing.Size(254, 17);
+            this.checkBox_forward_all_high_port_broadcast.TabIndex = 37;
+            this.checkBox_forward_all_high_port_broadcast.Text = "forward all udp broadcast on high ports (p>1024)";
+            this.toolTip1.SetToolTip(this.checkBox_forward_all_high_port_broadcast, "This option can be usefull if XBSlink can not see the traffic from your console.");
+            this.checkBox_forward_all_high_port_broadcast.UseVisualStyleBackColor = true;
+            this.checkBox_forward_all_high_port_broadcast.CheckedChanged += new System.EventHandler(this.checkBox_forward_all_high_port_broadcast_CheckedChanged);
+            // 
+            // checkBox_filter_wellknown_ports
+            // 
+            this.checkBox_filter_wellknown_ports.AutoSize = true;
+            this.checkBox_filter_wellknown_ports.Checked = true;
+            this.checkBox_filter_wellknown_ports.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_filter_wellknown_ports.Location = new System.Drawing.Point(6, 19);
+            this.checkBox_filter_wellknown_ports.Name = "checkBox_filter_wellknown_ports";
+            this.checkBox_filter_wellknown_ports.Size = new System.Drawing.Size(225, 17);
+            this.checkBox_filter_wellknown_ports.TabIndex = 35;
+            this.checkBox_filter_wellknown_ports.Text = "filter packets to well known ports (p<1024)";
+            this.toolTip1.SetToolTip(this.checkBox_filter_wellknown_ports, "This security feature prevents XBSlink from accidently forwarding packets of loca" +
+        "l services.");
+            this.checkBox_filter_wellknown_ports.UseVisualStyleBackColor = true;
+            this.checkBox_filter_wellknown_ports.CheckedChanged += new System.EventHandler(this.checkBox_filter_wellknown_ports_CheckedChanged);
+            // 
+            // checkBox_excludeGatewayIPs
+            // 
+            this.checkBox_excludeGatewayIPs.AutoSize = true;
+            this.checkBox_excludeGatewayIPs.Checked = true;
+            this.checkBox_excludeGatewayIPs.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_excludeGatewayIPs.Location = new System.Drawing.Point(6, 42);
+            this.checkBox_excludeGatewayIPs.Name = "checkBox_excludeGatewayIPs";
+            this.checkBox_excludeGatewayIPs.Size = new System.Drawing.Size(202, 17);
+            this.checkBox_excludeGatewayIPs.TabIndex = 36;
+            this.checkBox_excludeGatewayIPs.Text = "exclude gateway IPs in packet sniffer";
+            this.toolTip1.SetToolTip(this.checkBox_excludeGatewayIPs, "Protects your network from being disrupted by a faulty XBSlink node.");
+            this.checkBox_excludeGatewayIPs.UseVisualStyleBackColor = true;
+            this.checkBox_excludeGatewayIPs.CheckedChanged += new System.EventHandler(this.checkBox_excludeGatewayIPs_CheckedChanged);
             // 
             // groupBox_MAClist
             // 
@@ -1106,6 +1211,28 @@ namespace XBSlink
             this.listBox_MAC_list.TabIndex = 17;
             this.listBox_MAC_list.SelectedIndexChanged += new System.EventHandler(this.listBox_MAC_list_SelectedIndexChanged);
             // 
+            // button_reset_settings
+            // 
+            this.button_reset_settings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button_reset_settings.Location = new System.Drawing.Point(117, 460);
+            this.button_reset_settings.Name = "button_reset_settings";
+            this.button_reset_settings.Size = new System.Drawing.Size(55, 23);
+            this.button_reset_settings.TabIndex = 34;
+            this.button_reset_settings.Text = "reset";
+            this.button_reset_settings.UseVisualStyleBackColor = true;
+            this.button_reset_settings.Click += new System.EventHandler(this.button_reset_settings_Click);
+            // 
+            // button_save_settings
+            // 
+            this.button_save_settings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button_save_settings.Location = new System.Drawing.Point(6, 460);
+            this.button_save_settings.Name = "button_save_settings";
+            this.button_save_settings.Size = new System.Drawing.Size(105, 23);
+            this.button_save_settings.TabIndex = 23;
+            this.button_save_settings.Text = "save settings";
+            this.button_save_settings.UseVisualStyleBackColor = true;
+            this.button_save_settings.Click += new System.EventHandler(this.button_save_settings_Click);
+            // 
             // tabPage_nat
             // 
             this.tabPage_nat.BackColor = System.Drawing.SystemColors.Control;
@@ -1122,7 +1249,7 @@ namespace XBSlink
             this.tabPage_nat.Controls.Add(this.label17);
             this.tabPage_nat.Location = new System.Drawing.Point(4, 22);
             this.tabPage_nat.Name = "tabPage_nat";
-            this.tabPage_nat.Size = new System.Drawing.Size(348, 656);
+            this.tabPage_nat.Size = new System.Drawing.Size(348, 489);
             this.tabPage_nat.TabIndex = 6;
             this.tabPage_nat.Text = "NAT";
             // 
@@ -1321,7 +1448,7 @@ namespace XBSlink
             this.tabPage_about.Controls.Add(this.richTextBox_about);
             this.tabPage_about.Location = new System.Drawing.Point(4, 22);
             this.tabPage_about.Name = "tabPage_about";
-            this.tabPage_about.Size = new System.Drawing.Size(348, 405);
+            this.tabPage_about.Size = new System.Drawing.Size(348, 489);
             this.tabPage_about.TabIndex = 3;
             this.tabPage_about.Text = "About";
             // 
@@ -1365,130 +1492,19 @@ namespace XBSlink
             // 
             this.toolTip2.ShowAlways = true;
             // 
-            // tabControl_settings
+            // checkBox_minimize2systray
             // 
-            this.tabControl_settings.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tabControl_settings.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
-            this.tabControl_settings.Controls.Add(this.tabPageSettings_general);
-            this.tabControl_settings.Controls.Add(this.tabPageSettings_network);
-            this.tabControl_settings.Location = new System.Drawing.Point(0, 6);
-            this.tabControl_settings.Name = "tabControl_settings";
-            this.tabControl_settings.SelectedIndex = 0;
-            this.tabControl_settings.Size = new System.Drawing.Size(348, 448);
-            this.tabControl_settings.TabIndex = 38;
-            // 
-            // tabPageSettings_network
-            // 
-            this.tabPageSettings_network.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.tabPageSettings_network.Controls.Add(this.groupBox1);
-            this.tabPageSettings_network.Controls.Add(this.groupBox_portoptions);
-            this.tabPageSettings_network.Controls.Add(this.groupBox_packetfilter);
-            this.tabPageSettings_network.Controls.Add(this.groupBox_MAClist);
-            this.tabPageSettings_network.Location = new System.Drawing.Point(4, 25);
-            this.tabPageSettings_network.Name = "tabPageSettings_network";
-            this.tabPageSettings_network.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageSettings_network.Size = new System.Drawing.Size(340, 419);
-            this.tabPageSettings_network.TabIndex = 0;
-            this.tabPageSettings_network.Text = "Network";
-            this.tabPageSettings_network.UseVisualStyleBackColor = true;
-            // 
-            // tabPageSettings_general
-            // 
-            this.tabPageSettings_general.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.tabPageSettings_general.Controls.Add(this.groupBox_usersettings);
-            this.tabPageSettings_general.Controls.Add(this.groupBox_updates);
-            this.tabPageSettings_general.Controls.Add(this.groupBox5);
-            this.tabPageSettings_general.Controls.Add(this.groupBox_chatsettings);
-            this.tabPageSettings_general.Location = new System.Drawing.Point(4, 25);
-            this.tabPageSettings_general.Name = "tabPageSettings_general";
-            this.tabPageSettings_general.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageSettings_general.Size = new System.Drawing.Size(340, 419);
-            this.tabPageSettings_general.TabIndex = 1;
-            this.tabPageSettings_general.Text = "General";
-            this.tabPageSettings_general.UseVisualStyleBackColor = true;
-            // 
-            // groupBox_packetfilter
-            // 
-            this.groupBox_packetfilter.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox_packetfilter.Controls.Add(this.checkBox_forward_all_high_port_broadcast);
-            this.groupBox_packetfilter.Controls.Add(this.checkBox_filter_wellknown_ports);
-            this.groupBox_packetfilter.Controls.Add(this.checkBox_excludeGatewayIPs);
-            this.groupBox_packetfilter.Location = new System.Drawing.Point(6, 186);
-            this.groupBox_packetfilter.Name = "groupBox_packetfilter";
-            this.groupBox_packetfilter.Size = new System.Drawing.Size(326, 91);
-            this.groupBox_packetfilter.TabIndex = 38;
-            this.groupBox_packetfilter.TabStop = false;
-            this.groupBox_packetfilter.Text = "packet filter";
-            // 
-            // groupBox_portoptions
-            // 
-            this.groupBox_portoptions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox_portoptions.Controls.Add(this.checkbox_UPnP);
-            this.groupBox_portoptions.Controls.Add(this.checkBox_useCloudServerForPortCheck);
-            this.groupBox_portoptions.Controls.Add(this.label3);
-            this.groupBox_portoptions.Controls.Add(this.label6);
-            this.groupBox_portoptions.Controls.Add(this.label4);
-            this.groupBox_portoptions.Controls.Add(this.comboBox_localIP);
-            this.groupBox_portoptions.Controls.Add(this.textBox_local_Port);
-            this.groupBox_portoptions.Location = new System.Drawing.Point(6, 73);
-            this.groupBox_portoptions.Name = "groupBox_portoptions";
-            this.groupBox_portoptions.Size = new System.Drawing.Size(326, 107);
-            this.groupBox_portoptions.TabIndex = 39;
-            this.groupBox_portoptions.TabStop = false;
-            this.groupBox_portoptions.Text = "internet connection";
-            // 
-            // groupBox5
-            // 
-            this.groupBox5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox5.Controls.Add(this.checkBox_chat_notify);
-            this.groupBox5.Controls.Add(this.checkBox_newNodeSound);
-            this.groupBox5.Location = new System.Drawing.Point(6, 143);
-            this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(326, 67);
-            this.groupBox5.TabIndex = 34;
-            this.groupBox5.TabStop = false;
-            this.groupBox5.Text = "sound";
-            // 
-            // groupBox_updates
-            // 
-            this.groupBox_updates.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox_updates.Controls.Add(this.checkBox_checkForUpdates);
-            this.groupBox_updates.Location = new System.Drawing.Point(6, 216);
-            this.groupBox_updates.Name = "groupBox_updates";
-            this.groupBox_updates.Size = new System.Drawing.Size(326, 43);
-            this.groupBox_updates.TabIndex = 35;
-            this.groupBox_updates.TabStop = false;
-            this.groupBox_updates.Text = "program updates";
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Controls.Add(this.comboBox_captureDevice);
-            this.groupBox1.Location = new System.Drawing.Point(6, 6);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(326, 61);
-            this.groupBox1.TabIndex = 40;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "packet sniffer";
-            // 
-            // groupBox_usersettings
-            // 
-            this.groupBox_usersettings.Controls.Add(this.label_nickname);
-            this.groupBox_usersettings.Controls.Add(this.textBox_chatNickname);
-            this.groupBox_usersettings.Location = new System.Drawing.Point(6, 6);
-            this.groupBox_usersettings.Name = "groupBox_usersettings";
-            this.groupBox_usersettings.Size = new System.Drawing.Size(326, 60);
-            this.groupBox_usersettings.TabIndex = 36;
-            this.groupBox_usersettings.TabStop = false;
-            this.groupBox_usersettings.Text = "user";
+            this.checkBox_minimize2systray.AutoSize = true;
+            this.checkBox_minimize2systray.Checked = true;
+            this.checkBox_minimize2systray.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_minimize2systray.Location = new System.Drawing.Point(6, 19);
+            this.checkBox_minimize2systray.Name = "checkBox_minimize2systray";
+            this.checkBox_minimize2systray.Size = new System.Drawing.Size(112, 17);
+            this.checkBox_minimize2systray.TabIndex = 34;
+            this.checkBox_minimize2systray.Text = "minimize to systray";
+            this.toolTip1.SetToolTip(this.checkBox_minimize2systray, "minimize XBSlink to the system tray");
+            this.checkBox_minimize2systray.UseVisualStyleBackColor = true;
+            this.checkBox_minimize2systray.CheckedChanged += new System.EventHandler(this.checkBox_minimize2systray_CheckedChanged);
             // 
             // FormMain
             // 
@@ -1527,8 +1543,23 @@ namespace XBSlink
             this.splitContainer1.ResumeLayout(false);
             this.tabPage_messages.ResumeLayout(false);
             this.tabPage_settings.ResumeLayout(false);
+            this.tabControl_settings.ResumeLayout(false);
+            this.tabPageSettings_general.ResumeLayout(false);
+            this.groupBox_usersettings.ResumeLayout(false);
+            this.groupBox_usersettings.PerformLayout();
+            this.groupBox_updates.ResumeLayout(false);
+            this.groupBox_updates.PerformLayout();
+            this.groupBox5.ResumeLayout(false);
+            this.groupBox5.PerformLayout();
             this.groupBox_chatsettings.ResumeLayout(false);
             this.groupBox_chatsettings.PerformLayout();
+            this.tabPageSettings_network.ResumeLayout(false);
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            this.groupBox_portoptions.ResumeLayout(false);
+            this.groupBox_portoptions.PerformLayout();
+            this.groupBox_packetfilter.ResumeLayout(false);
+            this.groupBox_packetfilter.PerformLayout();
             this.groupBox_MAClist.ResumeLayout(false);
             this.groupBox_MAClist.PerformLayout();
             this.tabPage_nat.ResumeLayout(false);
@@ -1536,21 +1567,6 @@ namespace XBSlink
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.tabPage_about.ResumeLayout(false);
-            this.tabControl_settings.ResumeLayout(false);
-            this.tabPageSettings_network.ResumeLayout(false);
-            this.tabPageSettings_general.ResumeLayout(false);
-            this.groupBox_packetfilter.ResumeLayout(false);
-            this.groupBox_packetfilter.PerformLayout();
-            this.groupBox_portoptions.ResumeLayout(false);
-            this.groupBox_portoptions.PerformLayout();
-            this.groupBox5.ResumeLayout(false);
-            this.groupBox5.PerformLayout();
-            this.groupBox_updates.ResumeLayout(false);
-            this.groupBox_updates.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
-            this.groupBox_usersettings.ResumeLayout(false);
-            this.groupBox_usersettings.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1674,6 +1690,7 @@ namespace XBSlink
         private System.Windows.Forms.GroupBox groupBox_updates;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox_usersettings;
+        private System.Windows.Forms.CheckBox checkBox_minimize2systray;
     }
 }
 

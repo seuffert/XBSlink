@@ -297,6 +297,7 @@ namespace XBSlink
             checkBox_excludeGatewayIPs.Checked = s.REG_SNIFFER_EXCLUDE_GATWAY_IPS;
             checkBox_chat_nodeInfoMessagesInChat.Checked = s.REG_CHAT_NODEINFOMESSAGES;
             checkBox_forward_all_high_port_broadcast.Checked = s.REG_SNIFFER_FORWARD_ALL_HIGH_PORT_BROADCASTS;
+            checkBox_minimize2systray.Checked = s.REG_MINIMIZE2SYSTRAY;
             xbs_chat.message_when_nodes_join_or_leave = s.REG_CHAT_NODEINFOMESSAGES;
 
             if (checkBox_enable_MAC_list.Checked)
@@ -336,6 +337,7 @@ namespace XBSlink
             s.REG_SNIFFER_EXCLUDE_GATWAY_IPS = checkBox_excludeGatewayIPs.Checked;
             s.REG_CHAT_NODEINFOMESSAGES = checkBox_chat_nodeInfoMessagesInChat.Checked;
             s.REG_SNIFFER_FORWARD_ALL_HIGH_PORT_BROADCASTS = checkBox_forward_all_high_port_broadcast.Checked;
+            s.REG_MINIMIZE2SYSTRAY = checkBox_minimize2systray.Checked;
             s.Save();
         }
 
@@ -701,11 +703,14 @@ namespace XBSlink
         private void NotifyIconDoubleClick(Object sender, EventArgs e)
         {
             this.Visible = (this.Visible) ? false : true;
+            if (this.WindowState == FormWindowState.Minimized)
+                this.WindowState = FormWindowState.Normal;
         }
 
         private void Form1_SizeChanged(object sender, EventArgs e)
         {
-            //if (this.Width!=form1_width) this.Width = form1_width;
+            if (this.WindowState == FormWindowState.Minimized && checkBox_minimize2systray.Checked)
+                this.Visible = false;
         }
 
         private void updateMainInfo(List<xbs_node> nodes)
@@ -1694,6 +1699,11 @@ namespace XBSlink
             if (engine_started && cloudlist.part_of_cloud==false)
                 if (listView_clouds.SelectedItems.Count>0)
                     join_cloud();
+        }
+
+        private void checkBox_minimize2systray_CheckedChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

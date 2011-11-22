@@ -322,5 +322,17 @@ namespace XBSlink.Properties {
                 this["REG_SNIFFER_FORWARD_ALL_HIGH_PORT_BROADCASTS"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool REG_MINIMIZE2SYSTRAY {
+            get {
+                return ((bool)(this["REG_MINIMIZE2SYSTRAY"]));
+            }
+            set {
+                this["REG_MINIMIZE2SYSTRAY"] = value;
+            }
+        }
     }
 }

@@ -77,5 +77,8 @@
     <Setting Name="REG_SNIFFER_FORWARD_ALL_HIGH_PORT_BROADCASTS" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="REG_MINIMIZE2SYSTRAY" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
