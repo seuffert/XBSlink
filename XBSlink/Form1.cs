@@ -1709,7 +1709,7 @@ namespace XBSlink
 
         private void toolStripMenuItem_exit_Click(object sender, EventArgs e)
         {
-            Application.Exit();
+            this.Close();
         }
     }
 }
