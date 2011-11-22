@@ -180,6 +180,11 @@ namespace XBSlink
             }
         }
 
+        public Dictionary<String, String> getAllOptions()
+        {
+            return new Dictionary<String, String>(options);
+        }
+
         private void updateStringFromOptionsDictionary()
         {
             message_string = "";

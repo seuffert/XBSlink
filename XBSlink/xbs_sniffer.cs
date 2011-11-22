@@ -321,14 +321,14 @@ namespace XBSlink
             catch (PcapException pcex)
             {
 #if DEBUG
-                xbs_messages.addDebugMessage("parse packet failed in injectRemotePacket (1): " + pcex.ToString(), xbs_message_sender.SNIFFER, xbs_message_type.ERROR);
+                xbs_messages.addDebugMessage("!! ERROR! parse packet failed in injectRemotePacket (1): " + pcex.ToString(), xbs_message_sender.SNIFFER, xbs_message_type.ERROR);
 #endif
                 return;
             }
             catch (NotImplementedException niex)
             {
 #if DEBUG
-                xbs_messages.addDebugMessage("parse packet failed in injectRemotePacket (2): " + niex.ToString(), xbs_message_sender.SNIFFER, xbs_message_type.ERROR);
+                xbs_messages.addDebugMessage("!! ERROR! parse packet failed in injectRemotePacket (2): " + niex.ToString(), xbs_message_sender.SNIFFER, xbs_message_type.ERROR);
 #endif
                 return;
             }
@@ -344,7 +344,7 @@ namespace XBSlink
             {
                 // UNKNOWN OR UNSUPPORTED PACKET TYPE
 #if DEBUG
-                xbs_messages.addDebugMessage("unknown incoming packet type: " + p.ToString(), xbs_message_sender.SNIFFER, xbs_message_type.WARNING);
+                //xbs_messages.addDebugMessage("?? WARNING! unknown incoming packet type: " + p.ToString(), xbs_message_sender.SNIFFER, xbs_message_type.WARNING);
 #endif
                 return;
             }
@@ -398,7 +398,7 @@ namespace XBSlink
                     return;
             }
 #if DEBUG
-            xbs_messages.addDebugMessage("i> " + p, xbs_message_sender.SNIFFER);
+            //xbs_messages.addDebugMessage("i> " + p, xbs_message_sender.SNIFFER);
 #endif
 
             if (NAT.NAT_enabled)

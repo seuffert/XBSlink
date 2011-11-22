@@ -347,7 +347,7 @@ namespace XBSlink
             if (udp_msg.msg_type != xbs_node_message_type.PING && udp_msg.msg_type != xbs_node_message_type.PONG)
             {
                 String str_send_node = (sending_node == null) ? udp_msg.src_ip + ":" + udp_msg.src_port : sending_node.ToString() + " " + sending_node.nickname;
-                xbs_messages.addDebugMessage(" * IN " + udp_msg.msg_type + " " + str_send_node, xbs_message_sender.UDP_LISTENER);
+                //xbs_messages.addDebugMessage(" * IN " + udp_msg.msg_type + " " + str_send_node, xbs_message_sender.UDP_LISTENER);
             }
 # endif
             switch (udp_msg.msg_type)
@@ -359,6 +359,12 @@ namespace XBSlink
                 case xbs_node_message_type.ANNOUNCE:
                     xbs_node_message_announce msg_announce = new xbs_node_message_announce(udp_msg.data);
                     tmp_node = new xbs_node(udp_msg.src_ip, udp_msg.src_port);
+#if DEBUG
+                    StringBuilder options_string = new StringBuilder();
+                    foreach (KeyValuePair<string, string> item in msg_announce.getAllOptions())
+                        options_string.Append(item.Key + "=" + item.Value + " ; ");
+                    xbs_messages.addDebugMessage(" * IN ANNOUCE: " + tmp_node + " | options: " + options_string.ToString(), xbs_message_sender.UDP_LISTENER);
+#endif
                     bool send_packet = true;
                     if (msg_announce.hasOption(xbs_node_message_announce.OPTION_CLOUDNAME))
                         if (!msg_announce.getOption(xbs_node_message_announce.OPTION_CLOUDNAME).Equals(xbs_cloudlist.getInstance().current_cloudname))
@@ -510,7 +516,7 @@ namespace XBSlink
             Buffer.BlockCopy(udp_msg.data, 6, src_mac, 0, 6);
             PhysicalAddress srcMAC = new PhysicalAddress(src_mac);
 #if DEBUG
-            xbs_messages.addDebugMessage(" * DATA (" + udp_msg.data.Length + ") | " + srcMAC + " => " + dstMAC, xbs_message_sender.UDP_LISTENER);
+            //xbs_messages.addDebugMessage(" * DATA (" + udp_msg.data.Length + ") | " + srcMAC + " => " + dstMAC, xbs_message_sender.UDP_LISTENER);
 #endif
             xbs_sniffer.getInstance().injectRemotePacket(ref udp_msg.data, dstMAC, srcMAC);
             if (sending_node != null)
