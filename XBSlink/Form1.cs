@@ -180,6 +180,7 @@ namespace XBSlink
                 notify_icon.Text = "XBSlink " + xbs_settings.xbslink_version;
                 notify_icon.Visible = true;
                 notify_icon.DoubleClick += new EventHandler(NotifyIconDoubleClick);
+                notify_icon.ContextMenuStrip = contextMenuStrip_systray;
             }
             catch (Exception)
             {
@@ -1704,6 +1705,11 @@ namespace XBSlink
         private void checkBox_minimize2systray_CheckedChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void toolStripMenuItem_exit_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
     }
 }

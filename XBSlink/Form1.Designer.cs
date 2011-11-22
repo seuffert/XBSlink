@@ -116,6 +116,7 @@ namespace XBSlink
             this.label_nickname = new System.Windows.Forms.Label();
             this.textBox_chatNickname = new System.Windows.Forms.TextBox();
             this.groupBox_updates = new System.Windows.Forms.GroupBox();
+            this.checkBox_minimize2systray = new System.Windows.Forms.CheckBox();
             this.checkBox_checkForUpdates = new System.Windows.Forms.CheckBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.checkBox_chat_notify = new System.Windows.Forms.CheckBox();
@@ -167,7 +168,8 @@ namespace XBSlink
             this.timer_startEngine = new System.Windows.Forms.Timer(this.components);
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.toolTip2 = new System.Windows.Forms.ToolTip(this.components);
-            this.checkBox_minimize2systray = new System.Windows.Forms.CheckBox();
+            this.contextMenuStrip_systray = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.toolStripMenuItem_exit = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage_info.SuspendLayout();
@@ -192,6 +194,7 @@ namespace XBSlink
             this.tabPage_nat.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.tabPage_about.SuspendLayout();
+            this.contextMenuStrip_systray.SuspendLayout();
             this.SuspendLayout();
             // 
             // statusStrip
@@ -905,6 +908,20 @@ namespace XBSlink
             this.groupBox_updates.TabStop = false;
             this.groupBox_updates.Text = "system";
             // 
+            // checkBox_minimize2systray
+            // 
+            this.checkBox_minimize2systray.AutoSize = true;
+            this.checkBox_minimize2systray.Checked = true;
+            this.checkBox_minimize2systray.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_minimize2systray.Location = new System.Drawing.Point(6, 19);
+            this.checkBox_minimize2systray.Name = "checkBox_minimize2systray";
+            this.checkBox_minimize2systray.Size = new System.Drawing.Size(112, 17);
+            this.checkBox_minimize2systray.TabIndex = 34;
+            this.checkBox_minimize2systray.Text = "minimize to systray";
+            this.toolTip1.SetToolTip(this.checkBox_minimize2systray, "minimize XBSlink to the system tray");
+            this.checkBox_minimize2systray.UseVisualStyleBackColor = true;
+            this.checkBox_minimize2systray.CheckedChanged += new System.EventHandler(this.checkBox_minimize2systray_CheckedChanged);
+            // 
             // checkBox_checkForUpdates
             // 
             this.checkBox_checkForUpdates.AutoSize = true;
@@ -1492,19 +1509,19 @@ namespace XBSlink
             // 
             this.toolTip2.ShowAlways = true;
             // 
-            // checkBox_minimize2systray
+            // contextMenuStrip_systray
             // 
-            this.checkBox_minimize2systray.AutoSize = true;
-            this.checkBox_minimize2systray.Checked = true;
-            this.checkBox_minimize2systray.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_minimize2systray.Location = new System.Drawing.Point(6, 19);
-            this.checkBox_minimize2systray.Name = "checkBox_minimize2systray";
-            this.checkBox_minimize2systray.Size = new System.Drawing.Size(112, 17);
-            this.checkBox_minimize2systray.TabIndex = 34;
-            this.checkBox_minimize2systray.Text = "minimize to systray";
-            this.toolTip1.SetToolTip(this.checkBox_minimize2systray, "minimize XBSlink to the system tray");
-            this.checkBox_minimize2systray.UseVisualStyleBackColor = true;
-            this.checkBox_minimize2systray.CheckedChanged += new System.EventHandler(this.checkBox_minimize2systray_CheckedChanged);
+            this.contextMenuStrip_systray.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItem_exit});
+            this.contextMenuStrip_systray.Name = "contextMenuStrip_systray";
+            this.contextMenuStrip_systray.Size = new System.Drawing.Size(153, 48);
+            // 
+            // toolStripMenuItem_exit
+            // 
+            this.toolStripMenuItem_exit.Name = "toolStripMenuItem_exit";
+            this.toolStripMenuItem_exit.Size = new System.Drawing.Size(152, 22);
+            this.toolStripMenuItem_exit.Text = "Exit XBSlink";
+            this.toolStripMenuItem_exit.Click += new System.EventHandler(this.toolStripMenuItem_exit_Click);
             // 
             // FormMain
             // 
@@ -1567,6 +1584,7 @@ namespace XBSlink
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.tabPage_about.ResumeLayout(false);
+            this.contextMenuStrip_systray.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1691,6 +1709,8 @@ namespace XBSlink
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox_usersettings;
         private System.Windows.Forms.CheckBox checkBox_minimize2systray;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip_systray;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem_exit;
     }
 }
 
