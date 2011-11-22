@@ -379,6 +379,7 @@ namespace XBSlink
         {
             TimeSpan time_elapsed;
             List<xbs_node> cloud_helper_node_list = new List<xbs_node>();
+            List<xbs_node> nodes_to_remove_list = new List<xbs_node>();
 
             lock (node_list_adding)
             {
@@ -389,14 +390,25 @@ namespace XBSlink
                     time_elapsed = DateTime.Now - node.addedTime;
                     if (time_elapsed.TotalSeconds >= MAX_ADD_NODE_TIMEOUT_SECONDS)
                     {
-                        cloud_helper_node_list.Add(node);
-                        node.ask_cloudhelper_count++;
-                        node.addedTime = DateTime.Now;
+                        if (node.ask_cloudhelper_count < MAX_ASK_CLOUDHELPER_COUNT)
+                        {
+                            cloud_helper_node_list.Add(node);
+                            node.ask_cloudhelper_count++;
+                            node.addedTime = DateTime.Now;
+                        }
+                        else
+                        {
+                            nodes_to_remove_list.Add(node);
+#if DEBUG
+                            xbs_messages.addDebugMessage("+ asked cloudhelper " + node.ask_cloudhelper_count + " times to help with node " + node + ", giving up.", xbs_message_sender.NODELIST, xbs_message_type.GENERAL);
+#endif
+                        }
                     }
                 }
-                foreach (xbs_node node in cloud_helper_node_list)
-                    if (node.ask_cloudhelper_count >= MAX_ASK_CLOUDHELPER_COUNT)
-                        node_list_adding.Remove(node);
+
+                // remove on reachable nodes from adding list
+                foreach (xbs_node node in nodes_to_remove_list)
+                    node_list_adding.Remove(node);
             }
 
             foreach (xbs_node node in cloud_helper_node_list)
@@ -412,7 +424,7 @@ namespace XBSlink
             }
             if (cloud_helper == null)
                 return;
-            xbs_messages.addInfoMessage("+ asking cloud_helper (" + cloud_helper + ") for help to add node " + node, xbs_message_sender.NODELIST);
+            xbs_messages.addInfoMessage("+ asking ("+node.ask_cloudhelper_count+") cloud_helper (" + cloud_helper + ") for help to add node " + node, xbs_message_sender.NODELIST);
             cloud_helper.sendToCloudHelper_HelpWithNode(node);
         }
 
