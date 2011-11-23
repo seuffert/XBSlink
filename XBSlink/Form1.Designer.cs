@@ -116,6 +116,7 @@ namespace XBSlink
             this.label_nickname = new System.Windows.Forms.Label();
             this.textBox_chatNickname = new System.Windows.Forms.TextBox();
             this.groupBox_updates = new System.Windows.Forms.GroupBox();
+            this.checkBox_preventSystemStandby = new System.Windows.Forms.CheckBox();
             this.checkBox_minimize2systray = new System.Windows.Forms.CheckBox();
             this.checkBox_checkForUpdates = new System.Windows.Forms.CheckBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
@@ -901,14 +902,26 @@ namespace XBSlink
             // 
             this.groupBox_updates.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox_updates.Controls.Add(this.checkBox_preventSystemStandby);
             this.groupBox_updates.Controls.Add(this.checkBox_minimize2systray);
             this.groupBox_updates.Controls.Add(this.checkBox_checkForUpdates);
             this.groupBox_updates.Location = new System.Drawing.Point(6, 216);
             this.groupBox_updates.Name = "groupBox_updates";
-            this.groupBox_updates.Size = new System.Drawing.Size(326, 65);
+            this.groupBox_updates.Size = new System.Drawing.Size(326, 89);
             this.groupBox_updates.TabIndex = 35;
             this.groupBox_updates.TabStop = false;
             this.groupBox_updates.Text = "system";
+            // 
+            // checkBox_preventSystemStandby
+            // 
+            this.checkBox_preventSystemStandby.AutoSize = true;
+            this.checkBox_preventSystemStandby.Location = new System.Drawing.Point(6, 42);
+            this.checkBox_preventSystemStandby.Name = "checkBox_preventSystemStandby";
+            this.checkBox_preventSystemStandby.Size = new System.Drawing.Size(203, 17);
+            this.checkBox_preventSystemStandby.TabIndex = 35;
+            this.checkBox_preventSystemStandby.Text = "prevent system from going into standy";
+            this.checkBox_preventSystemStandby.UseVisualStyleBackColor = true;
+            this.checkBox_preventSystemStandby.CheckedChanged += new System.EventHandler(this.checkBox_preventSystemStandby_CheckedChanged);
             // 
             // checkBox_minimize2systray
             // 
@@ -929,7 +942,7 @@ namespace XBSlink
             this.checkBox_checkForUpdates.AutoSize = true;
             this.checkBox_checkForUpdates.Checked = true;
             this.checkBox_checkForUpdates.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_checkForUpdates.Location = new System.Drawing.Point(6, 42);
+            this.checkBox_checkForUpdates.Location = new System.Drawing.Point(6, 65);
             this.checkBox_checkForUpdates.Name = "checkBox_checkForUpdates";
             this.checkBox_checkForUpdates.Size = new System.Drawing.Size(143, 17);
             this.checkBox_checkForUpdates.TabIndex = 33;
@@ -1713,6 +1726,7 @@ namespace XBSlink
         private System.Windows.Forms.CheckBox checkBox_minimize2systray;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip_systray;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem_exit;
+        private System.Windows.Forms.CheckBox checkBox_preventSystemStandby;
     }
 }
 

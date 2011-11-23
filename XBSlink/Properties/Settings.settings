@@ -80,5 +80,8 @@
     <Setting Name="REG_MINIMIZE2SYSTRAY" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="REG_PREVENT_SYSTEM_STANDY" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

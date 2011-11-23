@@ -299,6 +299,7 @@ namespace XBSlink
             checkBox_chat_nodeInfoMessagesInChat.Checked = s.REG_CHAT_NODEINFOMESSAGES;
             checkBox_forward_all_high_port_broadcast.Checked = s.REG_SNIFFER_FORWARD_ALL_HIGH_PORT_BROADCASTS;
             checkBox_minimize2systray.Checked = s.REG_MINIMIZE2SYSTRAY;
+            checkBox_preventSystemStandby.Checked = s.REG_PREVENT_SYSTEM_STANDY;
             xbs_chat.message_when_nodes_join_or_leave = s.REG_CHAT_NODEINFOMESSAGES;
 
             if (checkBox_enable_MAC_list.Checked)
@@ -339,6 +340,7 @@ namespace XBSlink
             s.REG_CHAT_NODEINFOMESSAGES = checkBox_chat_nodeInfoMessagesInChat.Checked;
             s.REG_SNIFFER_FORWARD_ALL_HIGH_PORT_BROADCASTS = checkBox_forward_all_high_port_broadcast.Checked;
             s.REG_MINIMIZE2SYSTRAY = checkBox_minimize2systray.Checked;
+            s.REG_PREVENT_SYSTEM_STANDY = checkBox_preventSystemStandby.Checked;
             s.Save();
         }
 
@@ -514,6 +516,7 @@ namespace XBSlink
             if (notify_icon != null)
                 if (notify_icon.Visible)
                     notify_icon.Visible = false;
+            xbs_system_functions.restoreSystemSleepState();
         }
 
         private void engine_start()
@@ -705,7 +708,10 @@ namespace XBSlink
         {
             this.Visible = (this.Visible) ? false : true;
             if (this.WindowState == FormWindowState.Minimized)
+            {
                 this.WindowState = FormWindowState.Normal;
+                this.Activate();
+            }
         }
 
         private void Form1_SizeChanged(object sender, EventArgs e)
@@ -1710,6 +1716,14 @@ namespace XBSlink
         private void toolStripMenuItem_exit_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void checkBox_preventSystemStandby_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox_preventSystemStandby.Checked)
+                xbs_system_functions.PreventSystemFromSleeping();
+            else
+                xbs_system_functions.restoreSystemSleepState();
         }
     }
 }

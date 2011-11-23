@@ -334,5 +334,17 @@ namespace XBSlink.Properties {
                 this["REG_MINIMIZE2SYSTRAY"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool REG_PREVENT_SYSTEM_STANDY {
+            get {
+                return ((bool)(this["REG_PREVENT_SYSTEM_STANDY"]));
+            }
+            set {
+                this["REG_PREVENT_SYSTEM_STANDY"] = value;
+            }
+        }
     }
 }

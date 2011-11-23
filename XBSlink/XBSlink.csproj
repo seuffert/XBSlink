@@ -114,6 +114,7 @@
       <DependentUpon>DebugWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="xbs_node_message.cs" />
+    <Compile Include="xbs_system_functions.cs" />
     <Compile Include="xbs_udp_listener.cs" />
     <Compile Include="xbs_node_list.cs" />
     <Compile Include="xbs_sniffer.cs" />
