@@ -453,7 +453,7 @@ namespace XBSlink
             this.listView_nodes.MultiSelect = false;
             this.listView_nodes.Name = "listView_nodes";
             this.listView_nodes.ShowGroups = false;
-            this.listView_nodes.Size = new System.Drawing.Size(348, 541);
+            this.listView_nodes.Size = new System.Drawing.Size(348, 467);
             this.listView_nodes.TabIndex = 2;
             this.listView_nodes.UseCompatibleStateImageBehavior = false;
             this.listView_nodes.View = System.Windows.Forms.View.Details;
@@ -648,7 +648,7 @@ namespace XBSlink
             this.listView_clouds.GridLines = true;
             this.listView_clouds.Location = new System.Drawing.Point(0, 28);
             this.listView_clouds.Name = "listView_clouds";
-            this.listView_clouds.Size = new System.Drawing.Size(348, 586);
+            this.listView_clouds.Size = new System.Drawing.Size(348, 461);
             this.listView_clouds.TabIndex = 0;
             this.listView_clouds.UseCompatibleStateImageBehavior = false;
             this.listView_clouds.View = System.Windows.Forms.View.Details;
@@ -698,7 +698,7 @@ namespace XBSlink
             this.splitContainer1.Panel2.Controls.Add(this.listBox_chatUserList);
             this.splitContainer1.Panel2.Controls.Add(this.label16);
             this.splitContainer1.Panel2.Controls.Add(this.label_num_persons_in_chat);
-            this.splitContainer1.Size = new System.Drawing.Size(348, 631);
+            this.splitContainer1.Size = new System.Drawing.Size(348, 490);
             this.splitContainer1.SplitterDistance = 250;
             this.splitContainer1.SplitterWidth = 2;
             this.splitContainer1.TabIndex = 7;
@@ -715,7 +715,7 @@ namespace XBSlink
             this.textBox_chatMessages.Name = "textBox_chatMessages";
             this.textBox_chatMessages.ReadOnly = true;
             this.textBox_chatMessages.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox_chatMessages.Size = new System.Drawing.Size(244, 631);
+            this.textBox_chatMessages.Size = new System.Drawing.Size(244, 483);
             this.textBox_chatMessages.TabIndex = 3;
             // 
             // listBox_chatUserList
@@ -727,7 +727,7 @@ namespace XBSlink
             this.listBox_chatUserList.IntegralHeight = false;
             this.listBox_chatUserList.Location = new System.Drawing.Point(3, 17);
             this.listBox_chatUserList.Name = "listBox_chatUserList";
-            this.listBox_chatUserList.Size = new System.Drawing.Size(93, 614);
+            this.listBox_chatUserList.Size = new System.Drawing.Size(93, 466);
             this.listBox_chatUserList.TabIndex = 6;
             // 
             // label16
@@ -808,7 +808,7 @@ namespace XBSlink
             this.listBox_messages.Location = new System.Drawing.Point(3, 36);
             this.listBox_messages.Name = "listBox_messages";
             this.listBox_messages.ScrollAlwaysVisible = true;
-            this.listBox_messages.Size = new System.Drawing.Size(342, 617);
+            this.listBox_messages.Size = new System.Drawing.Size(342, 450);
             this.listBox_messages.TabIndex = 1;
             // 
             // button_clearMessages
@@ -1188,9 +1188,9 @@ namespace XBSlink
             // button_del_MAC
             // 
             this.button_del_MAC.Enabled = false;
-            this.button_del_MAC.Location = new System.Drawing.Point(214, 100);
+            this.button_del_MAC.Location = new System.Drawing.Point(221, 100);
             this.button_del_MAC.Name = "button_del_MAC";
-            this.button_del_MAC.Size = new System.Drawing.Size(33, 21);
+            this.button_del_MAC.Size = new System.Drawing.Size(39, 21);
             this.button_del_MAC.TabIndex = 21;
             this.button_del_MAC.Text = "Del";
             this.button_del_MAC.UseVisualStyleBackColor = true;
@@ -1199,9 +1199,9 @@ namespace XBSlink
             // button_add_MAC
             // 
             this.button_add_MAC.Enabled = false;
-            this.button_add_MAC.Location = new System.Drawing.Point(169, 100);
+            this.button_add_MAC.Location = new System.Drawing.Point(168, 100);
             this.button_add_MAC.Name = "button_add_MAC";
-            this.button_add_MAC.Size = new System.Drawing.Size(35, 21);
+            this.button_add_MAC.Size = new System.Drawing.Size(39, 21);
             this.button_add_MAC.TabIndex = 20;
             this.button_add_MAC.Text = "Add";
             this.button_add_MAC.UseVisualStyleBackColor = true;
@@ -1214,7 +1214,7 @@ namespace XBSlink
             this.textBox_add_MAC.Location = new System.Drawing.Point(168, 65);
             this.textBox_add_MAC.MaxLength = 17;
             this.textBox_add_MAC.Name = "textBox_add_MAC";
-            this.textBox_add_MAC.Size = new System.Drawing.Size(79, 20);
+            this.textBox_add_MAC.Size = new System.Drawing.Size(92, 20);
             this.textBox_add_MAC.TabIndex = 19;
             this.toolTip1.SetToolTip(this.textBox_add_MAC, "enter a MAC address in to format \"AABBCCDDEEFF\"");
             this.textBox_add_MAC.TextChanged += new System.EventHandler(this.textBox_add_MAC_TextChanged);
@@ -1374,7 +1374,7 @@ namespace XBSlink
             this.listView_nat_IPpool.GridLines = true;
             this.listView_nat_IPpool.Location = new System.Drawing.Point(0, 134);
             this.listView_nat_IPpool.Name = "listView_nat_IPpool";
-            this.listView_nat_IPpool.Size = new System.Drawing.Size(348, 453);
+            this.listView_nat_IPpool.Size = new System.Drawing.Size(348, 352);
             this.listView_nat_IPpool.TabIndex = 3;
             this.listView_nat_IPpool.UseCompatibleStateImageBehavior = false;
             this.listView_nat_IPpool.View = System.Windows.Forms.View.Details;
@@ -1478,7 +1478,7 @@ namespace XBSlink
             this.richTextBox_about.Location = new System.Drawing.Point(0, 3);
             this.richTextBox_about.Name = "richTextBox_about";
             this.richTextBox_about.ReadOnly = true;
-            this.richTextBox_about.Size = new System.Drawing.Size(345, 401);
+            this.richTextBox_about.Size = new System.Drawing.Size(345, 483);
             this.richTextBox_about.TabIndex = 0;
             this.richTextBox_about.Text = "";
             // 
@@ -1514,12 +1514,12 @@ namespace XBSlink
             this.contextMenuStrip_systray.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem_exit});
             this.contextMenuStrip_systray.Name = "contextMenuStrip_systray";
-            this.contextMenuStrip_systray.Size = new System.Drawing.Size(153, 48);
+            this.contextMenuStrip_systray.Size = new System.Drawing.Size(135, 26);
             // 
             // toolStripMenuItem_exit
             // 
             this.toolStripMenuItem_exit.Name = "toolStripMenuItem_exit";
-            this.toolStripMenuItem_exit.Size = new System.Drawing.Size(152, 22);
+            this.toolStripMenuItem_exit.Size = new System.Drawing.Size(134, 22);
             this.toolStripMenuItem_exit.Text = "Exit XBSlink";
             this.toolStripMenuItem_exit.Click += new System.EventHandler(this.toolStripMenuItem_exit_Click);
             // 
