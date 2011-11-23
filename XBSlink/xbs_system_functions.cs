@@ -40,6 +40,9 @@ namespace XBSlink
             catch (DllNotFoundException dnte)
             {
             }
+            catch (EntryPointNotFoundException enfe)
+            {
+            }
         }
 
         public static void restoreSystemSleepState()
@@ -50,7 +53,10 @@ namespace XBSlink
             }
             catch (DllNotFoundException dnte)
             {
-            }            
+            }
+            catch (EntryPointNotFoundException enfe)
+            {
+            }
         }
     }
 
