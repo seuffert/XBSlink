@@ -335,11 +335,11 @@ namespace XBSlink
 
             // DETERMINE PACKET TYPE
             if (p.PayloadPacket is IPv4Packet)
-                p_ipv4 = p as IPv4Packet;
+                p_ipv4 = p.PayloadPacket as IPv4Packet;
             else if (p.PayloadPacket is ARPPacket)
-                p_arp = p as ARPPacket;
+                p_arp = p.PayloadPacket as ARPPacket;
             else if (p.PayloadPacket is ICMPv4Packet)
-                p_icmp = p as ICMPv4Packet;
+                p_icmp = p.PayloadPacket as ICMPv4Packet;
             else
             {
                 // UNKNOWN OR UNSUPPORTED PACKET TYPE
