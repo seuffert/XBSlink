@@ -1,12 +1,14 @@
 <?php
 /*
  * simple cloud list server script for XBSlink
- * Version v1.7.1
+ * Version v1.8
  * by Oliver Seuffert 2011
  * 
  * php sqlite3 plugin is needed
  *  
  *  Changelog:
+ *  v1.8
+ *   - added check for minimum client version
  *  v1.7.1
  *   - bugfix in updateNode
  *  v1.7
@@ -47,6 +49,7 @@ define('PARAM_NODEPORT', 	'node_port');
 define('PARAM_NICKNAME', 	'nick');
 define('PARAM_UUID', 		'uuid');
 define('PARAM_GETALLNODES', 'getallnodes');
+define('PARAM_CLIENTVERSION', 'clientversion');
 
 // commands send by client
 define('CMD_GETLIST',	'GETLIST');
@@ -65,6 +68,7 @@ define('TABLE_NODES', 	'nodes');
 define('MIN_CLOUDNAME_LENGTH', 2);
 define('MIN_NICKNAME_LENGTH', 2);
 define('MAX_NO_ACTION_TIME', 70);
+define('MIN_CLIENTVERSION', '0.9.5.3');
 
 // return codes
 define('RETURN_CODE_ERROR',	'ERROR:');
@@ -381,11 +385,18 @@ class xbslink_cloudlist_server
 		return "{$cloud_count},{$node_count}";
 	}
 	
+	private function isMinimumClientversion($clientversion)
+	{
+		$minimum_version_num = str_replace('.', '', MIN_CLIENTVERSION);
+		$actual_version_num = str_replace('.', '', $clientversion);
+		return ($minimum_version_num <= $actual_version_num);
+	} 
+	
 	/*
 	 * main program function
 	 * returns RETURN_CODE with message string, format "RETURN_CODE:message_string"
 	 */
-	public function run( $command, $cloudname, $password, $maxnodes, $node_ip, $node_port, $nickname, $uuid, $ip_from, $getallnodes)
+	public function run( $command, $cloudname, $password, $maxnodes, $node_ip, $node_port, $nickname, $uuid, $ip_from, $getallnodes, $clientversion)
 	{
 		if (strlen($command)<1)
 			return RETURN_CODE_ERROR."no command specified";
@@ -418,6 +429,8 @@ class xbslink_cloudlist_server
 			case CMD_JOIN:
 				if ( strlen($nickname)<MIN_NICKNAME_LENGTH )
 					return RETURN_CODE_ERROR."no nickname specified";
+				if (!$this->isMinimumClientversion($clientversion))
+					return RETURN_CODE_ERROR."minimum client version: ".MIN_CLIENTVERSION." , you have ".$clientversion;
 				$this->purgeList();
 				$ip_long = ($this->isPrivateSubnetIP($node_ip_long) || $node_ip_long==0) ? ip2long($ip_from) : $node_ip_long;
 				return $this->joinOrCreateCloud( $cloudname, $password, $maxnodes, $ip_long, $node_port, $nickname, $getallnodes);
@@ -445,5 +458,5 @@ function g($name)
 }
 
 $cls = new xbslink_cloudlist_server();
-$ret = $cls->run( g(PARAM_CMD), g(PARAM_CLOUDNAME), g(PARAM_PASSWORD), g(PARAM_MAXNODES), g(PARAM_NODEIP), g(PARAM_NODEPORT), g(PARAM_NICKNAME), g(PARAM_UUID), $_SERVER['REMOTE_ADDR'], g(PARAM_GETALLNODES));
+$ret = $cls->run( g(PARAM_CMD), g(PARAM_CLOUDNAME), g(PARAM_PASSWORD), g(PARAM_MAXNODES), g(PARAM_NODEIP), g(PARAM_NODEPORT), g(PARAM_NICKNAME), g(PARAM_UUID), $_SERVER['REMOTE_ADDR'], g(PARAM_GETALLNODES), g(PARAM_CLIENTVERSION));
 echo $ret;
