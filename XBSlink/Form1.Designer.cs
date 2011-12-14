@@ -921,6 +921,7 @@ namespace XBSlink
             this.checkBox_switchToNewsTab.Size = new System.Drawing.Size(236, 17);
             this.checkBox_switchToNewsTab.TabIndex = 3;
             this.checkBox_switchToNewsTab.Text = "switch to news tab if new news are available";
+            this.toolTip1.SetToolTip(this.checkBox_switchToNewsTab, "set the news feed tab active if updated news are available.");
             this.checkBox_switchToNewsTab.UseVisualStyleBackColor = true;
             // 
             // label7
@@ -952,6 +953,8 @@ namespace XBSlink
             this.textBox_newsFeedUri.Size = new System.Drawing.Size(314, 20);
             this.textBox_newsFeedUri.TabIndex = 0;
             this.textBox_newsFeedUri.Text = "http://www.secudb.de/~seuffert/xbslink/feed";
+            this.textBox_newsFeedUri.TextChanged += new System.EventHandler(this.textBox_newsFeedUri_TextChanged);
+            this.textBox_newsFeedUri.Leave += new System.EventHandler(this.textBox_newsFeedUri_Leave);
             // 
             // groupBox_usersettings
             // 

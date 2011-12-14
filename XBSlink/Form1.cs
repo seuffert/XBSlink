@@ -1741,59 +1741,76 @@ namespace XBSlink
 
         private void loadNewsFeed( String url )
         {
-            richTextBox_newsFeed.Clear();
-
-            string result = null;
-            WebClient client = new WebClient();
-            client.Proxy = null;
             try
             {
-                result = client.DownloadString(url);
-            }
-            catch (WebException wex)
-            {
-                richTextBox_newsFeed.AppendText("Error loading news feed: " + wex.Message);
-                return;
-            }
-            
-            FontFamily myFontFamily = new FontFamily("Arial");
-            Font font_head = new Font(myFontFamily, 14, FontStyle.Bold, GraphicsUnit.Pixel);
-            Font font_summary = new Font(myFontFamily, 10, FontStyle.Regular, GraphicsUnit.Pixel);
 
-            SyndicationFeed feed;
-            try
-            {
-                feed = SyndicationFeed.Load(XmlReader.Create(new System.IO.StringReader(result)));
+                richTextBox_newsFeed.Clear();
+
+                string result = null;
+                WebClient client = new WebClient();
+                client.Proxy = null;
+                try
+                {
+                    result = client.DownloadString(url);
+                }
+                catch (WebException wex)
+                {
+                    richTextBox_newsFeed.AppendText("Error loading news feed: " + wex.Message);
+                    return;
+                }
+                if (result == null || result.Length == 0)
+                {
+                    richTextBox_newsFeed.AppendText("Error loading news feed. no information returned.");
+                    return;
+                }
+
+                FontFamily myFontFamily = new FontFamily("Arial");
+                Font font_head = new Font(myFontFamily, 14, FontStyle.Bold, GraphicsUnit.Pixel);
+                Font font_summary = new Font(myFontFamily, 10, FontStyle.Regular, GraphicsUnit.Pixel);
+
+                SyndicationFeed feed;
+                try
+                {
+                    feed = SyndicationFeed.Load(XmlReader.Create(new System.IO.StringReader(result)));
+                }
+                catch (Exception ex)
+                {
+                    richTextBox_newsFeed.AppendText("Error parsing news feed");
+                    return;
+                }
+
+                String first_id = null;
+                foreach (SyndicationItem item in feed.Items)
+                {
+                    if (first_id == null)
+                        first_id = item.Id;
+                    String date = item.PublishDate.Month + "-" + item.PublishDate.Day;
+                    richTextBox_newsFeed.SelectionFont = font_head;
+                    richTextBox_newsFeed.SelectionColor = Color.DarkRed;
+                    richTextBox_newsFeed.AppendText(date + " " + item.Title.Text + Environment.NewLine);
+
+                    richTextBox_newsFeed.SelectionFont = font_summary;
+                    richTextBox_newsFeed.SelectionColor = Color.Black;
+                    richTextBox_newsFeed.AppendText(item.Summary.Text + Environment.NewLine);
+
+                    if (item.Links.Count > 0)
+                        richTextBox_newsFeed.AppendText(item.Links[0].Uri.ToString() + Environment.NewLine);
+                    richTextBox_newsFeed.AppendText(Environment.NewLine);
+                }
+
+                richTextBox_newsFeed.SelectionStart = 0;
+                richTextBox_newsFeed.ScrollToCaret();
+
+                if ((first_id != xbs_settings.settings.REG_NEWS_FEED_NEWEST_ID) && checkBox_switchToNewsTab.Checked)
+                {
+                    tabControl1.SelectedTab = tabPage_newsFeed;
+                    xbs_settings.settings.REG_NEWS_FEED_NEWEST_ID = first_id;
+                    xbs_settings.settings.Save();
+                }
             }
             catch (Exception ex)
             {
-                richTextBox_newsFeed.AppendText("Error parsing news feed");
-                return;
-            }
-
-            String first_id = null;
-            foreach (SyndicationItem item in feed.Items)
-            {
-                if (first_id == null)
-                    first_id = item.Id;
-                String date = item.PublishDate.Month + "-" + item.PublishDate.Day;
-                richTextBox_newsFeed.SelectionFont = font_head;
-                richTextBox_newsFeed.SelectionColor = Color.DarkRed;
-                richTextBox_newsFeed.AppendText(date + " " + item.Title.Text + Environment.NewLine);
-
-                richTextBox_newsFeed.SelectionFont = font_summary; 
-                richTextBox_newsFeed.SelectionColor = Color.Black;
-                richTextBox_newsFeed.AppendText(item.Summary.Text + Environment.NewLine);
-
-                richTextBox_newsFeed.AppendText(item.Links[0].Uri.ToString() + Environment.NewLine);
-                richTextBox_newsFeed.AppendText(Environment.NewLine);
-            }
-
-            if ((first_id != xbs_settings.settings.REG_NEWS_FEED_NEWEST_ID) && checkBox_switchToNewsTab.Checked)
-            {
-                tabControl1.SelectedTab = tabPage_newsFeed;
-                xbs_settings.settings.REG_NEWS_FEED_NEWEST_ID = first_id;
-                xbs_settings.settings.Save();
+                xbs_messages.addInfoMessage("!!ERROR!! could not initialize news feed: "+ex.Message, xbs_message_sender.GENERAL, xbs_message_type.ERROR);
             }
         }
 
@@ -1818,6 +1835,16 @@ namespace XBSlink
             {
                 tabControl1.TabPages.Remove(tabPage_newsFeed);
             }
+        }
+
+        private void textBox_newsFeedUri_TextChanged(object sender, EventArgs e)
+        {
+        }
+
+        private void textBox_newsFeedUri_Leave(object sender, EventArgs e)
+        {
+            if (textBox_newsFeedUri.Text.Length == 0)
+                textBox_newsFeedUri.Text = Settings.Default.REG_NEWS_FEED_URI;
         }
     }
 }
