@@ -1767,5 +1767,15 @@ namespace XBSlink
                 richTextBox_newsFeed.AppendText(Environment.NewLine);
             }
         }
+
+        private void richTextBox_newsFeed_LinkClicked(object sender, LinkClickedEventArgs e)
+        {
+            System.Diagnostics.Process.Start(e.LinkText);
+        }
+
+        private void richTextBox_about_LinkClicked(object sender, LinkClickedEventArgs e)
+        {
+            System.Diagnostics.Process.Start(e.LinkText);
+        }
     }
 }

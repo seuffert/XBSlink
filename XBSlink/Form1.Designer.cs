@@ -438,6 +438,7 @@ namespace XBSlink
             this.richTextBox_newsFeed.Size = new System.Drawing.Size(360, 490);
             this.richTextBox_newsFeed.TabIndex = 0;
             this.richTextBox_newsFeed.Text = "";
+            this.richTextBox_newsFeed.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(this.richTextBox_newsFeed_LinkClicked);
             // 
             // tabPage_info
             // 
@@ -1521,6 +1522,7 @@ namespace XBSlink
             this.richTextBox_about.Size = new System.Drawing.Size(345, 507);
             this.richTextBox_about.TabIndex = 0;
             this.richTextBox_about.Text = "";
+            this.richTextBox_about.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(this.richTextBox_about_LinkClicked);
             // 
             // timer_messages
             // 
