@@ -370,5 +370,29 @@ namespace XBSlink.Properties {
                 this["REG_NEWS_FEED_URI"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string REG_NEWS_FEED_NEWEST_ID {
+            get {
+                return ((string)(this["REG_NEWS_FEED_NEWEST_ID"]));
+            }
+            set {
+                this["REG_NEWS_FEED_NEWEST_ID"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool REG_NEWS_FEED_SWITCH_TO_TAB {
+            get {
+                return ((bool)(this["REG_NEWS_FEED_SWITCH_TO_TAB"]));
+            }
+            set {
+                this["REG_NEWS_FEED_SWITCH_TO_TAB"] = value;
+            }
+        }
     }
 }

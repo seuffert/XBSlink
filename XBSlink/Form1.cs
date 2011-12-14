@@ -310,6 +310,7 @@ namespace XBSlink
             xbs_chat.message_when_nodes_join_or_leave = s.REG_CHAT_NODEINFOMESSAGES;
             checkBox_showNewsFeed.Checked = s.REG_SHOW_NEWS_FEED;
             textBox_newsFeedUri.Text = s.REG_NEWS_FEED_URI;
+            checkBox_switchToNewsTab.Checked = s.REG_NEWS_FEED_SWITCH_TO_TAB;
 
             if (checkBox_enable_MAC_list.Checked)
                 checkBox_mac_restriction.Enabled = true;
@@ -352,6 +353,7 @@ namespace XBSlink
             s.REG_PREVENT_SYSTEM_STANDY = checkBox_preventSystemStandby.Checked;
             s.REG_SHOW_NEWS_FEED = checkBox_showNewsFeed.Checked;
             s.REG_NEWS_FEED_URI = textBox_newsFeedUri.Text;
+            s.REG_NEWS_FEED_SWITCH_TO_TAB = checkBox_switchToNewsTab.Checked;
             s.Save();
         }
 
@@ -1769,8 +1771,11 @@ namespace XBSlink
                 return;
             }
 
+            String first_id = null;
             foreach (SyndicationItem item in feed.Items)
             {
+                if (first_id == null)
+                    first_id = item.Id;
                 String date = item.PublishDate.Month + "-" + item.PublishDate.Day;
                 richTextBox_newsFeed.SelectionFont = font_head;
                 richTextBox_newsFeed.SelectionColor = Color.DarkRed;
@@ -1782,6 +1787,13 @@ namespace XBSlink
 
                 richTextBox_newsFeed.AppendText(item.Links[0].Uri.ToString() + Environment.NewLine);
                 richTextBox_newsFeed.AppendText(Environment.NewLine);
+            }
+
+            if ((first_id != xbs_settings.settings.REG_NEWS_FEED_NEWEST_ID) && checkBox_switchToNewsTab.Checked)
+            {
+                tabControl1.SelectedTab = tabPage_newsFeed;
+                xbs_settings.settings.REG_NEWS_FEED_NEWEST_ID = first_id;
+                xbs_settings.settings.Save();
             }
         }
 

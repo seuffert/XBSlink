@@ -115,6 +115,7 @@ namespace XBSlink
             this.tabControl_settings = new System.Windows.Forms.TabControl();
             this.tabPageSettings_general = new System.Windows.Forms.TabPage();
             this.groupBox_newsFeed = new System.Windows.Forms.GroupBox();
+            this.checkBox_switchToNewsTab = new System.Windows.Forms.CheckBox();
             this.label7 = new System.Windows.Forms.Label();
             this.checkBox_showNewsFeed = new System.Windows.Forms.CheckBox();
             this.textBox_newsFeedUri = new System.Windows.Forms.TextBox();
@@ -215,7 +216,7 @@ namespace XBSlink
             this.toolStripStatusLabel_udp_in,
             this.toolStripStatusLabel_udp_out,
             this.toolStripStatusLabel_icon});
-            this.statusStrip.Location = new System.Drawing.Point(0, 585);
+            this.statusStrip.Location = new System.Drawing.Point(0, 588);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size(386, 22);
             this.statusStrip.TabIndex = 2;
@@ -419,7 +420,7 @@ namespace XBSlink
             this.tabControl1.Margin = new System.Windows.Forms.Padding(1);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(368, 516);
+            this.tabControl1.Size = new System.Drawing.Size(368, 519);
             this.tabControl1.TabIndex = 17;
             this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.tabControl1_SelectedIndexChanged);
             // 
@@ -428,7 +429,7 @@ namespace XBSlink
             this.tabPage_newsFeed.Controls.Add(this.richTextBox_newsFeed);
             this.tabPage_newsFeed.Location = new System.Drawing.Point(4, 22);
             this.tabPage_newsFeed.Name = "tabPage_newsFeed";
-            this.tabPage_newsFeed.Size = new System.Drawing.Size(360, 490);
+            this.tabPage_newsFeed.Size = new System.Drawing.Size(360, 493);
             this.tabPage_newsFeed.TabIndex = 7;
             this.tabPage_newsFeed.Text = "News";
             this.tabPage_newsFeed.UseVisualStyleBackColor = true;
@@ -454,7 +455,7 @@ namespace XBSlink
             this.tabPage_info.Location = new System.Drawing.Point(4, 22);
             this.tabPage_info.Name = "tabPage_info";
             this.tabPage_info.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage_info.Size = new System.Drawing.Size(360, 490);
+            this.tabPage_info.Size = new System.Drawing.Size(360, 493);
             this.tabPage_info.TabIndex = 0;
             this.tabPage_info.Text = "Info";
             // 
@@ -547,7 +548,7 @@ namespace XBSlink
             this.tabPage_clouds.Location = new System.Drawing.Point(4, 22);
             this.tabPage_clouds.Margin = new System.Windows.Forms.Padding(1);
             this.tabPage_clouds.Name = "tabPage_clouds";
-            this.tabPage_clouds.Size = new System.Drawing.Size(360, 490);
+            this.tabPage_clouds.Size = new System.Drawing.Size(360, 493);
             this.tabPage_clouds.TabIndex = 5;
             this.tabPage_clouds.Text = "Clouds";
             // 
@@ -709,7 +710,7 @@ namespace XBSlink
             this.tabPage_chat.Controls.Add(this.textBox_chatEntry);
             this.tabPage_chat.Location = new System.Drawing.Point(4, 22);
             this.tabPage_chat.Name = "tabPage_chat";
-            this.tabPage_chat.Size = new System.Drawing.Size(360, 490);
+            this.tabPage_chat.Size = new System.Drawing.Size(360, 493);
             this.tabPage_chat.TabIndex = 4;
             this.tabPage_chat.Text = "Chat";
             // 
@@ -814,7 +815,7 @@ namespace XBSlink
             this.tabPage_messages.Controls.Add(this.button_clearMessages);
             this.tabPage_messages.Location = new System.Drawing.Point(4, 22);
             this.tabPage_messages.Name = "tabPage_messages";
-            this.tabPage_messages.Size = new System.Drawing.Size(360, 490);
+            this.tabPage_messages.Size = new System.Drawing.Size(360, 493);
             this.tabPage_messages.TabIndex = 2;
             this.tabPage_messages.Text = "Messages";
             // 
@@ -863,7 +864,7 @@ namespace XBSlink
             this.tabPage_settings.Location = new System.Drawing.Point(4, 22);
             this.tabPage_settings.Name = "tabPage_settings";
             this.tabPage_settings.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage_settings.Size = new System.Drawing.Size(360, 490);
+            this.tabPage_settings.Size = new System.Drawing.Size(360, 493);
             this.tabPage_settings.TabIndex = 1;
             this.tabPage_settings.Text = "Settings";
             // 
@@ -878,7 +879,7 @@ namespace XBSlink
             this.tabControl_settings.Location = new System.Drawing.Point(0, 6);
             this.tabControl_settings.Name = "tabControl_settings";
             this.tabControl_settings.SelectedIndex = 0;
-            this.tabControl_settings.Size = new System.Drawing.Size(348, 449);
+            this.tabControl_settings.Size = new System.Drawing.Size(348, 452);
             this.tabControl_settings.TabIndex = 38;
             // 
             // tabPageSettings_general
@@ -892,27 +893,40 @@ namespace XBSlink
             this.tabPageSettings_general.Location = new System.Drawing.Point(4, 25);
             this.tabPageSettings_general.Name = "tabPageSettings_general";
             this.tabPageSettings_general.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageSettings_general.Size = new System.Drawing.Size(340, 420);
+            this.tabPageSettings_general.Size = new System.Drawing.Size(340, 423);
             this.tabPageSettings_general.TabIndex = 1;
             this.tabPageSettings_general.Text = "General";
             this.tabPageSettings_general.UseVisualStyleBackColor = true;
             // 
             // groupBox_newsFeed
             // 
+            this.groupBox_newsFeed.Controls.Add(this.checkBox_switchToNewsTab);
             this.groupBox_newsFeed.Controls.Add(this.label7);
             this.groupBox_newsFeed.Controls.Add(this.checkBox_showNewsFeed);
             this.groupBox_newsFeed.Controls.Add(this.textBox_newsFeedUri);
             this.groupBox_newsFeed.Location = new System.Drawing.Point(6, 311);
             this.groupBox_newsFeed.Name = "groupBox_newsFeed";
-            this.groupBox_newsFeed.Size = new System.Drawing.Size(326, 82);
+            this.groupBox_newsFeed.Size = new System.Drawing.Size(326, 106);
             this.groupBox_newsFeed.TabIndex = 37;
             this.groupBox_newsFeed.TabStop = false;
             this.groupBox_newsFeed.Text = "news feed";
             // 
+            // checkBox_switchToNewsTab
+            // 
+            this.checkBox_switchToNewsTab.AutoSize = true;
+            this.checkBox_switchToNewsTab.Checked = true;
+            this.checkBox_switchToNewsTab.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_switchToNewsTab.Location = new System.Drawing.Point(6, 42);
+            this.checkBox_switchToNewsTab.Name = "checkBox_switchToNewsTab";
+            this.checkBox_switchToNewsTab.Size = new System.Drawing.Size(236, 17);
+            this.checkBox_switchToNewsTab.TabIndex = 3;
+            this.checkBox_switchToNewsTab.Text = "switch to news tab if new news are available";
+            this.checkBox_switchToNewsTab.UseVisualStyleBackColor = true;
+            // 
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(6, 39);
+            this.label7.Location = new System.Drawing.Point(6, 62);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(78, 13);
             this.label7.TabIndex = 2;
@@ -933,7 +947,7 @@ namespace XBSlink
             // 
             // textBox_newsFeedUri
             // 
-            this.textBox_newsFeedUri.Location = new System.Drawing.Point(6, 55);
+            this.textBox_newsFeedUri.Location = new System.Drawing.Point(6, 78);
             this.textBox_newsFeedUri.Name = "textBox_newsFeedUri";
             this.textBox_newsFeedUri.Size = new System.Drawing.Size(314, 20);
             this.textBox_newsFeedUri.TabIndex = 0;
@@ -1114,7 +1128,7 @@ namespace XBSlink
             this.tabPageSettings_network.Location = new System.Drawing.Point(4, 25);
             this.tabPageSettings_network.Name = "tabPageSettings_network";
             this.tabPageSettings_network.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageSettings_network.Size = new System.Drawing.Size(340, 420);
+            this.tabPageSettings_network.Size = new System.Drawing.Size(340, 423);
             this.tabPageSettings_network.TabIndex = 0;
             this.tabPageSettings_network.Text = "Network";
             this.tabPageSettings_network.UseVisualStyleBackColor = true;
@@ -1320,7 +1334,7 @@ namespace XBSlink
             // button_reset_settings
             // 
             this.button_reset_settings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_reset_settings.Location = new System.Drawing.Point(117, 461);
+            this.button_reset_settings.Location = new System.Drawing.Point(117, 464);
             this.button_reset_settings.Name = "button_reset_settings";
             this.button_reset_settings.Size = new System.Drawing.Size(55, 23);
             this.button_reset_settings.TabIndex = 34;
@@ -1331,7 +1345,7 @@ namespace XBSlink
             // button_save_settings
             // 
             this.button_save_settings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_save_settings.Location = new System.Drawing.Point(6, 461);
+            this.button_save_settings.Location = new System.Drawing.Point(6, 464);
             this.button_save_settings.Name = "button_save_settings";
             this.button_save_settings.Size = new System.Drawing.Size(105, 23);
             this.button_save_settings.TabIndex = 23;
@@ -1355,7 +1369,7 @@ namespace XBSlink
             this.tabPage_nat.Controls.Add(this.label17);
             this.tabPage_nat.Location = new System.Drawing.Point(4, 22);
             this.tabPage_nat.Name = "tabPage_nat";
-            this.tabPage_nat.Size = new System.Drawing.Size(360, 490);
+            this.tabPage_nat.Size = new System.Drawing.Size(360, 493);
             this.tabPage_nat.TabIndex = 6;
             this.tabPage_nat.Text = "NAT";
             // 
@@ -1554,7 +1568,7 @@ namespace XBSlink
             this.tabPage_about.Controls.Add(this.richTextBox_about);
             this.tabPage_about.Location = new System.Drawing.Point(4, 22);
             this.tabPage_about.Name = "tabPage_about";
-            this.tabPage_about.Size = new System.Drawing.Size(360, 490);
+            this.tabPage_about.Size = new System.Drawing.Size(360, 493);
             this.tabPage_about.TabIndex = 3;
             this.tabPage_about.Text = "About";
             // 
@@ -1617,7 +1631,7 @@ namespace XBSlink
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(386, 607);
+            this.ClientSize = new System.Drawing.Size(386, 610);
             this.Controls.Add(this.comboBox_RemoteHost);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.button_announce);
@@ -1811,6 +1825,7 @@ namespace XBSlink
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.CheckBox checkBox_showNewsFeed;
         private System.Windows.Forms.TextBox textBox_newsFeedUri;
+        private System.Windows.Forms.CheckBox checkBox_switchToNewsTab;
     }
 }
 
