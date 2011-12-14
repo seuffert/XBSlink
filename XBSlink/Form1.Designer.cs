@@ -114,6 +114,10 @@ namespace XBSlink
             this.tabPage_settings = new System.Windows.Forms.TabPage();
             this.tabControl_settings = new System.Windows.Forms.TabControl();
             this.tabPageSettings_general = new System.Windows.Forms.TabPage();
+            this.groupBox_newsFeed = new System.Windows.Forms.GroupBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.checkBox_showNewsFeed = new System.Windows.Forms.CheckBox();
+            this.textBox_newsFeedUri = new System.Windows.Forms.TextBox();
             this.groupBox_usersettings = new System.Windows.Forms.GroupBox();
             this.label_nickname = new System.Windows.Forms.Label();
             this.textBox_chatNickname = new System.Windows.Forms.TextBox();
@@ -186,6 +190,7 @@ namespace XBSlink
             this.tabPage_settings.SuspendLayout();
             this.tabControl_settings.SuspendLayout();
             this.tabPageSettings_general.SuspendLayout();
+            this.groupBox_newsFeed.SuspendLayout();
             this.groupBox_usersettings.SuspendLayout();
             this.groupBox_updates.SuspendLayout();
             this.groupBox5.SuspendLayout();
@@ -879,6 +884,7 @@ namespace XBSlink
             // tabPageSettings_general
             // 
             this.tabPageSettings_general.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.tabPageSettings_general.Controls.Add(this.groupBox_newsFeed);
             this.tabPageSettings_general.Controls.Add(this.groupBox_usersettings);
             this.tabPageSettings_general.Controls.Add(this.groupBox_updates);
             this.tabPageSettings_general.Controls.Add(this.groupBox5);
@@ -890,6 +896,48 @@ namespace XBSlink
             this.tabPageSettings_general.TabIndex = 1;
             this.tabPageSettings_general.Text = "General";
             this.tabPageSettings_general.UseVisualStyleBackColor = true;
+            // 
+            // groupBox_newsFeed
+            // 
+            this.groupBox_newsFeed.Controls.Add(this.label7);
+            this.groupBox_newsFeed.Controls.Add(this.checkBox_showNewsFeed);
+            this.groupBox_newsFeed.Controls.Add(this.textBox_newsFeedUri);
+            this.groupBox_newsFeed.Location = new System.Drawing.Point(6, 311);
+            this.groupBox_newsFeed.Name = "groupBox_newsFeed";
+            this.groupBox_newsFeed.Size = new System.Drawing.Size(326, 82);
+            this.groupBox_newsFeed.TabIndex = 37;
+            this.groupBox_newsFeed.TabStop = false;
+            this.groupBox_newsFeed.Text = "news feed";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(6, 39);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(78, 13);
+            this.label7.TabIndex = 2;
+            this.label7.Text = "news feed URI";
+            // 
+            // checkBox_showNewsFeed
+            // 
+            this.checkBox_showNewsFeed.AutoSize = true;
+            this.checkBox_showNewsFeed.Checked = true;
+            this.checkBox_showNewsFeed.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_showNewsFeed.Location = new System.Drawing.Point(6, 19);
+            this.checkBox_showNewsFeed.Name = "checkBox_showNewsFeed";
+            this.checkBox_showNewsFeed.Size = new System.Drawing.Size(121, 17);
+            this.checkBox_showNewsFeed.TabIndex = 1;
+            this.checkBox_showNewsFeed.Text = "show news feed tab";
+            this.checkBox_showNewsFeed.UseVisualStyleBackColor = true;
+            this.checkBox_showNewsFeed.CheckedChanged += new System.EventHandler(this.checkBox_showNewsFeed_CheckedChanged);
+            // 
+            // textBox_newsFeedUri
+            // 
+            this.textBox_newsFeedUri.Location = new System.Drawing.Point(6, 55);
+            this.textBox_newsFeedUri.Name = "textBox_newsFeedUri";
+            this.textBox_newsFeedUri.Size = new System.Drawing.Size(314, 20);
+            this.textBox_newsFeedUri.TabIndex = 0;
+            this.textBox_newsFeedUri.Text = "http://www.secudb.de/~seuffert/xbslink/feed";
             // 
             // groupBox_usersettings
             // 
@@ -1605,6 +1653,8 @@ namespace XBSlink
             this.tabPage_settings.ResumeLayout(false);
             this.tabControl_settings.ResumeLayout(false);
             this.tabPageSettings_general.ResumeLayout(false);
+            this.groupBox_newsFeed.ResumeLayout(false);
+            this.groupBox_newsFeed.PerformLayout();
             this.groupBox_usersettings.ResumeLayout(false);
             this.groupBox_usersettings.PerformLayout();
             this.groupBox_updates.ResumeLayout(false);
@@ -1757,6 +1807,10 @@ namespace XBSlink
         private System.Windows.Forms.CheckBox checkBox_preventSystemStandby;
         private System.Windows.Forms.TabPage tabPage_newsFeed;
         private System.Windows.Forms.RichTextBox richTextBox_newsFeed;
+        private System.Windows.Forms.GroupBox groupBox_newsFeed;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.CheckBox checkBox_showNewsFeed;
+        private System.Windows.Forms.TextBox textBox_newsFeedUri;
     }
 }
 

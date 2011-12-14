@@ -83,5 +83,11 @@
     <Setting Name="REG_PREVENT_SYSTEM_STANDY" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="REG_SHOW_NEWS_FEED" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="REG_NEWS_FEED_URI" Type="System.String" Scope="User">
+      <Value Profile="(Default)">http://www.secudb.de/~seuffert/xbslink/feed</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

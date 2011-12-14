@@ -346,5 +346,29 @@ namespace XBSlink.Properties {
                 this["REG_PREVENT_SYSTEM_STANDY"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool REG_SHOW_NEWS_FEED {
+            get {
+                return ((bool)(this["REG_SHOW_NEWS_FEED"]));
+            }
+            set {
+                this["REG_SHOW_NEWS_FEED"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://www.secudb.de/~seuffert/xbslink/feed")]
+        public string REG_NEWS_FEED_URI {
+            get {
+                return ((string)(this["REG_NEWS_FEED_URI"]));
+            }
+            set {
+                this["REG_NEWS_FEED_URI"] = value;
+            }
+        }
     }
 }

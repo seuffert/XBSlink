@@ -97,7 +97,9 @@ namespace XBSlink
         SharpPcap.CaptureDeviceList pcap_devices = null;
 
         private Dictionary<IPAddress, GatewayIPAddressInformationCollection> network_device_gateways = new Dictionary<IPAddress, GatewayIPAddressInformationCollection>();
-        
+
+        private TabPage tab_newsfeed = null;
+
         public FormMain()
         {
 #if DEBUG
@@ -155,7 +157,8 @@ namespace XBSlink
             tabControl1.SelectedTab = tabPage_settings;
             autoswitch_on_chat_message = checkBox_chatAutoSwitch.Checked;
 
-            loadNewsFeed();
+            if (checkBox_showNewsFeed.Checked)
+                loadNewsFeed(textBox_newsFeedUri.Text);
         }
 
         private void ShowVersionInfoMessages()
@@ -305,6 +308,8 @@ namespace XBSlink
             checkBox_minimize2systray.Checked = s.REG_MINIMIZE2SYSTRAY;
             checkBox_preventSystemStandby.Checked = s.REG_PREVENT_SYSTEM_STANDY;
             xbs_chat.message_when_nodes_join_or_leave = s.REG_CHAT_NODEINFOMESSAGES;
+            checkBox_showNewsFeed.Checked = s.REG_SHOW_NEWS_FEED;
+            textBox_newsFeedUri.Text = s.REG_NEWS_FEED_URI;
 
             if (checkBox_enable_MAC_list.Checked)
                 checkBox_mac_restriction.Enabled = true;
@@ -345,6 +350,8 @@ namespace XBSlink
             s.REG_SNIFFER_FORWARD_ALL_HIGH_PORT_BROADCASTS = checkBox_forward_all_high_port_broadcast.Checked;
             s.REG_MINIMIZE2SYSTRAY = checkBox_minimize2systray.Checked;
             s.REG_PREVENT_SYSTEM_STANDY = checkBox_preventSystemStandby.Checked;
+            s.REG_SHOW_NEWS_FEED = checkBox_showNewsFeed.Checked;
+            s.REG_NEWS_FEED_URI = textBox_newsFeedUri.Text;
             s.Save();
         }
 
@@ -1730,10 +1737,11 @@ namespace XBSlink
                 xbs_system_functions.restoreSystemSleepState();
         }
 
-        private void loadNewsFeed()
+        private void loadNewsFeed( String url )
         {
+            richTextBox_newsFeed.Clear();
+
             string result = null;
-            String url = "http://www.secudb.de/~seuffert/xbslink/feed";
             WebClient client = new WebClient();
             client.Proxy = null;
             try
@@ -1742,8 +1750,7 @@ namespace XBSlink
             }
             catch (WebException wex)
             {
-                // handle error
-                MessageBox.Show("Error loading news feed: " + wex.Message);
+                richTextBox_newsFeed.AppendText("Error loading news feed: " + wex.Message);
                 return;
             }
             
@@ -1751,7 +1758,17 @@ namespace XBSlink
             Font font_head = new Font(myFontFamily, 14, FontStyle.Bold, GraphicsUnit.Pixel);
             Font font_summary = new Font(myFontFamily, 10, FontStyle.Regular, GraphicsUnit.Pixel);
 
-            SyndicationFeed feed = SyndicationFeed.Load(XmlReader.Create(new System.IO.StringReader(result)));
+            SyndicationFeed feed;
+            try
+            {
+                feed = SyndicationFeed.Load(XmlReader.Create(new System.IO.StringReader(result)));
+            }
+            catch (Exception ex)
+            {
+                richTextBox_newsFeed.AppendText("Error parsing news feed");
+                return;
+            }
+
             foreach (SyndicationItem item in feed.Items)
             {
                 String date = item.PublishDate.Month + "-" + item.PublishDate.Day;
@@ -1776,6 +1793,19 @@ namespace XBSlink
         private void richTextBox_about_LinkClicked(object sender, LinkClickedEventArgs e)
         {
             System.Diagnostics.Process.Start(e.LinkText);
+        }
+
+        private void checkBox_showNewsFeed_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox_showNewsFeed.Checked)
+            {
+                tabControl1.TabPages.Insert(0, tabPage_newsFeed);
+                loadNewsFeed( textBox_newsFeedUri.Text );
+            }
+            else
+            {
+                tabControl1.TabPages.Remove(tabPage_newsFeed);
+            }
         }
     }
 }
