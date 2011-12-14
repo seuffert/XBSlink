@@ -72,6 +72,8 @@ namespace XBSlink
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabPage_newsFeed = new System.Windows.Forms.TabPage();
+            this.richTextBox_newsFeed = new System.Windows.Forms.RichTextBox();
             this.tabPage_info = new System.Windows.Forms.TabPage();
             this.label15 = new System.Windows.Forms.Label();
             this.listView_nodes = new System.Windows.Forms.ListView();
@@ -173,6 +175,7 @@ namespace XBSlink
             this.toolStripMenuItem_exit = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip.SuspendLayout();
             this.tabControl1.SuspendLayout();
+            this.tabPage_newsFeed.SuspendLayout();
             this.tabPage_info.SuspendLayout();
             this.tabPage_clouds.SuspendLayout();
             this.tabPage_chat.SuspendLayout();
@@ -209,7 +212,7 @@ namespace XBSlink
             this.toolStripStatusLabel_icon});
             this.statusStrip.Location = new System.Drawing.Point(0, 585);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(374, 22);
+            this.statusStrip.Size = new System.Drawing.Size(386, 22);
             this.statusStrip.TabIndex = 2;
             this.statusStrip.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.statusStrip1_MouseDoubleClick);
             // 
@@ -258,7 +261,7 @@ namespace XBSlink
             this.toolStripStatusLabel_icon.Image = global::XBSlink.Properties.Resources.ok_16;
             this.toolStripStatusLabel_icon.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.toolStripStatusLabel_icon.Name = "toolStripStatusLabel_icon";
-            this.toolStripStatusLabel_icon.Size = new System.Drawing.Size(42, 17);
+            this.toolStripStatusLabel_icon.Size = new System.Drawing.Size(54, 17);
             this.toolStripStatusLabel_icon.Spring = true;
             this.toolStripStatusLabel_icon.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
@@ -313,7 +316,7 @@ namespace XBSlink
             // textBox_remote_port
             // 
             this.textBox_remote_port.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_remote_port.Location = new System.Drawing.Point(325, 39);
+            this.textBox_remote_port.Location = new System.Drawing.Point(337, 39);
             this.textBox_remote_port.MaxLength = 5;
             this.textBox_remote_port.Name = "textBox_remote_port";
             this.textBox_remote_port.Size = new System.Drawing.Size(36, 20);
@@ -399,6 +402,7 @@ namespace XBSlink
             this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.tabControl1.Controls.Add(this.tabPage_newsFeed);
             this.tabControl1.Controls.Add(this.tabPage_info);
             this.tabControl1.Controls.Add(this.tabPage_clouds);
             this.tabControl1.Controls.Add(this.tabPage_chat);
@@ -410,9 +414,30 @@ namespace XBSlink
             this.tabControl1.Margin = new System.Windows.Forms.Padding(1);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(356, 516);
+            this.tabControl1.Size = new System.Drawing.Size(368, 516);
             this.tabControl1.TabIndex = 17;
             this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.tabControl1_SelectedIndexChanged);
+            // 
+            // tabPage_newsFeed
+            // 
+            this.tabPage_newsFeed.Controls.Add(this.richTextBox_newsFeed);
+            this.tabPage_newsFeed.Location = new System.Drawing.Point(4, 22);
+            this.tabPage_newsFeed.Name = "tabPage_newsFeed";
+            this.tabPage_newsFeed.Size = new System.Drawing.Size(360, 490);
+            this.tabPage_newsFeed.TabIndex = 7;
+            this.tabPage_newsFeed.Text = "News";
+            this.tabPage_newsFeed.UseVisualStyleBackColor = true;
+            // 
+            // richTextBox_newsFeed
+            // 
+            this.richTextBox_newsFeed.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.richTextBox_newsFeed.Location = new System.Drawing.Point(0, 0);
+            this.richTextBox_newsFeed.Name = "richTextBox_newsFeed";
+            this.richTextBox_newsFeed.Size = new System.Drawing.Size(360, 490);
+            this.richTextBox_newsFeed.TabIndex = 0;
+            this.richTextBox_newsFeed.Text = "";
             // 
             // tabPage_info
             // 
@@ -423,7 +448,7 @@ namespace XBSlink
             this.tabPage_info.Location = new System.Drawing.Point(4, 22);
             this.tabPage_info.Name = "tabPage_info";
             this.tabPage_info.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage_info.Size = new System.Drawing.Size(348, 490);
+            this.tabPage_info.Size = new System.Drawing.Size(360, 490);
             this.tabPage_info.TabIndex = 0;
             this.tabPage_info.Text = "Info";
             // 
@@ -516,7 +541,7 @@ namespace XBSlink
             this.tabPage_clouds.Location = new System.Drawing.Point(4, 22);
             this.tabPage_clouds.Margin = new System.Windows.Forms.Padding(1);
             this.tabPage_clouds.Name = "tabPage_clouds";
-            this.tabPage_clouds.Size = new System.Drawing.Size(348, 490);
+            this.tabPage_clouds.Size = new System.Drawing.Size(360, 490);
             this.tabPage_clouds.TabIndex = 5;
             this.tabPage_clouds.Text = "Clouds";
             // 
@@ -678,7 +703,7 @@ namespace XBSlink
             this.tabPage_chat.Controls.Add(this.textBox_chatEntry);
             this.tabPage_chat.Location = new System.Drawing.Point(4, 22);
             this.tabPage_chat.Name = "tabPage_chat";
-            this.tabPage_chat.Size = new System.Drawing.Size(348, 490);
+            this.tabPage_chat.Size = new System.Drawing.Size(360, 490);
             this.tabPage_chat.TabIndex = 4;
             this.tabPage_chat.Text = "Chat";
             // 
@@ -783,7 +808,7 @@ namespace XBSlink
             this.tabPage_messages.Controls.Add(this.button_clearMessages);
             this.tabPage_messages.Location = new System.Drawing.Point(4, 22);
             this.tabPage_messages.Name = "tabPage_messages";
-            this.tabPage_messages.Size = new System.Drawing.Size(348, 490);
+            this.tabPage_messages.Size = new System.Drawing.Size(360, 490);
             this.tabPage_messages.TabIndex = 2;
             this.tabPage_messages.Text = "Messages";
             // 
@@ -832,7 +857,7 @@ namespace XBSlink
             this.tabPage_settings.Location = new System.Drawing.Point(4, 22);
             this.tabPage_settings.Name = "tabPage_settings";
             this.tabPage_settings.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage_settings.Size = new System.Drawing.Size(348, 490);
+            this.tabPage_settings.Size = new System.Drawing.Size(360, 490);
             this.tabPage_settings.TabIndex = 1;
             this.tabPage_settings.Text = "Settings";
             // 
@@ -1281,7 +1306,7 @@ namespace XBSlink
             this.tabPage_nat.Controls.Add(this.label17);
             this.tabPage_nat.Location = new System.Drawing.Point(4, 22);
             this.tabPage_nat.Name = "tabPage_nat";
-            this.tabPage_nat.Size = new System.Drawing.Size(348, 490);
+            this.tabPage_nat.Size = new System.Drawing.Size(360, 490);
             this.tabPage_nat.TabIndex = 6;
             this.tabPage_nat.Text = "NAT";
             // 
@@ -1480,7 +1505,7 @@ namespace XBSlink
             this.tabPage_about.Controls.Add(this.richTextBox_about);
             this.tabPage_about.Location = new System.Drawing.Point(4, 22);
             this.tabPage_about.Name = "tabPage_about";
-            this.tabPage_about.Size = new System.Drawing.Size(348, 490);
+            this.tabPage_about.Size = new System.Drawing.Size(360, 490);
             this.tabPage_about.TabIndex = 3;
             this.tabPage_about.Text = "About";
             // 
@@ -1508,7 +1533,7 @@ namespace XBSlink
             this.comboBox_RemoteHost.FormattingEnabled = true;
             this.comboBox_RemoteHost.Location = new System.Drawing.Point(86, 39);
             this.comboBox_RemoteHost.Name = "comboBox_RemoteHost";
-            this.comboBox_RemoteHost.Size = new System.Drawing.Size(233, 21);
+            this.comboBox_RemoteHost.Size = new System.Drawing.Size(245, 21);
             this.comboBox_RemoteHost.TabIndex = 18;
             this.comboBox_RemoteHost.Text = "otherhost.dyndns.org";
             // 
@@ -1542,7 +1567,7 @@ namespace XBSlink
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(374, 607);
+            this.ClientSize = new System.Drawing.Size(386, 607);
             this.Controls.Add(this.comboBox_RemoteHost);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.button_announce);
@@ -1562,6 +1587,7 @@ namespace XBSlink
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
             this.tabControl1.ResumeLayout(false);
+            this.tabPage_newsFeed.ResumeLayout(false);
             this.tabPage_info.ResumeLayout(false);
             this.tabPage_info.PerformLayout();
             this.tabPage_clouds.ResumeLayout(false);
@@ -1727,6 +1753,8 @@ namespace XBSlink
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip_systray;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem_exit;
         private System.Windows.Forms.CheckBox checkBox_preventSystemStandby;
+        private System.Windows.Forms.TabPage tabPage_newsFeed;
+        private System.Windows.Forms.RichTextBox richTextBox_newsFeed;
     }
 }
 

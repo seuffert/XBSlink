@@ -39,6 +39,8 @@ using SharpPcap.LibPcap;
 using SharpPcap.WinPcap;
 using MiscUtil.Conversion;
 using XBSlink.Properties;
+using System.ServiceModel.Syndication;
+using System.Xml;
 
 
 [assembly: RegistryPermissionAttribute(SecurityAction.RequestMinimum,
@@ -152,6 +154,8 @@ namespace XBSlink
 
             tabControl1.SelectedTab = tabPage_settings;
             autoswitch_on_chat_message = checkBox_chatAutoSwitch.Checked;
+
+            loadNewsFeed();
         }
 
         private void ShowVersionInfoMessages()
@@ -1724,6 +1728,44 @@ namespace XBSlink
                 xbs_system_functions.PreventSystemFromSleeping();
             else
                 xbs_system_functions.restoreSystemSleepState();
+        }
+
+        private void loadNewsFeed()
+        {
+            string result = null;
+            String url = "http://www.secudb.de/~seuffert/xbslink/feed";
+            WebClient client = new WebClient();
+            client.Proxy = null;
+            try
+            {
+                result = client.DownloadString(url);
+            }
+            catch (WebException wex)
+            {
+                // handle error
+                MessageBox.Show("Error loading news feed: " + wex.Message);
+                return;
+            }
+            
+            FontFamily myFontFamily = new FontFamily("Arial");
+            Font font_head = new Font(myFontFamily, 14, FontStyle.Bold, GraphicsUnit.Pixel);
+            Font font_summary = new Font(myFontFamily, 10, FontStyle.Regular, GraphicsUnit.Pixel);
+
+            SyndicationFeed feed = SyndicationFeed.Load(XmlReader.Create(new System.IO.StringReader(result)));
+            foreach (SyndicationItem item in feed.Items)
+            {
+                String date = item.PublishDate.Month + "-" + item.PublishDate.Day;
+                richTextBox_newsFeed.SelectionFont = font_head;
+                richTextBox_newsFeed.SelectionColor = Color.DarkRed;
+                richTextBox_newsFeed.AppendText(date + " " + item.Title.Text + Environment.NewLine);
+
+                richTextBox_newsFeed.SelectionFont = font_summary; 
+                richTextBox_newsFeed.SelectionColor = Color.Black;
+                richTextBox_newsFeed.AppendText(item.Summary.Text + Environment.NewLine);
+
+                richTextBox_newsFeed.AppendText(item.Links[0].Uri.ToString() + Environment.NewLine);
+                richTextBox_newsFeed.AppendText(Environment.NewLine);
+            }
         }
     }
 }
