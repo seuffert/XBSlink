@@ -41,6 +41,8 @@ using MiscUtil.Conversion;
 using XBSlink.Properties;
 using System.ServiceModel.Syndication;
 using System.Xml;
+using System.Linq;
+using System.Xml.Linq;
 
 
 [assembly: RegistryPermissionAttribute(SecurityAction.RequestMinimum,
@@ -1764,39 +1766,8 @@ namespace XBSlink
                     return;
                 }
 
-                FontFamily myFontFamily = new FontFamily("Arial");
-                Font font_head = new Font(myFontFamily, 14, FontStyle.Bold, GraphicsUnit.Pixel);
-                Font font_summary = new Font(myFontFamily, 10, FontStyle.Regular, GraphicsUnit.Pixel);
-
-                SyndicationFeed feed;
-                try
-                {
-                    feed = SyndicationFeed.Load(XmlReader.Create(new System.IO.StringReader(result)));
-                }
-                catch (Exception ex)
-                {
-                    richTextBox_newsFeed.AppendText("Error parsing news feed");
-                    return;
-                }
-
-                String first_id = null;
-                foreach (SyndicationItem item in feed.Items)
-                {
-                    if (first_id == null)
-                        first_id = item.Id;
-                    String date = item.PublishDate.Month + "-" + item.PublishDate.Day;
-                    richTextBox_newsFeed.SelectionFont = font_head;
-                    richTextBox_newsFeed.SelectionColor = Color.DarkRed;
-                    richTextBox_newsFeed.AppendText(date + " " + item.Title.Text + Environment.NewLine);
-
-                    richTextBox_newsFeed.SelectionFont = font_summary;
-                    richTextBox_newsFeed.SelectionColor = Color.Black;
-                    richTextBox_newsFeed.AppendText(item.Summary.Text + Environment.NewLine);
-
-                    if (item.Links.Count > 0)
-                        richTextBox_newsFeed.AppendText(item.Links[0].Uri.ToString() + Environment.NewLine);
-                    richTextBox_newsFeed.AppendText(Environment.NewLine);
-                }
+                //String first_id = feedSyndicationItem(result);
+                String first_id = feedXDocument(result);
 
                 richTextBox_newsFeed.SelectionStart = 0;
                 richTextBox_newsFeed.ScrollToCaret();
@@ -1812,6 +1783,82 @@ namespace XBSlink
             {
                 xbs_messages.addInfoMessage("!!ERROR!! could not initialize news feed: "+ex.Message, xbs_message_sender.GENERAL, xbs_message_type.ERROR);
             }
+        }
+
+        private void addFeedEntry( String title, String summary, DateTimeOffset publish_date, String link_uri)
+        {
+            FontFamily myFontFamily = new FontFamily("Arial");
+            Font font_head = new Font(myFontFamily, 14, FontStyle.Bold, GraphicsUnit.Pixel);
+            Font font_summary = new Font(myFontFamily, 10, FontStyle.Regular, GraphicsUnit.Pixel);
+
+            String date = publish_date.Month + "-" + publish_date.Day;
+
+            richTextBox_newsFeed.SelectionFont = font_head;
+            richTextBox_newsFeed.SelectionColor = Color.DarkRed;
+            richTextBox_newsFeed.AppendText(date + " " + title + Environment.NewLine);
+
+            richTextBox_newsFeed.SelectionFont = font_summary;
+            richTextBox_newsFeed.SelectionColor = Color.Black;
+            richTextBox_newsFeed.AppendText(summary + Environment.NewLine);
+
+            if (link_uri != null && link_uri.Length>0)
+                richTextBox_newsFeed.AppendText(link_uri + Environment.NewLine);
+            richTextBox_newsFeed.AppendText(Environment.NewLine);
+        }
+
+        private String feedSyndicationItem(string feed_str)
+        {
+            SyndicationFeed feed;
+            try
+            {
+                feed = SyndicationFeed.Load(XmlReader.Create(new System.IO.StringReader(feed_str)));
+            }
+            catch (Exception ex)
+            {
+                richTextBox_newsFeed.AppendText("Error parsing news feed");
+                return null;
+            }
+
+            String first_id = null;
+            String title, summary, link;
+            DateTimeOffset publish_date;
+
+            foreach (SyndicationItem item in feed.Items)
+            {
+                if (first_id == null)
+                    first_id = item.Id;
+
+                title = item.Title.Text;
+                summary = item.Summary.Text;
+                publish_date = item.PublishDate;
+                if (item.Links != null && item.Links.Count >= 1)
+                    link = item.Links[0].Uri.ToString();
+                else
+                    link = null;
+
+                addFeedEntry(title, summary, publish_date, link);
+            }
+            return first_id;
+        }
+
+        private String feedXDocument(string feed_str)
+        {
+            XDocument document = XDocument.Parse(feed_str);
+            var x = from c in document.Root.Element("channel").Elements("item") select c;
+            String first_id = null;
+            String title, summary, link;
+            DateTimeOffset publish_date;
+            foreach (XElement unit in x)
+            {
+                if (first_id == null)
+                    first_id = unit.Element("guid").Value;
+                publish_date = DateTimeOffset.Parse( unit.Element("pubDate").Value );
+                title = unit.Element("title").Value;
+                summary = unit.Element("description").Value;
+                link = unit.Element("link").Value;
+                addFeedEntry(title, summary, publish_date, link);
+            }
+            return first_id;
         }
 
         private void richTextBox_newsFeed_LinkClicked(object sender, LinkClickedEventArgs e)
