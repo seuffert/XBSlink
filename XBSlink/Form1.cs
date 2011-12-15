@@ -1766,7 +1766,6 @@ namespace XBSlink
                     return;
                 }
 
-                //String first_id = feedSyndicationItem(result);
                 String first_id = feedXDocument(result);
 
                 richTextBox_newsFeed.SelectionStart = 0;
@@ -1805,50 +1804,14 @@ namespace XBSlink
                 richTextBox_newsFeed.AppendText(link_uri + Environment.NewLine);
             richTextBox_newsFeed.AppendText(Environment.NewLine);
         }
-
-        private String feedSyndicationItem(string feed_str)
-        {
-            SyndicationFeed feed;
-            try
-            {
-                feed = SyndicationFeed.Load(XmlReader.Create(new System.IO.StringReader(feed_str)));
-            }
-            catch (Exception ex)
-            {
-                richTextBox_newsFeed.AppendText("Error parsing news feed");
-                return null;
-            }
-
-            String first_id = null;
-            String title, summary, link;
-            DateTimeOffset publish_date;
-
-            foreach (SyndicationItem item in feed.Items)
-            {
-                if (first_id == null)
-                    first_id = item.Id;
-
-                title = item.Title.Text;
-                summary = item.Summary.Text;
-                publish_date = item.PublishDate;
-                if (item.Links != null && item.Links.Count >= 1)
-                    link = item.Links[0].Uri.ToString();
-                else
-                    link = null;
-
-                addFeedEntry(title, summary, publish_date, link);
-            }
-            return first_id;
-        }
-
+		
         private String feedXDocument(string feed_str)
         {
             XDocument document = XDocument.Parse(feed_str);
-            var x = from c in document.Root.Element("channel").Elements("item") select c;
             String first_id = null;
             String title, summary, link;
             DateTimeOffset publish_date;
-            foreach (XElement unit in x)
+            foreach (XElement unit in document.Root.Element("channel").Elements("item"))
             {
                 if (first_id == null)
                     first_id = unit.Element("guid").Value;
