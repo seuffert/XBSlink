@@ -63,6 +63,7 @@ namespace XBSlink
 
         const uint ATTACH_PARENT_PROCESS = 0x0ffffffff;
         const int ERROR_ACCESS_DENIED = 5;
+        private bool windows_console_attached = false;
 
         public xbs_console_app()
         {
@@ -82,6 +83,7 @@ namespace XBSlink
                         throw new Exception("Console Allocation Failed");
                     }
                 }
+                windows_console_attached = true;
             }
             Console.CancelKeyPress += delegate { handleCancelKeyPress(); };
 
@@ -142,7 +144,8 @@ namespace XBSlink
             Console.ReadLine();
 #endif
             exit_code = 0;
-            FreeConsole();
+            if (windows_console_attached)
+                FreeConsole();
             if (System.Windows.Forms.Application.MessageLoop)
                 System.Windows.Forms.Application.Exit();
             else
