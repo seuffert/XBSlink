@@ -40,7 +40,8 @@ namespace XBSlink
 
             if (args.Length > 0)
             {
-                console_app = new xbs_console_app(settings, args);
+                console_app = new xbs_console_app();
+                console_app.run(settings, args);
             }
             else
             {

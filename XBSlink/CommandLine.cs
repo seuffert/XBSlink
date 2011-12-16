@@ -10,7 +10,7 @@ using SharpPcap;
 using SharpPcap.LibPcap;
 using SharpPcap.WinPcap;
 using NDesk.Options;
-
+using System.Runtime.InteropServices;
 using XBSlink.Properties;
 
 namespace XBSlink
@@ -53,13 +53,38 @@ namespace XBSlink
         bool option_check_for_update = false;
 
         [System.Runtime.InteropServices.DllImport("kernel32.dll")]
-        private static extern bool AllocConsole(); 
+        private static extern bool AllocConsole();
 
-        public xbs_console_app(xbs_settings settings, String[] args)
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+        static extern bool FreeConsole();
+
+        [System.Runtime.InteropServices.DllImport("kernel32", SetLastError = true)]
+        static extern bool AttachConsole(uint dwProcessId);
+
+        const uint ATTACH_PARENT_PROCESS = 0x0ffffffff;
+        const int ERROR_ACCESS_DENIED = 5;
+
+        public xbs_console_app()
         {
-            Console.CancelKeyPress += delegate { handleCancelKeyPress(); };
+        }
+
+        public void run(xbs_settings settings, String[] args)
+        {
+            int exit_code = 0;
+
             if (System.Environment.OSVersion.Platform == PlatformID.Win32NT)
-                AllocConsole();
+            {
+                if (!AttachConsole(ATTACH_PARENT_PROCESS) && Marshal.GetLastWin32Error() == ERROR_ACCESS_DENIED)
+                {
+                    // A console was not allocated, so we need to make one.
+                    if (!AllocConsole())
+                    {
+                        throw new Exception("Console Allocation Failed");
+                    }
+                }
+            }
+            Console.CancelKeyPress += delegate { handleCancelKeyPress(); };
+
             WebRequest.DefaultWebProxy = null;
             default_color_text = Console.ForegroundColor;
             default_color_background = Console.BackgroundColor;
@@ -84,9 +109,8 @@ namespace XBSlink
             xbs_settings = settings;
             cloudlist = new xbs_cloudlist();
 
-            parse_command_line(args);
-
-            close_app(0);
+            exit_code = parse_command_line(args);
+            close_app(exit_code);
         }
 
         private void close_app( int exit_code )
@@ -117,14 +141,15 @@ namespace XBSlink
 #if DEBUG
             Console.ReadLine();
 #endif
+            exit_code = 0;
+            FreeConsole();
             if (System.Windows.Forms.Application.MessageLoop)
                 System.Windows.Forms.Application.Exit();
             else
                 System.Environment.Exit(exit_code);
-            Environment.Exit(exit_code);
         }
 
-        private void parse_command_line(String[] args)
+        private int parse_command_line(String[] args)
         {
             try
             {
@@ -133,29 +158,29 @@ namespace XBSlink
             catch (OptionException e)
             {
                 command_line_parser_error(command_line_option_set, e);
-                close_app(-3);
+                return(-3);
             }
             catch (System.FormatException e)
             {
                 command_line_parser_error(command_line_option_set, e);
-                close_app(-4);
+                return(-4);
             }
             if (!cmd_help && !cmd_list_devices && !cmd_list_clouds)
             {
                 if (option_capture_device == null)
                 {
                     command_line_parser_error(command_line_option_set, new OptionException("you need to specify a capture device", "capture-device"));
-                    close_app(-5);
+                    return(-5);
                 }
                 else if (option_local_ip == null)
                 {
                     command_line_parser_error(command_line_option_set, new OptionException("you need to specify a local ip addres to bind to", "local source ip address"));
-                    close_app(-5);
+                    return(-5);
                 }
                 else if (option_nickname == null)
                 {
                     command_line_parser_error(command_line_option_set, new OptionException("you need to specify a nickname", "XBSlink nickname"));
-                    close_app(-5);
+                    return(-5);
                 }
             }
 
@@ -176,6 +201,7 @@ namespace XBSlink
                 initCaptureDeviceList();
                 start_engine();
             }
+            return 0;
         }
 
         private void start_engine()
@@ -299,7 +325,6 @@ namespace XBSlink
             WriteLine("!! Error parsing command line:");
             WriteLine("!! " + e.Message + Environment.NewLine);
             ShowHelp();
-            Console.ReadLine();
         }
 
         private void initialize()
