@@ -75,9 +75,11 @@ namespace XBSlink
             this.tabPage_newsFeed = new System.Windows.Forms.TabPage();
             this.richTextBox_newsFeed = new System.Windows.Forms.RichTextBox();
             this.tabPage_info = new System.Windows.Forms.TabPage();
+            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
+            this.textBox_maininfo = new System.Windows.Forms.TextBox();
+            this.treeView_nodeinfo = new System.Windows.Forms.TreeView();
             this.label9 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
-            this.textBox_nodeinfo = new System.Windows.Forms.TextBox();
             this.label15 = new System.Windows.Forms.Label();
             this.listView_nodes = new System.Windows.Forms.ListView();
             this.columnHeader_nodeIP = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -85,7 +87,6 @@ namespace XBSlink
             this.columnHeader_nodePing = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader_nodeVersion = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader_nodeNickname = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.textBox_maininfo = new System.Windows.Forms.TextBox();
             this.tabPage_clouds = new System.Windows.Forms.TabPage();
             this.button_CloudLeave = new System.Windows.Forms.Button();
             this.button_CloudJoin = new System.Windows.Forms.Button();
@@ -181,11 +182,13 @@ namespace XBSlink
             this.toolTip2 = new System.Windows.Forms.ToolTip(this.components);
             this.contextMenuStrip_systray = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItem_exit = new System.Windows.Forms.ToolStripMenuItem();
-            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.statusStrip.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage_newsFeed.SuspendLayout();
             this.tabPage_info.SuspendLayout();
+            this.splitContainer2.Panel1.SuspendLayout();
+            this.splitContainer2.Panel2.SuspendLayout();
+            this.splitContainer2.SuspendLayout();
             this.tabPage_clouds.SuspendLayout();
             this.tabPage_chat.SuspendLayout();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -209,9 +212,6 @@ namespace XBSlink
             this.groupBox3.SuspendLayout();
             this.tabPage_about.SuspendLayout();
             this.contextMenuStrip_systray.SuspendLayout();
-            this.splitContainer2.Panel1.SuspendLayout();
-            this.splitContainer2.Panel2.SuspendLayout();
-            this.splitContainer2.SuspendLayout();
             this.SuspendLayout();
             // 
             // statusStrip
@@ -468,6 +468,48 @@ namespace XBSlink
             this.tabPage_info.TabIndex = 0;
             this.tabPage_info.Text = "Info";
             // 
+            // splitContainer2
+            // 
+            this.splitContainer2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.splitContainer2.Location = new System.Drawing.Point(0, 364);
+            this.splitContainer2.Name = "splitContainer2";
+            // 
+            // splitContainer2.Panel1
+            // 
+            this.splitContainer2.Panel1.Controls.Add(this.textBox_maininfo);
+            // 
+            // splitContainer2.Panel2
+            // 
+            this.splitContainer2.Panel2.Controls.Add(this.treeView_nodeinfo);
+            this.splitContainer2.Size = new System.Drawing.Size(360, 129);
+            this.splitContainer2.SplitterDistance = 216;
+            this.splitContainer2.TabIndex = 7;
+            // 
+            // textBox_maininfo
+            // 
+            this.textBox_maininfo.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox_maininfo.Location = new System.Drawing.Point(0, 0);
+            this.textBox_maininfo.Multiline = true;
+            this.textBox_maininfo.Name = "textBox_maininfo";
+            this.textBox_maininfo.ReadOnly = true;
+            this.textBox_maininfo.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.textBox_maininfo.Size = new System.Drawing.Size(213, 129);
+            this.textBox_maininfo.TabIndex = 1;
+            this.textBox_maininfo.Text = "Engine not started.";
+            // 
+            // treeView_nodeinfo
+            // 
+            this.treeView_nodeinfo.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.treeView_nodeinfo.Location = new System.Drawing.Point(3, 0);
+            this.treeView_nodeinfo.Name = "treeView_nodeinfo";
+            this.treeView_nodeinfo.Size = new System.Drawing.Size(137, 129);
+            this.treeView_nodeinfo.TabIndex = 5;
+            // 
             // label9
             // 
             this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -486,19 +528,7 @@ namespace XBSlink
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(94, 13);
             this.label8.TabIndex = 5;
-            this.label8.Text = "selceted node info";
-            // 
-            // textBox_nodeinfo
-            // 
-            this.textBox_nodeinfo.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_nodeinfo.Location = new System.Drawing.Point(3, 0);
-            this.textBox_nodeinfo.Multiline = true;
-            this.textBox_nodeinfo.Name = "textBox_nodeinfo";
-            this.textBox_nodeinfo.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox_nodeinfo.Size = new System.Drawing.Size(121, 129);
-            this.textBox_nodeinfo.TabIndex = 4;
+            this.label8.Text = "selected node info";
             // 
             // label15
             // 
@@ -558,20 +588,6 @@ namespace XBSlink
             // 
             this.columnHeader_nodeNickname.Text = "Nickname";
             this.columnHeader_nodeNickname.Width = 109;
-            // 
-            // textBox_maininfo
-            // 
-            this.textBox_maininfo.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_maininfo.Location = new System.Drawing.Point(0, 0);
-            this.textBox_maininfo.Multiline = true;
-            this.textBox_maininfo.Name = "textBox_maininfo";
-            this.textBox_maininfo.ReadOnly = true;
-            this.textBox_maininfo.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox_maininfo.Size = new System.Drawing.Size(228, 129);
-            this.textBox_maininfo.TabIndex = 1;
-            this.textBox_maininfo.Text = "Engine not started.";
             // 
             // tabPage_clouds
             // 
@@ -1673,24 +1689,6 @@ namespace XBSlink
             this.toolStripMenuItem_exit.Text = "Exit XBSlink";
             this.toolStripMenuItem_exit.Click += new System.EventHandler(this.toolStripMenuItem_exit_Click);
             // 
-            // splitContainer2
-            // 
-            this.splitContainer2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.splitContainer2.Location = new System.Drawing.Point(0, 364);
-            this.splitContainer2.Name = "splitContainer2";
-            // 
-            // splitContainer2.Panel1
-            // 
-            this.splitContainer2.Panel1.Controls.Add(this.textBox_maininfo);
-            // 
-            // splitContainer2.Panel2
-            // 
-            this.splitContainer2.Panel2.Controls.Add(this.textBox_nodeinfo);
-            this.splitContainer2.Size = new System.Drawing.Size(360, 129);
-            this.splitContainer2.SplitterDistance = 231;
-            this.splitContainer2.TabIndex = 7;
-            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1718,6 +1716,10 @@ namespace XBSlink
             this.tabPage_newsFeed.ResumeLayout(false);
             this.tabPage_info.ResumeLayout(false);
             this.tabPage_info.PerformLayout();
+            this.splitContainer2.Panel1.ResumeLayout(false);
+            this.splitContainer2.Panel1.PerformLayout();
+            this.splitContainer2.Panel2.ResumeLayout(false);
+            this.splitContainer2.ResumeLayout(false);
             this.tabPage_clouds.ResumeLayout(false);
             this.tabPage_clouds.PerformLayout();
             this.tabPage_chat.ResumeLayout(false);
@@ -1756,11 +1758,6 @@ namespace XBSlink
             this.groupBox3.PerformLayout();
             this.tabPage_about.ResumeLayout(false);
             this.contextMenuStrip_systray.ResumeLayout(false);
-            this.splitContainer2.Panel1.ResumeLayout(false);
-            this.splitContainer2.Panel1.PerformLayout();
-            this.splitContainer2.Panel2.ResumeLayout(false);
-            this.splitContainer2.Panel2.PerformLayout();
-            this.splitContainer2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1895,10 +1892,10 @@ namespace XBSlink
         private System.Windows.Forms.CheckBox checkBox_showNewsFeed;
         private System.Windows.Forms.TextBox textBox_newsFeedUri;
         private System.Windows.Forms.CheckBox checkBox_switchToNewsTab;
-        private System.Windows.Forms.TextBox textBox_nodeinfo;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.SplitContainer splitContainer2;
+        private System.Windows.Forms.TreeView treeView_nodeinfo;
     }
 }
 

@@ -1868,24 +1868,28 @@ namespace XBSlink
             xbs_node node = node_list.findNode(ip, port);
             if (node == null)
                 return;
-            StringBuilder str = new StringBuilder();
-            str.Append("Name: " + node.nickname + Environment.NewLine);
-            str.Append("IP: " + node.ip_public + Environment.NewLine);
+
+            treeView_nodeinfo.Nodes.Clear();
+            treeView_nodeinfo.Nodes.Add(node.nickname + " / " + node.ip_public + ":" + node.port_public);
+
             xbs_xbox[] devices = node.getXboxArray();
             if (devices.Length > 0 )
             {
-                str.Append("Devices: "+ Environment.NewLine);
+                int device_count = 0;
                 foreach (xbs_xbox device in devices)
                 {
-                    str.Append(" * " + device.mac + Environment.NewLine);
+                    device_count++;
+                    treeView_nodeinfo.Nodes[0].Nodes.Add("Device " + device_count);
                     if (device.ip_addresses.Count > 0)
                     {
                         foreach (IPAddress device_ip in device.ip_addresses)
-                            str.Append("   # " + device_ip.ToString() + Environment.NewLine);
+                        {
+                            treeView_nodeinfo.Nodes[0].Nodes[device_count - 1].Nodes.Add(device_ip.ToString());
+                        }
                     }
                 }
             }
-            textBox_nodeinfo.Text = str.ToString();
+            treeView_nodeinfo.ExpandAll();
         }
     }
 }
