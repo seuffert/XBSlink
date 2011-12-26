@@ -38,8 +38,15 @@ namespace XBSlink
 
     class xbs_xbox
     {
+        // MAC address identifying this device
         public PhysicalAddress mac;
+        
+        // hash of device MAC address
         public int hash;
+        
+        // all IPs related to this device are saved here
+        public List<IPAddress> ip_addresses = new List<IPAddress>();
+        private List<int> ip_hashes = new List<int>();
 
         public xbs_xbox(PhysicalAddress phy)
         {
@@ -55,6 +62,16 @@ namespace XBSlink
         public override string ToString()
         {
             return this.mac.ToString();
+        }
+
+        public bool addIPAddress( IPAddress ip )
+        {
+            int new_hash = ip.GetHashCode();
+            if (ip_hashes.Contains(new_hash))
+                return false;
+            ip_addresses.Add(ip);
+            ip_hashes.Add(new_hash);
+            return true;
         }
     }
 
@@ -128,7 +145,7 @@ namespace XBSlink
         public DateTime addedTime = DateTime.Now;
         public DateTime lastChangeTime = DateTime.Now;
 
-        // used to count the trys when cloudhelper is asked to help addig this node
+        // used to count the trys when cloudhelper is asked to help adding this node
         public int ask_cloudhelper_count = 0;
 
         public xbs_node(IPAddress ip_from, int port_from)
@@ -251,6 +268,18 @@ namespace XBSlink
                 changed();
             }
             return (!xbox_found);
+        }
+
+        public bool addIPtoXbox(PhysicalAddress mac, IPAddress ip)
+        {
+            int hash = mac.GetHashCode();
+            lock (this)
+            {
+                foreach (xbs_xbox xbox in xbox_list)
+                    if (hash == xbox.hash)
+                        return xbox.addIPAddress(ip);
+            }
+            return false;
         }
 
         public bool Equals(xbs_node node)

@@ -276,7 +276,7 @@ namespace XBSlink
             xbs_sniffer_statistics.packet_count++;
 
             // find node with destination MAC Address in network and send packet
-            node_list.distributeDataPacket(dstMAC, packet_data);
+            xbs_node node = node_list.distributeDataPacket(dstMAC, packet_data);
 
             int srcMac_hash = srcMAC.GetHashCode();
             bool pdevfilter_needs_change = false;
@@ -294,7 +294,7 @@ namespace XBSlink
                 setPdevFilter();
         }
 
-        public void injectRemotePacket(ref byte[] data, PhysicalAddress dstMAC, PhysicalAddress srcMAC)
+        public void injectRemotePacket(ref byte[] data, PhysicalAddress dstMAC, PhysicalAddress srcMAC, ref xbs_node sending_node)
         {
             Packet p = null;
             ARPPacket p_arp = null;
@@ -302,6 +302,8 @@ namespace XBSlink
             ICMPv4Packet p_icmp = null;
             UdpPacket p_udp = null;
             TcpPacket p_tcp = null;
+
+            IPAddress source_IP = null;
 
             int srcMac_hash = srcMAC.GetHashCode();
             // collect all injected source MACs. sniffer needs this to filter packets out
@@ -313,6 +315,10 @@ namespace XBSlink
                     addMacToKnownMacListFromRemoteNodes(srcMAC);
                 }
             }
+
+            if (sending_node != null)
+                if (sending_node.addXbox(srcMAC))
+                    node_list.listHasJustChanged();
 
             try
             {
@@ -335,9 +341,19 @@ namespace XBSlink
 
             // DETERMINE PACKET TYPE
             if (p.PayloadPacket is IPv4Packet)
+            {
                 p_ipv4 = p.PayloadPacket as IPv4Packet;
+                source_IP = p_ipv4.SourceAddress;
+                if (p_ipv4.PayloadPacket is UdpPacket)
+                    p_udp = p_ipv4.PayloadPacket as UdpPacket;
+                else if (p_ipv4.PayloadPacket is TcpPacket)
+                    p_tcp = p_ipv4.PayloadPacket as TcpPacket;
+            }
             else if (p.PayloadPacket is ARPPacket)
+            {
                 p_arp = p.PayloadPacket as ARPPacket;
+                source_IP = p_arp.SenderProtocolAddress;            
+            }
             else if (p.PayloadPacket is ICMPv4Packet)
                 p_icmp = p.PayloadPacket as ICMPv4Packet;
             else
@@ -349,58 +365,28 @@ namespace XBSlink
                 return;
             }
 
-            // FILTER ARP PACKETS
-            if (p_arp != null)
+            // filter packet if needed
+            if (is_injected_packet_to_be_filtered(ref p_arp, ref p_ipv4, ref p_udp, ref p_tcp))
             {
-                // FILTER ARP PACKETS TO OR FROM GATEWAY IPs
-                foreach (IPAddress ip in gateway_ips)
-                {
-                    if (p_arp.TargetProtocolAddress.Equals(ip))
-                        return;
-                    else if (p_arp.SenderProtocolAddress.Equals(ip))
-                        return;
-                }
-            }
-
-            // FILTER IPv4 PACKETS
-            if (p_ipv4 != null)
-            {
-                // FILTER IP PACKETS TO OR FROM GATEWAY IPs
-                if (pdev_filter_exclude_gatway_ips)
-                {
-                    foreach (IPAddress ip in gateway_ips)
-                    {
-                        if (p_ipv4.DestinationAddress.Equals(ip))
-                            return;
-                        else if (p_ipv4.SourceAddress.Equals(ip))
-                            return;
-                    }
-                }
-
-                if (p_ipv4.PayloadPacket is UdpPacket)
-                    p_udp = p_ipv4.PayloadPacket as UdpPacket;
-                else if (p_ipv4.PayloadPacket is TcpPacket)
-                    p_tcp = p_ipv4.PayloadPacket as TcpPacket;
-            }
-
-            // FILTER UDP PACKETS
-            if (p_udp != null)
-            {
-                // FILTER UDP PACKETS TO WELL KNOWN PORTS
-                if (pdev_filter_wellknown_ports && p_udp.DestinationPort > 1023)
-                    return;
-            }
-            // FILTER TCP PACKETS
-            if (p_tcp != null)
-            {
-                // FILTER TCP PACKETS TO WELL KNOWN PORTS
-                if (pdev_filter_wellknown_ports && p_tcp.DestinationPort > 1023)
-                    return;
-            }
 #if DEBUG
-            //xbs_messages.addDebugMessage("i> " + p, xbs_message_sender.SNIFFER);
+                xbs_messages.addDebugMessage("i> filtered packet: " + p, xbs_message_sender.SNIFFER);
 #endif
+                return;
+            }
 
+            // add IP to device from node
+            if (sending_node != null && source_IP!=null)
+                if (sending_node.addIPtoXbox(srcMAC, source_IP))
+                {
+#if DEBUG
+                    xbs_messages.addDebugMessage("i> added new IP "+source_IP+" to xbox "+srcMAC+" for node " + sending_node, xbs_message_sender.SNIFFER);
+#endif
+                    node_list.listHasJustChanged();
+                }
+
+#if DEBUG
+            xbs_messages.addDebugMessage("i> " + p, xbs_message_sender.SNIFFER);
+#endif
             if (NAT.NAT_enabled)
             {
 #if DEBUG
@@ -439,6 +425,54 @@ namespace XBSlink
             {
                 xbs_messages.addInfoMessage("!! error while injecting packet from " + srcMAC + " to " + dstMAC + " (" + data.Length + ") : " + aex.Message, xbs_message_sender.SNIFFER, xbs_message_type.FATAL_ERROR);
             }
+        }
+
+        private bool is_injected_packet_to_be_filtered(ref ARPPacket p_arp, ref IPv4Packet p_ipv4, ref UdpPacket p_udp, ref TcpPacket p_tcp)
+        {
+            // FILTER ARP PACKETS
+            if (p_arp != null)
+            {
+                // FILTER ARP PACKETS TO OR FROM GATEWAY IPs
+                foreach (IPAddress ip in gateway_ips)
+                {
+                    if (p_arp.TargetProtocolAddress.Equals(ip))
+                        return true;
+                    else if (p_arp.SenderProtocolAddress.Equals(ip))
+                        return true;
+                }
+            }
+
+            // FILTER IPv4 PACKETS
+            if (p_ipv4 != null)
+            {
+                // FILTER IP PACKETS TO OR FROM GATEWAY IPs
+                if (pdev_filter_exclude_gatway_ips)
+                {
+                    foreach (IPAddress ip in gateway_ips)
+                    {
+                        if (p_ipv4.DestinationAddress.Equals(ip))
+                            return true;
+                        else if (p_ipv4.SourceAddress.Equals(ip))
+                            return true;
+                    }
+                }
+            }
+
+            // FILTER UDP PACKETS
+            if (p_udp != null)
+            {
+                // FILTER UDP PACKETS TO WELL KNOWN PORTS
+                if (pdev_filter_wellknown_ports && p_udp.DestinationPort < 1024)
+                    return true;
+            }
+            // FILTER TCP PACKETS
+            if (p_tcp != null)
+            {
+                // FILTER TCP PACKETS TO WELL KNOWN PORTS
+                if (pdev_filter_wellknown_ports && p_tcp.DestinationPort < 1024)
+                    return true;
+            }
+            return false;
         }
 
         public PhysicalAddress[] getSniffedMACs()

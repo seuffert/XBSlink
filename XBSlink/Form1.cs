@@ -582,7 +582,7 @@ namespace XBSlink
             updateNATIPPoolListView();
 
             button_start_engine.Text = "Start Engine";
-            textBox1.Text = "Engine not started.";
+            textBox_maininfo.Text = "Engine not started.";
             textBox_chatEntry.ReadOnly = true;
             textBox_chatEntry.Clear();
             textBox_CloudName.Enabled = false;
@@ -767,7 +767,7 @@ namespace XBSlink
                         text += " => " + phy + Environment.NewLine;
                 }
             }
-            textBox1.Text = text;
+            textBox_maininfo.Text = text;
 
         }
 
@@ -1855,6 +1855,37 @@ namespace XBSlink
         {
             if (textBox_newsFeedUri.Text.Length == 0)
                 textBox_newsFeedUri.Text = Settings.Default.REG_NEWS_FEED_URI;
+        }
+
+        private void listView_nodes_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ListView.SelectedIndexCollection indexes = listView_nodes.SelectedIndices;
+            if (indexes.Count!=1)
+                return;
+            ListViewItem lv_item = listView_nodes.Items[indexes[0]];
+            IPAddress ip = IPAddress.Parse(lv_item.Text);
+            int port = int.Parse(lv_item.SubItems[1].Text.Split('/')[0]);
+            xbs_node node = node_list.findNode(ip, port);
+            if (node == null)
+                return;
+            StringBuilder str = new StringBuilder();
+            str.Append("Name: " + node.nickname + Environment.NewLine);
+            str.Append("IP: " + node.ip_public + Environment.NewLine);
+            xbs_xbox[] devices = node.getXboxArray();
+            if (devices.Length > 0 )
+            {
+                str.Append("Devices: "+ Environment.NewLine);
+                foreach (xbs_xbox device in devices)
+                {
+                    str.Append(" * " + device.mac + Environment.NewLine);
+                    if (device.ip_addresses.Count > 0)
+                    {
+                        foreach (IPAddress device_ip in device.ip_addresses)
+                            str.Append("   # " + device_ip.ToString() + Environment.NewLine);
+                    }
+                }
+            }
+            textBox_nodeinfo.Text = str.ToString();
         }
     }
 }
