@@ -578,6 +578,7 @@ namespace XBSlink
             xbs_messages.addInfoMessage("Engine stopped.", xbs_message_sender.GENERAL);
 
             listView_nodes.Items.Clear();
+            treeView_nodeinfo.Nodes.Clear();
             NAT.ip_pool.freeAllIPs();
             updateNATIPPoolListView();
 
@@ -591,7 +592,7 @@ namespace XBSlink
             button_CloudJoin.Enabled = false;
             button_CloudLeave.Enabled = false;
             textBox_chatNickname.ReadOnly = false;
-            button_reset_settings.Enabled = true;
+            button_reset_settings.Enabled = true;            
         }
 
         private IPAddress Resolver(string Hostname)
@@ -1302,6 +1303,7 @@ namespace XBSlink
 
         private void button_CloudLeave_Click(object sender, EventArgs e)
         {
+            treeView_nodeinfo.Nodes.Clear();
             bool ret = cloudlist.LeaveCloud();
             if (ret)
             {
