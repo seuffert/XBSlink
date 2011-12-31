@@ -6,18 +6,16 @@ using System.Net;
 using System.Threading;
 
 
-    public class XlinkKaiMsgProcess
+    public class xlink_server_console_process
     {
-
-      
 
         public enum eXlinkPhase
         {
-            InitialStatus = 0, Logged = 1, PrevChatMode = 2, ChatMode = 3
+            InitialStatus = 0, Logged = 1, PrevChatMode = 2, ChatMode = 3, Disconnected = 4
         }
 
          eXlinkPhase _actual_phase = eXlinkPhase.InitialStatus;
-         XlinkKaiAddonClient _parent;
+         xlink_server _parent;
 
         public eXlinkPhase actual_phase
         {
@@ -31,7 +29,7 @@ using System.Threading;
             }
         }
 
-        public XlinkKaiMsgProcess(XlinkKaiAddonClient Parent)
+        public xlink_server_console_process(xlink_server Parent)
         {
             _parent = Parent;
         }
@@ -79,7 +77,7 @@ using System.Threading;
 
         //xbs_cloud[] elementos;
 
-        void SendActualCloudList(List<XlinkKaiChannel> oChannels)
+        void SendActualCloudList(List<xlink_channel> oChannels)
         {
             //Si hay los eliminamos
                 foreach (var item in oChannels)
@@ -96,41 +94,39 @@ using System.Threading;
             _sender_port = console_port;
         }
 
-        public void ProcessReceivedMessage(XlinkKaiMsg udp_msg)
+        public void ProcessReceivedMessage(xlink_msg udp_msg)
         {
             ChangeSenderIPAddresPort(udp_msg.src_ip, udp_msg.src_port);
            //_parent.ChangeIPAddresPort(udp_msg.src_ip, udp_msg.src_port);
 
             //=============================   PRIMER PAQUETE DISCOVER  =====================================
-            if (udp_msg.msg_type == XlinkKaiMsg.xbs_xlink_message_type.KAI_CLIENT_DISCOVER)
+            if (udp_msg.msg_type == xlink_msg.xbs_xlink_message_type.KAI_CLIENT_DISCOVER)
             {
                 //actual_phase = eXlinkPhase.InitialStatus;
                 SendMessageActualConsole("KAI_CLIENT_ENGINE_HERE;");
 
-                    _parent.ProcessDebugMessage (" * XBOX -> DETECTED KAI_CLIENT_DISCOVER FROM " + udp_msg.src_ip + "!!!!!! ADD CONFIG PARAM WITH CONSOLE IP !!!!!!!!", XlinkKaiMsg.xbs_message_sender.XBOX);
+                _parent.ProcessDebugMessage(" * XBOX -> DETECTED KAI_CLIENT_DISCOVER FROM " + udp_msg.src_ip + "!!!!!! ADD CONFIG PARAM WITH CONSOLE IP !!!!!!!!", xlink_msg.xbs_message_sender.XBOX);
 
                 //=============================   LOGIN DISCOVER =====================================
             }
-            else if (udp_msg.msg_type == XlinkKaiMsg.xbs_xlink_message_type.KAI_CLIENT_ATTACH)
+            else if (udp_msg.msg_type == xlink_msg.xbs_xlink_message_type.KAI_CLIENT_ATTACH)
             {
                 SendMessageActualConsole("KAI_CLIENT_ENGINE_IN_USE;");
-            
-                    _parent.ProcessDebugMessage(" * XBOX -> DETECTED KAI_CLIENT_TAKEOVER FROM " + udp_msg.src_ip + "!!!!!! ADD CONFIG PARAM WITH CONSOLE IP !!!!!!!!", XlinkKaiMsg.xbs_message_sender.XBOX);
+
+                _parent.ProcessDebugMessage(" * XBOX -> DETECTED KAI_CLIENT_TAKEOVER FROM " + udp_msg.src_ip + "!!!!!! ADD CONFIG PARAM WITH CONSOLE IP !!!!!!!!", xlink_msg.xbs_message_sender.XBOX);
             }
-            else if (udp_msg.msg_type == XlinkKaiMsg.xbs_xlink_message_type.KAI_CLIENT_TAKEOVER)
+            else if (udp_msg.msg_type == xlink_msg.xbs_xlink_message_type.KAI_CLIENT_TAKEOVER)
             {
                 SendMessageActualConsole("KAI_CLIENT_ATTACH;");
 
-                _parent.ProcessDebugMessage(" * XBOX -> SISTEMA DETECTADO! -> DETECTED KAI_CLIENT_ENGINE_IN_USE  " + udp_msg.src_ip + "!!!!!! ADD CONFIG PARAM WITH CONSOLE IP !!!!!!!!", XlinkKaiMsg.xbs_message_sender.XBOX);
+                _parent.ProcessDebugMessage(" * XBOX -> SISTEMA DETECTADO! -> DETECTED KAI_CLIENT_ENGINE_IN_USE  " + udp_msg.src_ip + "!!!!!! ADD CONFIG PARAM WITH CONSOLE IP !!!!!!!!", xlink_msg.xbs_message_sender.XBOX);
 
                 //Lanzamos el evento de attach
                 actual_phase = eXlinkPhase.Logged;
                 //=============================   BOTON LOGIN =====================================
             }
-            else if (udp_msg.msg_type == XlinkKaiMsg.xbs_xlink_message_type.KAI_CLIENT_GETSTATE)
+            else if (udp_msg.msg_type == xlink_msg.xbs_xlink_message_type.KAI_CLIENT_GETSTATE)
             {
-
-
                 SendMessageActualConsole(new string[] {
                       "KAI_CLIENT_LOGGED_IN;",
                       "KAI_CLIENT_CODEPAGE; 0;",
@@ -151,37 +147,31 @@ using System.Threading;
 
                 //Creamos los clouds
                 //SendActualCloudList();
-
                 //Obtenemos los usuarios
                 //SendActualUserListFromCloud();
                 SendMessageActualConsole("KAI_CLIENT_LOCAL_DEVICE;" + _parent.KAI_CLIENT_LOCAL_DEVICE + ";");
-
                 //KAI_CLIENT_VECTOR;GRAN TURISMO;;
-
                 //(-TU-)Kovert-xX/(JA)CAS/(japan)DNA/(JPN)bamboo_adm/-Gunslinger-/DyinTryin/GhOsTMaTa/Hawk_The_Slayer/l3laze/SgtLegend/shiningkiwi/[1up]Stickey/[3D]-GohitaN/[FLdS]_FAOS/
-
                 //KAI_CLIENT_JOINS_CHAT
-
                 SendMessageActualConsole("KAI_CLIENT_ATTACH;");
-
-                    _parent.ProcessDebugMessage(" * XBOX -> CONECTADO - MENU PRINCIPAL! -> DETECTED KAI_CLIENT_GETSTATE  " + udp_msg.src_ip + "!!", XlinkKaiMsg.xbs_message_sender.XBOX);
+                _parent.ProcessDebugMessage(" * XBOX -> CONECTADO - MENU PRINCIPAL! -> DETECTED KAI_CLIENT_GETSTATE  " + udp_msg.src_ip + "!!", xlink_msg.xbs_message_sender.XBOX);
                     _parent.ProcessLogin();
 
             }
-            else if (udp_msg.msg_type == XlinkKaiMsg.xbs_xlink_message_type.KAI_CLIENT_LOGOUT)
+            else if (udp_msg.msg_type == xlink_msg.xbs_xlink_message_type.KAI_CLIENT_LOGOUT)
             {
                 //elementos = null;
 
                 SendMessageActualConsole("KAI_CLIENT_DETACH;" + _parent.KAI_CLIENT_LOCAL_DEVICE + ";");
 
                 //=============================   LOGOUT =====================================
-         
-                    _parent.ProcessLogout();
 
-                
-                    _parent.ProcessDebugMessage (" * XBOX -> CERRADO APLICACION! -> DETECTED KAI_CLIENT_LOGOUT  " + udp_msg.src_ip + "!", XlinkKaiMsg.xbs_message_sender.XBOX);
+                actual_phase = eXlinkPhase.Disconnected;
+
+                    _parent.ProcessLogout();
+                    _parent.ProcessDebugMessage(" * XBOX -> CERRADO APLICACION! -> DETECTED KAI_CLIENT_LOGOUT  " + udp_msg.src_ip + "!", xlink_msg.xbs_message_sender.XBOX);
             }
-            else if (udp_msg.msg_type == XlinkKaiMsg.xbs_xlink_message_type.KAI_CLIENT_CHATMODE)
+            else if (udp_msg.msg_type == xlink_msg.xbs_xlink_message_type.KAI_CLIENT_CHATMODE)
             {
                 //=============================   FASE DE CHAT =====================================
                 UTF8Encoding oDecoding = new UTF8Encoding();
@@ -207,11 +197,11 @@ using System.Threading;
 
                 //ENTRANDO EN MODO CHAT
                actual_phase = eXlinkPhase.ChatMode;
-             
-               _parent.ProcessDebugMessage(" * XBOX -> CHAT MODE -> DETECTED KAI_CLIENT_CHATMODE  " + udp_msg.src_ip + "!", XlinkKaiMsg.xbs_message_sender .XBOX);
+
+               _parent.ProcessDebugMessage(" * XBOX -> CHAT MODE -> DETECTED KAI_CLIENT_CHATMODE  " + udp_msg.src_ip + "!", xlink_msg.xbs_message_sender.XBOX);
             }
             //================================= JOIN A CHANNEL ==========================
-            else if (udp_msg.msg_type == XlinkKaiMsg.xbs_xlink_message_type.KAI_CLIENT_VECTOR)
+            else if (udp_msg.msg_type == xlink_msg.xbs_xlink_message_type.KAI_CLIENT_VECTOR)
             {
                 UTF8Encoding oDecoding = new UTF8Encoding();
                 var CommandMsg = oDecoding.GetString(udp_msg.GetData());
@@ -232,7 +222,7 @@ using System.Threading;
 
                             //DeleteAllSystemUsers();
                             //JoinUserToVector("Joining cloud..");
-                             _parent.ProcessJoinCloud(command);
+                        _parent.ConsoleProcessJoinCloud(command);
 
                             //SendActualUserListFromCloud()
 
@@ -247,8 +237,8 @@ using System.Threading;
                     //        "KAI_CLIENT_JOINS_CHAT;" + _actual_arena + ";Jose;",
                     //    });
                 }
-          
-            else if (udp_msg.msg_type == XlinkKaiMsg.xbs_xlink_message_type.KAI_CLIENT_GET_VECTORS)
+
+            else if (udp_msg.msg_type == xlink_msg.xbs_xlink_message_type.KAI_CLIENT_GET_VECTORS)
             {
 
                 UTF8Encoding oDecoding = new UTF8Encoding();
@@ -293,10 +283,10 @@ using System.Threading;
 
                 //ENTRANDO EN MODO CHAT
                 //actual_phase = eXlinkPhase.ChatMode;
-               
-                    _parent.ProcessDebugMessage(" * XBOX -> CHAT MODE -> DETECTED KAI_CLIENT_CHATMODE  " + udp_msg.src_ip + "!", XlinkKaiMsg.xbs_message_sender .XBOX);
+
+                _parent.ProcessDebugMessage(" * XBOX -> CHAT MODE -> DETECTED KAI_CLIENT_CHATMODE  " + udp_msg.src_ip + "!", xlink_msg.xbs_message_sender.XBOX);
             }
-            else if (udp_msg.msg_type == XlinkKaiMsg.xbs_xlink_message_type.KAI_CLIENT_CHAT)
+            else if (udp_msg.msg_type == xlink_msg.xbs_xlink_message_type.KAI_CLIENT_CHAT)
             {
 
                 UTF8Encoding oDecoding = new UTF8Encoding();
@@ -307,15 +297,54 @@ using System.Threading;
                     var command = parameters[1].Trim();
                     if (command != "")
                     {
-                       
-                            _parent.ProcessChat(command);
+                        _parent.ConsoleProcessChat(command);
                     }
 
                 }
 
             }
+            else if (udp_msg.msg_type == xlink_msg.xbs_xlink_message_type.KAI_CLIENT_PM)
+            {
+                UTF8Encoding oDecoding = new UTF8Encoding();
+                var CommandMsg = oDecoding.GetString(udp_msg.GetData());
+                string[] parameters = CommandMsg.Split(';');
+                if (parameters.Length > 2)
+                {
+                    var command = parameters[1].Trim();
+                    if (command != "")
+                    {
+                        _parent.ConsoleProcessPM(parameters[1], parameters[2]);
+                    }
+                }
 
+            }
+            //else if (udp_msg.msg_type == xlink_msg.xbs_xlink_message_type.KAI_CLIENT_CONTACT_ONLINE)
+            //{
+
+            //}
+
+            //KAI_CLIENT_INVITE
+            /*
+             * STRTOKEN(szContactName, vParameters, 1, "");
+			STRTOKEN(szVector, vParameters, 2, "");
+			STRTOKEN(szMessage, vParameters, 3, "");
+			STRTOKEN(szTime, vParameters, 4, "");
+             * */
+
+            //KAI_CLIENT_GETSTATE
+
+            //KAI_CLIENT_CONTACT_OFFLINE
+
+            //KAI_CLIENT_CONTACT_ONLINE
+
+            //KAI_CLIENT_GET_PROFILE;%s;
+                //KAI_CLIENT_PM;%s;%s;
             //KAI_CLIENT_CHATMODE;;
+        }
+
+        public void SendPMMessage(string username, string message)
+        {
+            SendMessageActualConsole("KAI_CLIENT_PM;" + username + ";" + message.Replace(";", "") + ";");
         }
 
         public void SendChatMessage(string username, string message)
@@ -330,7 +359,7 @@ using System.Threading;
             SendMessageActualConsole("KAI_CLIENT_SUB_VECTOR_UPDATE;" + CloudName + ";" + Players + ";XBSLINK;");
         }
 
-        public void SendCreateCloud(XlinkKaiChannel Canal)
+        public void SendCreateCloud(xlink_channel Canal)
         {
             SendCreateCloud(Canal.name, Canal.node_count, Canal.isPrivate, Canal.max_nodes);
         }
@@ -343,12 +372,23 @@ using System.Threading;
             SendMessageActualConsole("KAI_CLIENT_USER_SUB_VECTOR;" + CloudName + ";" + Players + ";XBSLINK;" + ((isPrivate) ? "1" : "-1") + ";" + MaxPlayers.ToString() + ";" + ((isPrivate) ? "PASSWORD PROTECTED" : "Public Arena"));
         }
 
+
+        public void SendDetach()
+        {
+            //"KAI_CLIENT_SUB_VECTOR;FIFA;5;XBSLINK;-1;6;",
+            //"KAI_CLIENT_USER_SUB_VECTOR;GRAN TURISMO;3;XBSLINK;-1;6;Tengo una vaca",
+            //SendMessageActualConsole("KAI_CLIENT_SUB_VECTOR;" + CloudName + ";" + Players + ";XBSLINK;" + ((isPrivate) ? "1" : "-1") + ";" + MaxPlayers.ToString() + ";");
+            SendMessageActualConsole("KAI_CLIENT_DETACH;" + _parent.KAI_CLIENT_LOCAL_DEVICE + ";");
+            SendMessageActualConsole("KAI_CLIENT_ATTACH;");
+        }
+        
+
         //KAI_CLIENT_GETSTATE;
         void SendMessageActualConsole(string message)
         {
-            _parent.SendMsgCola(new XlinkKaiMsg(_sender_ip, _sender_port, message));
-            _parent.ProcessSendMessage(message, _sender_ip,  _sender_port);
-            Thread.Sleep(500);
+            _parent.SendMsgCola(new xlink_msg(_sender_ip, _sender_port, message));
+            _parent.ConsoleProcessSendMessage(message, _sender_ip, _sender_port);
+            Thread.Sleep(400);
         }
 
         void SendMessageActualConsole(string[] messages)

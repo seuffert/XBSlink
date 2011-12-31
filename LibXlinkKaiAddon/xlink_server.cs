@@ -6,35 +6,42 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
-public class XlinkKaiAddonClient
+public class xlink_server
 {
 
     #region Handlers
 
-    public delegate void XlinkSendMessageHandler(string message, IPAddress console_ip_address, int console_port);
-    public event XlinkSendMessageHandler XlinkSendMessage;
 
-    public delegate void XlinkDebugMessageHandler(string message_debug, XlinkKaiMsg.xbs_message_sender sender);
+    public xlink_server_console_process.eXlinkPhase _actual_phase { get { return xLinkMsgProcess.actual_phase; } }
+
+    public delegate void XlinkDebugMessageHandler(string message_debug, xlink_msg.xbs_message_sender sender);
     public event XlinkDebugMessageHandler XlinkDebugMessage;
 
-    public delegate void XlinkJoinCloudHandler(string CloudName, string CloudPassword);
-    public event XlinkJoinCloudHandler XlinkJoinCloud;
+    //CONSOLE HANDLERS
+    public delegate void XlinkConsoleSendMessageHandler(string message, IPAddress console_ip_address, int console_port);
+    public event XlinkConsoleSendMessageHandler XlinkConsoleSendMessage;
 
-    public delegate void XlinkLogoutHandler();
-    public event XlinkLogoutHandler XlinkLogout;
+    public delegate void XlinkConsoleJoinCloudHandler(string CloudName, string CloudPassword);
+    public event XlinkConsoleJoinCloudHandler XlinkConsoleJoinCloud;
 
-    public delegate void XlinkLoginHandler();
-    public event XlinkLoginHandler XlinkLogin;
+    public delegate void XlinkConsoleLogoutHandler();
+    public event XlinkConsoleLogoutHandler XlinkConsoleLogout;
 
-    public delegate void XlinkChatandler(string message);
-    public event XlinkChatandler XlinkChat;
+    public delegate void XlinkConsoleLoginHandler();
+    public event XlinkConsoleLoginHandler XlinkConsoleLogin;
+
+    public delegate void XlinkChatHandler(string message);
+    public event XlinkChatHandler XlinkConsoleChat;
+
+    public delegate void XlinkConsolePMHandler(string UserName, string Message, bool IsReceived);
+    public event XlinkConsolePMHandler XlinkConsolePM;
 
     #endregion
 
     public string KAI_CLIENT_LOCAL_DEVICE = "00242BECE7A0";
     public string KAI_CLIENT_LOCAL_NAME = "magurin";
 
-    public XlinkKaiMsgProcess xLinkMsgProcess;
+    public xlink_server_console_process xLinkMsgProcess;
     public IPAddress _console_ip_address;
 
     public const int standard_port = 31415;
@@ -53,11 +60,11 @@ public class XlinkKaiAddonClient
 
     #region Constructor && INIT
 
-    public XlinkKaiAddonClient(string local_ip_address)
+    public xlink_server(string local_ip_address)
     {
         ChangeIPAddresPort(local_ip_address, standard_kay_port);
         ProcessSocket();
-        xLinkMsgProcess = new XlinkKaiMsgProcess(this);
+        xLinkMsgProcess = new xlink_server_console_process(this);
 
     }
 
@@ -76,7 +83,7 @@ public class XlinkKaiAddonClient
         sender_thread.Priority = ThreadPriority.Normal;
         sender_thread.Start();
 
-        ProcessDebugMessage(" * initialized udp listener on port " + udp_kay_socket_port, XlinkKaiMsg.xbs_message_sender.UDP_LISTENER);
+        ProcessDebugMessage(" * initialized CONSOLE udp listener on port " + udp_kay_socket_port, xlink_msg.xbs_message_sender.UDP_LISTENER);
     }
 
     public void Stop()
@@ -102,7 +109,7 @@ public class XlinkKaiAddonClient
 
         if (udp_kay_socket.Connected)
         {
-            ProcessDebugMessage("Winsock error: " + Convert.ToString(System.Runtime.InteropServices.Marshal.GetLastWin32Error()), XlinkKaiMsg.xbs_message_sender.FATAL_ERROR);
+            ProcessDebugMessage("Winsock error: " + Convert.ToString(System.Runtime.InteropServices.Marshal.GetLastWin32Error()), xlink_msg.xbs_message_sender.FATAL_ERROR);
         }
 
     }
@@ -113,45 +120,53 @@ public class XlinkKaiAddonClient
 
     #region Events
 
-    public void ProcessDebugMessage(string Message, XlinkKaiMsg.xbs_message_sender sender)
+    public void ProcessDebugMessage(string Message, xlink_msg.xbs_message_sender sender)
     {
         if (XlinkDebugMessage != null)
             XlinkDebugMessage(Message, sender);
     }
 
-    public void ProcessSendMessage(string message, IPAddress console_ip_address, int console_port)
+    public void ConsoleProcessSendMessage(string message, IPAddress console_ip_address, int console_port)
     {
-        if (XlinkSendMessage != null)
-            XlinkSendMessage(message, console_ip_address, console_port);
+        if (XlinkConsoleSendMessage != null)
+            XlinkConsoleSendMessage(message, console_ip_address, console_port);
     }
 
-    public void ProcessJoinCloud(string CloudName)
+    public void ConsoleProcessJoinCloud(string CloudName)
     {
-        ProcessJoinCloud(CloudName, "");
+        ConsoleProcessJoinCloud(CloudName, "");
     }
 
-    public void ProcessJoinCloud(string CloudName, string CloudPassword)
+    public void ConsoleProcessJoinCloud(string CloudName, string CloudPassword)
     {
-        if (XlinkJoinCloud != null)
-            XlinkJoinCloud(CloudName, CloudPassword);
+        if (XlinkConsoleJoinCloud != null)
+            XlinkConsoleJoinCloud(CloudName, CloudPassword);
     }
 
-    public void ProcessChat(string Message)
+    public void ConsoleProcessChat(string Message)
     {
-        if (XlinkChat != null)
-            XlinkChat(Message);
+        if (XlinkConsoleChat != null)
+            XlinkConsoleChat(Message);
     }
+
+    public void ConsoleProcessPM(string Username, string Message)
+    {
+        //Always send
+        if (XlinkConsolePM != null)
+            XlinkConsolePM(Username, Message, true);
+    }
+
 
     public void ProcessLogout()
     {
-        if (XlinkLogout != null)
-            XlinkLogout();
+        if (XlinkConsoleLogout != null)
+            XlinkConsoleLogout();
     }
 
     public void ProcessLogin()
     {
-        if (XlinkLogin != null)
-            XlinkLogin();
+        if (XlinkConsoleLogin != null)
+            XlinkConsoleLogin();
     }
 
     #endregion
@@ -181,35 +196,37 @@ public class XlinkKaiAddonClient
         {
             throw new Exception("an error occured while initializing the UDP KAY socket.\r\nPlease see the messages tab.");
         }
-        ProcessDebugMessage(" * initialized udp listener on port " + udp_kay_socket_port, XlinkKaiMsg.xbs_message_sender.UDP_LISTENER);
+        ProcessDebugMessage(" * initialized udp listener on port " + udp_kay_socket_port, xlink_msg.xbs_message_sender.UDP_LISTENER);
     }
 
-    public void SendMsgThread(XlinkKaiMsg msg)
+    public void SendMsgThread(xlink_msg msg)
     {
-        byte[] bytes = msg.GetData();
-        try
+        if (msg.src_ip != null)
         {
-            EndPoint ep = (EndPoint)new IPEndPoint(msg.src_ip, msg.src_port);
-            udp_kay_socket.SendTo(bytes, bytes.Length, SocketFlags.None, ep);
+            byte[] bytes = msg.GetData();
+            try
+            {
+                EndPoint ep = (EndPoint)new IPEndPoint(msg.src_ip, msg.src_port);
+                udp_kay_socket.SendTo(bytes, bytes.Length, SocketFlags.None, ep);
 
-            if (XlinkDebugMessage != null)
-                XlinkDebugMessage("!! Enviando : " + msg.ToString(), XlinkKaiMsg.xbs_message_sender.XBOX);
-        }
-        catch (SocketException sock_ex)
-        {
-
-            if (XlinkDebugMessage != null)
-                XlinkDebugMessage("!! ERROR in dispatch_out_queue SendTo: " + sock_ex.Message, XlinkKaiMsg.xbs_message_sender.FATAL_ERROR);
-        }
-        catch (Exception ex)
-        {
-            if (XlinkDebugMessage != null)
-                XlinkDebugMessage("!! ERROR in dispatch_out_queue SendTo: " + ex.Message, XlinkKaiMsg.xbs_message_sender.FATAL_ERROR);
+                if (XlinkDebugMessage != null)
+                    XlinkDebugMessage("!! Sending : " + msg.ToString(), xlink_msg.xbs_message_sender.XBOX);
+            }
+            catch (SocketException sock_ex)
+            {
+                if (XlinkDebugMessage != null)
+                    XlinkDebugMessage("!! ERROR SENDING SOCKET UDP CONSOLE: " + sock_ex.Message, xlink_msg.xbs_message_sender.FATAL_ERROR);
+            }
+            catch (Exception ex)
+            {
+                if (XlinkDebugMessage != null)
+                    XlinkDebugMessage("!! ERROR SENDING SOCKET UDP CONSOLE: " + ex.Message, xlink_msg.xbs_message_sender.FATAL_ERROR);
+            }
         }
 
     }
 
-    public void SendMsgCola(XlinkKaiMsg msg)
+    public void SendMsgCola(xlink_msg msg)
     {
         lock (sender_msg)
         {
@@ -220,7 +237,6 @@ public class XlinkKaiAddonClient
 
     void while_receiver()
     {
-
         while (!is_exiting)
         {
             udp_receiver();
@@ -231,7 +247,6 @@ public class XlinkKaiAddonClient
 
     void while_sender()
     {
-
         while (!is_exiting)
         {
             udp_sender();
@@ -240,7 +255,7 @@ public class XlinkKaiAddonClient
 
     }
 
-    List<XlinkKaiMsg> sender_msg = new List<XlinkKaiMsg>();
+    List<xlink_msg> sender_msg = new List<xlink_msg>();
 
     void udp_sender()
     {
@@ -270,9 +285,9 @@ public class XlinkKaiAddonClient
 
         if (!is_exiting && bytes_received > 0)
         {
-            XlinkKaiMsg msg = new XlinkKaiMsg();
-            msg.msg_type = XlinkKaiMsg.getMessageTypeFromUDPPacket(data);
-            if (msg.msg_type != XlinkKaiMsg.xbs_xlink_message_type.NO_KAY_MSG)
+            xlink_msg msg = new xlink_msg();
+            msg.msg_type = xlink_msg.getMessageTypeFromUDPPacket(data);
+            if (msg.msg_type != xlink_msg.xbs_xlink_message_type.NO_KAY_MSG)
             {
                 msg.SetCleanArray(data);
             }
@@ -298,11 +313,23 @@ public class XlinkKaiAddonClient
         xLinkMsgProcess.SendChatMessage(user_name, Text);
     }
 
+       public void XBS_SendPM(string user_name, string Text)
+    {
+        xLinkMsgProcess.SendPMMessage(user_name, Text);
+    }
+
     public void XBS_ChannelCreate(string CloudName, int Players, bool isPrivate, int MaxPlayers)
     {
         xLinkMsgProcess.SendCreateCloud(CloudName, Players, isPrivate, MaxPlayers);
     }
-    
+
+    public void XBS_Detach()
+    {
+
+        //KAI_CLIENT_DETACH
+        xLinkMsgProcess.SendDetach();
+    }
+
         public void XBS_LeaveUser(string username)
      {
         // DeleteUserFromArray(username);
