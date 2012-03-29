@@ -279,18 +279,14 @@ namespace XBSlink
             }
         }
 
-        public xbs_node distributeDataPacket(PhysicalAddress dstMac, byte[] data)
+        public void distributeDataPacket(PhysicalAddress dstMac, byte[] data)
         {
             lock (this)
             {
                 foreach (xbs_node node in node_list)
                     if (node.has_xbox(dstMac))
-                    {
                         node.sendDataMessage(ref data);
-                        return node;
-                    }
             }
-            return null;
         }
 
         public void sendChatMessageToAllNodes( String chat_message )

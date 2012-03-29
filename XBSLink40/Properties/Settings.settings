@@ -1,0 +1,99 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="XBSLink.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="REG_CHAT_SOUND_NOTIFICATION" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="REG_NEW_NODE_SOUND_NOTIFICATION" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="REG_CLOUDLIST_SERVER" Type="System.String" Scope="User">
+      <Value Profile="(Default)">http://www.secudb.de/~seuffert/xbslink/cloudlist/</Value>
+    </Setting>
+    <Setting Name="REG_USE_CLOUDLIST_SERVER_TO_CHECK_INCOMING_PORT" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="REG_NAT_ENABLE" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="REG_NAT_IP_POOL" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="REG_FILTER_WELLKNOWN_PORTS" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="REG_PS3_COMPAT_MODE_ENABLE" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="REG_SNIFFER_EXCLUDE_GATWAY_IPS" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="REG_CHAT_NODEINFOMESSAGES" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="SettingsUpdateNeeded" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="REG_SNIFFER_FORWARD_ALL_HIGH_PORT_BROADCASTS" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="REG_MINIMIZE2SYSTRAY" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="REG_PREVENT_SYSTEM_STANDY" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="REG_SHOW_NEWS_FEED" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="REG_NEWS_FEED_URI" Type="System.String" Scope="User">
+      <Value Profile="(Default)">http://www.secudb.de/~seuffert/xbslink/feed</Value>
+    </Setting>
+    <Setting Name="REG_NEWS_FEED_NEWEST_ID" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="REG_NEWS_FEED_SWITCH_TO_TAB" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="REG_CHAT_AUTOSWITCH" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="REG_CHAT_NICKNAME" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="REG_SPECIAL_MAC_LIST" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="REG_ONLY_FORWARD_SPECIAL_MACS" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="REG_ENABLE_SPECIAL_MAC_LIST" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="REG_USE_UPNP" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="REG_REMOTE_PORT" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">31415</Value>
+    </Setting>
+    <Setting Name="REG_REMOTE_HOST_HISTORY" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="REG_REMOTE_HOST" Type="System.String" Scope="User">
+      <Value Profile="(Default)">otherhost.dyndns.org</Value>
+    </Setting>
+    <Setting Name="REG_LOCAL_PORT" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">31415</Value>
+    </Setting>
+    <Setting Name="REG_LOCAL_IP" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="REG_CAPTURE_DEVICE_NAME" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="REG_CHECK4UPDATES" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
