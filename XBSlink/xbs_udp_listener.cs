@@ -518,7 +518,10 @@ namespace XBSlink
 #if DEBUG
             //xbs_messages.addDebugMessage(" * DATA (" + udp_msg.data.Length + ") | " + srcMAC + " => " + dstMAC, xbs_message_sender.UDP_LISTENER);
 #endif
-            xbs_sniffer.getInstance().injectRemotePacket(ref udp_msg.data, dstMAC, srcMAC, ref sending_node);
+            xbs_sniffer.getInstance().injectRemotePacket(ref udp_msg.data, dstMAC, srcMAC);
+            if (sending_node != null)
+                if (sending_node.addXbox(srcMAC))
+                    node_list.listHasJustChanged();
         }
 
         public void dispatcher_out()

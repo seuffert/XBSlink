@@ -33,58 +33,7 @@ using System.Threading;
         {
             _parent = Parent;
         }
-
-
-        void AddSystemMainUsers()
-        {
-            //en el principal
-            JoinUserToVector(".:XBSLINK:.");
-            JoinUserToVector("Select a channel to");
-            JoinUserToVector("join the game. run");
-            JoinUserToVector("the game and search");
-            JoinUserToVector("LAN games.");
-        }
-
-        void DeleteAllSystemUsers()
-        {
-            //LeaveUserFromVector("Joined successfull.");
-            //LeaveUserFromVector("Joining cloud..");
-            LeaveUserFromVector(".:XBSLINK:.");
-            LeaveUserFromVector("Select a channel to");
-            LeaveUserFromVector("join the game. run");
-            LeaveUserFromVector("the game and search");
-            LeaveUserFromVector("LAN games.");
-        }
-
-
-        public void LeaveUserFromVector(string username)
-     {
-        // DeleteUserFromArray(username);
-
-         SendMessageActualConsole("KAI_CLIENT_LEAVES_CHAT;General Chat;" + username + ";");
-         SendMessageActualConsole("KAI_CLIENT_LEAVES_VECTOR;" + username + ";");
-     }
-
-        public void JoinUserToVector(string username)
-        {
-            //if (users != null)
-            //{
-                //AddUserToArray(username);
-                SendMessageActualConsole("KAI_CLIENT_JOINS_VECTOR;" + username + ";");
-                SendMessageActualConsole("KAI_CLIENT_JOINS_CHAT;General Chat;" + username + ";");
-          //  }
-        }
-
-        //xbs_cloud[] elementos;
-
-        void SendActualCloudList(List<xlink_channel> oChannels)
-        {
-            //Si hay los eliminamos
-                foreach (var item in oChannels)
-                    SendCreateCloud(item);
-
-        }
-
+   
         public IPAddress _sender_ip;
         public int _sender_port;
 
@@ -94,18 +43,18 @@ using System.Threading;
             _sender_port = console_port;
         }
 
+        #region Main Process
+
         public void ProcessReceivedMessage(xlink_msg udp_msg)
         {
             ChangeSenderIPAddresPort(udp_msg.src_ip, udp_msg.src_port);
-           //_parent.ChangeIPAddresPort(udp_msg.src_ip, udp_msg.src_port);
 
             //=============================   PRIMER PAQUETE DISCOVER  =====================================
             if (udp_msg.msg_type == xlink_msg.xbs_xlink_message_type.KAI_CLIENT_DISCOVER)
             {
                 //actual_phase = eXlinkPhase.InitialStatus;
                 SendMessageActualConsole("KAI_CLIENT_ENGINE_HERE;");
-
-                _parent.ProcessDebugMessage(" * XBOX -> DETECTED KAI_CLIENT_DISCOVER FROM " + udp_msg.src_ip + "!!!!!! ADD CONFIG PARAM WITH CONSOLE IP !!!!!!!!", xlink_msg.xbs_message_sender.XBOX);
+                _parent.ProcessDebugMessage(String.Format(" * XBOX -> DETECTED KAI_CLIENT_DISCOVER FROM {0}!!!!!! ADD CONFIG PARAM WITH CONSOLE IP !!!!!!!!", udp_msg.src_ip), xlink_msg.xbs_message_sender.XBOX);
 
                 //=============================   LOGIN DISCOVER =====================================
             }
@@ -113,16 +62,16 @@ using System.Threading;
             {
                 SendMessageActualConsole("KAI_CLIENT_ENGINE_IN_USE;");
 
-                _parent.ProcessDebugMessage(" * XBOX -> DETECTED KAI_CLIENT_TAKEOVER FROM " + udp_msg.src_ip + "!!!!!! ADD CONFIG PARAM WITH CONSOLE IP !!!!!!!!", xlink_msg.xbs_message_sender.XBOX);
+                _parent.ProcessDebugMessage(String.Format(" * XBOX -> DETECTED KAI_CLIENT_TAKEOVER FROM {0}!!!!!! ADD CONFIG PARAM WITH CONSOLE IP !!!!!!!!", udp_msg.src_ip), xlink_msg.xbs_message_sender.XBOX);
             }
             else if (udp_msg.msg_type == xlink_msg.xbs_xlink_message_type.KAI_CLIENT_TAKEOVER)
             {
                 SendMessageActualConsole("KAI_CLIENT_ATTACH;");
-
-                _parent.ProcessDebugMessage(" * XBOX -> SISTEMA DETECTADO! -> DETECTED KAI_CLIENT_ENGINE_IN_USE  " + udp_msg.src_ip + "!!!!!! ADD CONFIG PARAM WITH CONSOLE IP !!!!!!!!", xlink_msg.xbs_message_sender.XBOX);
+                _parent.ProcessDebugMessage(String.Format(" * XBOX -> SISTEMA DETECTADO! -> DETECTED KAI_CLIENT_ENGINE_IN_USE  {0}!!!!!! ADD CONFIG PARAM WITH CONSOLE IP !!!!!!!!", udp_msg.src_ip), xlink_msg.xbs_message_sender.XBOX);
 
                 //Lanzamos el evento de attach
                 actual_phase = eXlinkPhase.Logged;
+
                 //=============================   BOTON LOGIN =====================================
             }
             else if (udp_msg.msg_type == xlink_msg.xbs_xlink_message_type.KAI_CLIENT_GETSTATE)
@@ -134,7 +83,7 @@ using System.Threading;
                       "KAI_CLIENT_SESSION_KEY;3njEXQPnEQAZE2U7wHHKAGeP6hQ=;",
                       "KAI_CLIENT_VECTOR;XBSLINK;;",
                       "KAI_CLIENT_STATUS;XBSLink is Online..;",
-                      "KAI_CLIENT_USER_DATA;" + _parent.KAI_CLIENT_LOCAL_NAME + ";",
+                      String.Format("KAI_CLIENT_USER_DATA;{0};", _parent.KAI_CLIENT_LOCAL_NAME),
                       "KAI_CLIENT_ARENA_STATUS;1;1;",
                       "KAI_CLIENT_CONNECTED_MESSENGER;",
                       "KAI_CLIENT_CHATMODE;;",
@@ -146,30 +95,21 @@ using System.Threading;
                   });
 
                 //Creamos los clouds
-                //SendActualCloudList();
-                //Obtenemos los usuarios
-                //SendActualUserListFromCloud();
-                SendMessageActualConsole("KAI_CLIENT_LOCAL_DEVICE;" + _parent.KAI_CLIENT_LOCAL_DEVICE + ";");
-                //KAI_CLIENT_VECTOR;GRAN TURISMO;;
-                //(-TU-)Kovert-xX/(JA)CAS/(japan)DNA/(JPN)bamboo_adm/-Gunslinger-/DyinTryin/GhOsTMaTa/Hawk_The_Slayer/l3laze/SgtLegend/shiningkiwi/[1up]Stickey/[3D]-GohitaN/[FLdS]_FAOS/
-                //KAI_CLIENT_JOINS_CHAT
+                SendMessageActualConsole(String.Format("KAI_CLIENT_LOCAL_DEVICE;{0};", _parent.KAI_CLIENT_LOCAL_DEVICE));
                 SendMessageActualConsole("KAI_CLIENT_ATTACH;");
-                _parent.ProcessDebugMessage(" * XBOX -> CONECTADO - MENU PRINCIPAL! -> DETECTED KAI_CLIENT_GETSTATE  " + udp_msg.src_ip + "!!", xlink_msg.xbs_message_sender.XBOX);
-                    _parent.ProcessLogin();
+                _parent.ProcessDebugMessage(String.Format(" * XBOX -> CONECTADO - MAIN MENU! -> DETECTED KAI_CLIENT_GETSTATE  {0}!!", udp_msg.src_ip), xlink_msg.xbs_message_sender.XBOX);
+                _parent.ProcessLogin();
 
             }
             else if (udp_msg.msg_type == xlink_msg.xbs_xlink_message_type.KAI_CLIENT_LOGOUT)
             {
-                //elementos = null;
 
-                SendMessageActualConsole("KAI_CLIENT_DETACH;" + _parent.KAI_CLIENT_LOCAL_DEVICE + ";");
-
+                SendMessageActualConsole(String.Format("KAI_CLIENT_DETACH;{0};", _parent.KAI_CLIENT_LOCAL_DEVICE));
                 //=============================   LOGOUT =====================================
 
                 actual_phase = eXlinkPhase.Disconnected;
-
-                    _parent.ProcessLogout();
-                    _parent.ProcessDebugMessage(" * XBOX -> CERRADO APLICACION! -> DETECTED KAI_CLIENT_LOGOUT  " + udp_msg.src_ip + "!", xlink_msg.xbs_message_sender.XBOX);
+                _parent.ProcessLogout();
+                _parent.ProcessDebugMessage(String.Format(" * XBOX -> CLOSSING APLICACION! -> DETECTED KAI_CLIENT_LOGOUT  {0}!", udp_msg.src_ip), xlink_msg.xbs_message_sender.XBOX);
             }
             else if (udp_msg.msg_type == xlink_msg.xbs_xlink_message_type.KAI_CLIENT_CHATMODE)
             {
@@ -179,26 +119,13 @@ using System.Threading;
                 string[] parameters = CommandMsg.Split(';');
                 if (parameters.Length > 2)
                 {
-                    //var command = parameters[1].Trim();
-                    //if (_actual_arena != "")
-                    //{
-                    //    //_actual_arena = command;
-                    //    //RemoveUserList();
-                    //    //AddUserList();
-                    //    //Reenviamos el comando
-                    //}
-                    //else
-                    //{
-                    //    DeleteAllSystemUsers();
-                    //    //JoinUserToVector("No users here.");
-                    //}
-
+                    //NOT USED 
                 }
 
                 //ENTRANDO EN MODO CHAT
-               actual_phase = eXlinkPhase.ChatMode;
+                actual_phase = eXlinkPhase.ChatMode;
 
-               _parent.ProcessDebugMessage(" * XBOX -> CHAT MODE -> DETECTED KAI_CLIENT_CHATMODE  " + udp_msg.src_ip + "!", xlink_msg.xbs_message_sender.XBOX);
+                _parent.ProcessDebugMessage(String.Format(" * XBOX -> CHAT MODE -> DETECTED KAI_CLIENT_CHATMODE  {0}!", udp_msg.src_ip), xlink_msg.xbs_message_sender.XBOX);
             }
             //================================= JOIN A CHANNEL ==========================
             else if (udp_msg.msg_type == xlink_msg.xbs_xlink_message_type.KAI_CLIENT_VECTOR)
@@ -211,32 +138,15 @@ using System.Threading;
                     var command = parameters[1].Trim();
                     if (command != "" && command != "Arena")
                     {
-                        //RemoveUserList();
                         DeleteAllSystemUsers();
-                        //_actual_arena = command;
-                        //var encontrado = (from elemento in xbs_cloudlist.getInstance().getCloudlistArray() where elemento.name == command select elemento).FirstOrDefault();
-                        //if (encontrado != null)
-                        //{
-
-                          //  _actual_arena = encontrado.name;
-
-                            //DeleteAllSystemUsers();
-                            //JoinUserToVector("Joining cloud..");
-                        _parent.ConsoleProcessJoinCloud(command);
-
-                            //SendActualUserListFromCloud()
-
-                            //AddUserList();
-                        }
-                        else
-                            AddSystemMainUsers();
+                        _parent.ConsoleProcessJoinCloud(command, parameters[2]);
                     }
-
-                    //SendMessageActualConsole(new string[] { 
-                    //        "KAI_CLIENT_JOINS_CHAT;" + _actual_arena + ";martinsxxrta;",
-                    //        "KAI_CLIENT_JOINS_CHAT;" + _actual_arena + ";Jose;",
-                    //    });
+                    else
+                        AddSystemMainUsers();
                 }
+
+
+            }
 
             else if (udp_msg.msg_type == xlink_msg.xbs_xlink_message_type.KAI_CLIENT_GET_VECTORS)
             {
@@ -248,43 +158,12 @@ using System.Threading;
                 {
                     var command = parameters[1].Trim();
                     if (command != "" && command != "Arena" && command != "XBSLINK")
-                    {
-                        //Arena que deseamosobtener los vectores
-                        //_actual_arena = command;
                         DeleteAllSystemUsers();
-                        //RemoveUserList();
-                        //SendActualCloudList();
-                        //AddUserList();
-                    }
                     else if (command == "XBSLINK")
-                    {
-                        //DeleteAllSystemUsers();
-                        //RemoveUserList();
-                        //SendActualCloudList();
                         AddSystemMainUsers();
-                    }
                 }
 
-                //Solicitamos los vectores (usuarios de un canal)
-
-                //Enviamos otra información del canal:
-                //KAI_CLIENT_LEAVES_CHAT;Arena;magurin;KAI_CLIENT_JOINS_CHAT;;(Cpl)-DjLuK4z;KAI_CLIENT_JOINS_CHAT;;(MW3
-                //KAI_CLIENT_CHAT;Arena;Kai Orbital Mesh;Welcome to XLink Kai's Arena Mode!
-
-                //KAI_CLIENT_LEAVES_CHAT; Arena; magurin;
-                //SendMessageActualConsole(new string[] { 
-                //    "KAI_CLIENT_JOINS_CHAT;" + _actual_arena + ";martinsxxrta;",
-                //    "KAI_CLIENT_JOINS_CHAT;" + _actual_arena + ";Jose;",
-                //});
-
-                //SendMessageActualConsole("KAI_CLIENT_ARENA_PING;Jose;136;0;1;;");
-                //SendMessageActualConsole("KAI_CLIENT_CHAT;" + _actual_arena + ";Kai Orbital Mesh;BIENVENIDOOOO!Use the left panel to get yourself in the desired arena and start playing!;");
-                //SendMessageActualConsole("KAI_CLIENT_DETACH;");
-
-                //ENTRANDO EN MODO CHAT
-                //actual_phase = eXlinkPhase.ChatMode;
-
-                _parent.ProcessDebugMessage(" * XBOX -> CHAT MODE -> DETECTED KAI_CLIENT_CHATMODE  " + udp_msg.src_ip + "!", xlink_msg.xbs_message_sender.XBOX);
+                _parent.ProcessDebugMessage(String.Format(" * XBOX -> CHAT MODE -> DETECTED KAI_CLIENT_CHATMODE  {0}!", udp_msg.src_ip), xlink_msg.xbs_message_sender.XBOX);
             }
             else if (udp_msg.msg_type == xlink_msg.xbs_xlink_message_type.KAI_CLIENT_CHAT)
             {
@@ -318,45 +197,29 @@ using System.Threading;
                 }
 
             }
-            //else if (udp_msg.msg_type == xlink_msg.xbs_xlink_message_type.KAI_CLIENT_CONTACT_ONLINE)
-            //{
 
-            //}
-
-            //KAI_CLIENT_INVITE
-            /*
-             * STRTOKEN(szContactName, vParameters, 1, "");
-			STRTOKEN(szVector, vParameters, 2, "");
-			STRTOKEN(szMessage, vParameters, 3, "");
-			STRTOKEN(szTime, vParameters, 4, "");
-             * */
-
-            //KAI_CLIENT_GETSTATE
-
-            //KAI_CLIENT_CONTACT_OFFLINE
-
-            //KAI_CLIENT_CONTACT_ONLINE
-
-            //KAI_CLIENT_GET_PROFILE;%s;
-                //KAI_CLIENT_PM;%s;%s;
-            //KAI_CLIENT_CHATMODE;;
         }
+
+        #endregion
+
+        #region Process Methods
+
 
         public void SendPMMessage(string username, string message)
         {
-            SendMessageActualConsole("KAI_CLIENT_PM;" + username + ";" + message.Replace(";", "") + ";");
+            SendMessageActualConsole(String.Format("KAI_CLIENT_PM;{0};{1};", username, message.Replace(";", "")));
         }
 
         public void SendChatMessage(string username, string message)
         {
-            SendMessageActualConsole("KAI_CLIENT_CHAT;XBSLINK;" + username + ";" + message.Replace(";", "") + ";");
+            SendMessageActualConsole(String.Format("KAI_CLIENT_CHAT;XBSLINK;{0};{1};", username, message.Replace(";", "")));
         }
 
         public void SendUpdateCloud(string CloudName, int Players, bool isPrivate, int MaxPlayers)
         {
             //"KAI_CLIENT_SUB_VECTOR;FIFA;5;XBSLINK;-1;6;",
             //"KAI_CLIENT_USER_SUB_VECTOR;GRAN TURISMO;3;XBSLINK;-1;6;Tengo una vaca",
-            SendMessageActualConsole("KAI_CLIENT_SUB_VECTOR_UPDATE;" + CloudName + ";" + Players + ";XBSLINK;");
+            SendMessageActualConsole(String.Format("KAI_CLIENT_SUB_VECTOR_UPDATE;{0};{1};XBSLINK;", CloudName, Players));
         }
 
         public void SendCreateCloud(xlink_channel Canal)
@@ -366,29 +229,20 @@ using System.Threading;
 
         public void SendCreateCloud(string CloudName, int Players, bool isPrivate, int MaxPlayers)
         {
-            //"KAI_CLIENT_SUB_VECTOR;FIFA;5;XBSLINK;-1;6;",
-            //"KAI_CLIENT_USER_SUB_VECTOR;GRAN TURISMO;3;XBSLINK;-1;6;Tengo una vaca",
-            //SendMessageActualConsole("KAI_CLIENT_SUB_VECTOR;" + CloudName + ";" + Players + ";XBSLINK;" + ((isPrivate) ? "1" : "-1") + ";" + MaxPlayers.ToString() + ";");
-            SendMessageActualConsole("KAI_CLIENT_USER_SUB_VECTOR;" + CloudName + ";" + Players + ";XBSLINK;" + ((isPrivate) ? "1" : "-1") + ";" + MaxPlayers.ToString() + ";" + ((isPrivate) ? "PASSWORD PROTECTED" : "Public Arena"));
+            SendMessageActualConsole(String.Format("KAI_CLIENT_USER_SUB_VECTOR;{0};{1};XBSLINK;{2};{3};{4}", CloudName, Players, ((isPrivate) ? "1" : "-1"), MaxPlayers, ((isPrivate) ? "PASSWORD PROTECTED" : "Public Arena")));
         }
-
 
         public void SendDetach()
         {
-            //"KAI_CLIENT_SUB_VECTOR;FIFA;5;XBSLINK;-1;6;",
-            //"KAI_CLIENT_USER_SUB_VECTOR;GRAN TURISMO;3;XBSLINK;-1;6;Tengo una vaca",
-            //SendMessageActualConsole("KAI_CLIENT_SUB_VECTOR;" + CloudName + ";" + Players + ";XBSLINK;" + ((isPrivate) ? "1" : "-1") + ";" + MaxPlayers.ToString() + ";");
-            SendMessageActualConsole("KAI_CLIENT_DETACH;" + _parent.KAI_CLIENT_LOCAL_DEVICE + ";");
+            SendMessageActualConsole(String.Format("KAI_CLIENT_DETACH;{0};", _parent.KAI_CLIENT_LOCAL_DEVICE));
             SendMessageActualConsole("KAI_CLIENT_ATTACH;");
         }
-        
 
-        //KAI_CLIENT_GETSTATE;
         void SendMessageActualConsole(string message)
         {
             _parent.SendMsgCola(new xlink_msg(_sender_ip, _sender_port, message));
             _parent.ConsoleProcessSendMessage(message, _sender_ip, _sender_port);
-            Thread.Sleep(400);
+            //Thread.Sleep(400);
         }
 
         void SendMessageActualConsole(string[] messages)
@@ -398,6 +252,41 @@ using System.Threading;
                 SendMessageActualConsole(msg);
             }
         }
+
+        void AddSystemMainUsers()
+        {
+            JoinUserToVector(".:XBSLINK:.");
+            JoinUserToVector("Select a channel");
+        }
+
+        void DeleteAllSystemUsers()
+        {
+            LeaveUserFromVector(".:XBSLINK:.");
+            LeaveUserFromVector("Select a channel");
+        }
+
+        public void LeaveUserFromVector(string username)
+        {
+            SendMessageActualConsole(String.Format("KAI_CLIENT_LEAVES_CHAT;General Chat;{0};", username));
+            SendMessageActualConsole(String.Format("KAI_CLIENT_LEAVES_VECTOR;{0};", username));
+        }
+
+        public void JoinUserToVector(string username)
+        {
+            SendMessageActualConsole(String.Format("KAI_CLIENT_JOINS_VECTOR;{0};", username));
+            SendMessageActualConsole(String.Format("KAI_CLIENT_JOINS_CHAT;General Chat;{0};", username));
+        }
+
+        void SendActualCloudList(List<xlink_channel> oChannels)
+        {
+            //Si hay los eliminamos
+            foreach (var item in oChannels)
+                SendCreateCloud(item);
+        }
+
+
+        #endregion
+
 
     }
 

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{45B2D806-3B04-4C9B-9CCE-2F095D45FBE4}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>XBSLink</RootNamespace>
+    <AssemblyName>XBSLink</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Deployment, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="class\xbs_chat.cs" />
+    <Compile Include="class\xbs_cloudlist.cs" />
+    <Compile Include="class\xbs_messages.cs" />
+    <Compile Include="class\xbs_nat.cs" />
+    <Compile Include="class\xbs_natstun.cs" />
+    <Compile Include="class\xbs_node.cs" />
+    <Compile Include="class\xbs_node_list.cs" />
+    <Compile Include="class\xbs_node_message.cs" />
+    <Compile Include="class\xbs_settings.cs" />
+    <Compile Include="class\xbs_sniffer.cs" />
+    <Compile Include="class\xbs_system_functions.cs" />
+    <Compile Include="class\xbs_udp_listener.cs" />
+    <Compile Include="CommandLine.cs" />
+    <Compile Include="controls\ChatPrivateWindow.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="controls\ChatPrivateWindow.Designer.cs">
+      <DependentUpon>ChatPrivateWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="controls\TabPageChat.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DebugWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DebugWindow.Designer.cs">
+      <DependentUpon>DebugWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ExceptionMessage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ExceptionMessage.Designer.cs">
+      <DependentUpon>ExceptionMessage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Form1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form1.Designer.cs">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Form11.Designer.cs">
+      <DependentUpon>Form1.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Options.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="controls\ChatPrivateWindow.resx">
+      <DependentUpon>ChatPrivateWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DebugWindow.resx">
+      <DependentUpon>DebugWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ExceptionMessage.resx">
+      <DependentUpon>ExceptionMessage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form1.resx">
+      <DependentUpon>Form1.cs</DependentUpon>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Form11.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="about_xbslink.rtf" />
+    <None Include="app.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <None Include="Resources\about_xbslink.rtf" />
+    <None Include="SharpPcap.dll.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="XBSlink.exe.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="error_16.png" />
+    <Content Include="ok_16.png" />
+    <None Include="Resources\error_16.png" />
+    <None Include="Resources\error_50.png" />
+    <None Include="Resources\icon_key.png" />
+    <None Include="Resources\ok_16.png" />
+    <None Include="Resources\warning_16.png" />
+    <None Include="Resources\XBSlink.ico" />
+    <Content Include="sounds\node_left.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Include="sounds\new_node.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="sounds\incoming_chat_msg.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <Content Include="warning_16.png" />
+    <None Include="icon_key.png" />
+    <None Include="error_50.png" />
+    <Content Include="XBSlink.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LibXlinkKaiAddon\lib_xlink_kai_addon.csproj">
+      <Project>{746271C1-E5D1-4CF3-B5E2-E294A29DD731}</Project>
+      <Name>lib_xlink_kai_addon</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Mono.Nat\Mono.Nat.csproj">
+      <Project>{F5D74163-145F-47BF-83DC-D0E07249C6CA}</Project>
+      <Name>Mono.Nat</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PacketDotNet\PacketDotNet.csproj">
+      <Project>{55ABBA4C-AAF9-4726-A592-0C92436CEC92}</Project>
+      <Name>PacketDotNet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SharpPcap\SharpPcap.csproj">
+      <Project>{24262E52-1304-4A25-8F73-A3B06E40592E}</Project>
+      <Name>SharpPcap</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

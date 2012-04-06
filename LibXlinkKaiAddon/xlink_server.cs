@@ -250,7 +250,7 @@ public class xlink_server
         while (!is_exiting)
         {
             udp_sender();
-            Thread.Sleep(500);
+            Thread.Sleep(300);
         }
 
     }

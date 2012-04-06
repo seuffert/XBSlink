@@ -233,43 +233,50 @@ namespace XBSlink
 
         public bool LeaveCloud()
         {
-            string result = null;
-            List<String> get_params = new List<String>();
-            get_params.Add(xbs_cloudlist_getparameters.CMD + "=" + xbs_cloudlist_command.CMD_LEAVE);
-            get_params.Add(xbs_cloudlist_getparameters.CLOUDNAME + "=" + HttpUtility.UrlEncode(current_cloudname));
-            get_params.Add(xbs_cloudlist_getparameters.UUID + "=" + HttpUtility.UrlEncode(uuid));
-            String url = cloudlist_url + "?" + String.Join("&", get_params.ToArray());
-            WebClient client = new WebClient();
-            client.Proxy = null;
-            try
+
+            if (cloudlist_url != null)
             {
-                result = client.DownloadString(url);
+
+                string result = null;
+                List<String> get_params = new List<String>();
+                get_params.Add(xbs_cloudlist_getparameters.CMD + "=" + xbs_cloudlist_command.CMD_LEAVE);
+                get_params.Add(xbs_cloudlist_getparameters.CLOUDNAME + "=" + HttpUtility.UrlEncode(current_cloudname));
+                get_params.Add(xbs_cloudlist_getparameters.UUID + "=" + HttpUtility.UrlEncode(uuid));
+                String url = cloudlist_url + "?" + String.Join("&", get_params.ToArray());
+                WebClient client = new WebClient();
+                client.Proxy = null;
+                try
+                {
+                    result = client.DownloadString(url);
+                }
+                catch (WebException wex)
+                {
+                    // handle error
+                    MessageBox.Show(wex.Message);
+                    return false;
+                }
+                if (result.StartsWith(xbs_cloudlist_returncode.RETURN_CODE_ERROR))
+                {
+                    MessageBox.Show(result);
+                    return false;
+                }
+                xbs_messages.addInfoMessage(" x left cloud " + current_cloudname, xbs_message_sender.CLOUDLIST);
+                part_of_cloud = false;
+                uuid = null;
+                current_cloudname = null;
+                if (update_thread != null)
+                    if (update_thread.ThreadState != ThreadState.Stopped)
+                        update_thread.Join();
+                update_thread = null;
+                if (xbs_node_list.getInstance() != null)
+                {
+                    xbs_node_list.getInstance().sendLogOff();
+                    xbs_node_list.getInstance().clear_nodes();
+                }
+                cloudlist_url = null;
             }
-            catch (WebException wex)
-            {
-                // handle error
-                MessageBox.Show(wex.Message);
-                return false;
-            }
-            if (result.StartsWith(xbs_cloudlist_returncode.RETURN_CODE_ERROR))
-            {
-                MessageBox.Show(result);
-                return false;
-            }
-            xbs_messages.addInfoMessage(" x left cloud " + current_cloudname, xbs_message_sender.CLOUDLIST);
-            part_of_cloud = false;
-            uuid = null;
-            current_cloudname = null;
-            if (update_thread!=null)
-                if (update_thread.ThreadState != ThreadState.Stopped )
-                    update_thread.Join();
-            update_thread = null;
-            if (xbs_node_list.getInstance() != null)
-            {
-                xbs_node_list.getInstance().sendLogOff();
-                xbs_node_list.getInstance().clear_nodes();
-            }
-            cloudlist_url = null;
+
+          
             return true;
         }
 
