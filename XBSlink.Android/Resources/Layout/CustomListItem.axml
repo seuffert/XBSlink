@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/CloudViewContainer"
+    android:layout_width="fill_parent"
+    android:layout_height="80px"
+    android:background="#FFFFFF">
+    <ImageView
+        android:id="@+id/CloudViewImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical" />
+    <LinearLayout
+        android:id="@+id/CloudViewLinearText"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:orientation="vertical"
+        android:layout_marginLeft="5px"
+        android:layout_marginTop="5px">
+        <TextView
+            android:id="@+id/CloudViewCloudName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#000000"
+            android:text="TextView" />
+        <TextView
+            android:id="@+id/CloudViewCloudDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#0066CC"
+            android:text="TextView" />
+    </LinearLayout>
+</LinearLayout>

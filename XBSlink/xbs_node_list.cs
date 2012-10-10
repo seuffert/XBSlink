@@ -160,6 +160,37 @@ namespace XBSlink
             return node;
         }
 
+        /// <summary>
+        /// TODO: CHAT NEW METHOD
+        /// </summary>
+        /// <param name="NickName"></param>
+        /// <returns></returns>
+        public xbs_node findNode(string NickName)
+        {
+
+            try
+            {
+                xbs_node[] nodel;
+                lock (node_list)
+                {
+                    nodel = new xbs_node[node_list.Count];
+                    node_list.CopyTo(nodel, node_list.Count);
+                }
+
+                foreach (xbs_node n in nodel)
+                {
+                    if (n.nickname == NickName)
+                        return n;
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+            return null;
+        }
+
+
         public xbs_node findNode(IPAddress ip, int port)
         {
             lock (this)

@@ -57,7 +57,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;WINDOWS</DefineConstants>
     <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
   </PropertyGroup>
@@ -96,6 +96,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandLine.cs" />
+    <Compile Include="controls\ChatPrivateWindow.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="controls\ChatPrivateWindow.designer.cs">
+      <DependentUpon>ChatPrivateWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="controls\TabPageChat.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="ExceptionMessage.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -103,6 +112,19 @@
       <DependentUpon>ExceptionMessage.cs</DependentUpon>
     </Compile>
     <Compile Include="Options.cs" />
+    <Compile Include="xbs_cloud.cs" />
+    <Compile Include="xlink\msg\xlink_client_send_chat_message.cs" />
+    <Compile Include="xlink\msg\xlink_create_cloud_create_join_message.cs" />
+    <Compile Include="xlink\msg\xlink_get_clouds_message.cs" />
+    <Compile Include="xlink\msg\xlink_server_create_cloud_message.cs" />
+    <Compile Include="xlink\msg\xlink_server_info_message.cs" />
+    <Compile Include="xlink\msg\xlink_server_my_chat_message.cs" />
+    <Compile Include="xlink\msg\xlink_server_my_pm_message.cs" />
+    <Compile Include="xlink\msg\xlink_server_user_chat_message.cs" />
+    <Compile Include="xlink\msg\xlink_server_user_offline_message.cs" />
+    <Compile Include="xlink\msg\xlink_server_user_online_message.cs" />
+    <Compile Include="xlink\msg\xlink_server_user_pm_message.cs" />
+    <Compile Include="xlink\xlink_delegates.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="xbs_cloudlist.cs" />
     <Compile Include="xbs_chat.cs" />
@@ -130,6 +152,13 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="xlink\xlink_client_messages_helper.cs" />
+    <Compile Include="xlink\msg\xlink_msg.cs" />
+    <Compile Include="xlink\xlink_server.cs" />
+    <Compile Include="xlink\xlink_server_console_process.cs" />
+    <EmbeddedResource Include="controls\ChatPrivateWindow.resx">
+      <DependentUpon>ChatPrivateWindow.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="DebugWindow.resx">
       <DependentUpon>DebugWindow.cs</DependentUpon>
     </EmbeddedResource>
@@ -217,6 +246,7 @@
     <None Include="SharpPcap.dll.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Content Include="sounds\pm_msg.wav" />
     <Content Include="warning_16.png" />
     <Content Include="XBSlink.ico" />
   </ItemGroup>
