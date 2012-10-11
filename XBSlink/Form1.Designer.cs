@@ -443,7 +443,7 @@ namespace XBSlink
             this.tabPage_newsFeed.Controls.Add(this.richTextBox_newsFeed);
             this.tabPage_newsFeed.Location = new System.Drawing.Point(4, 22);
             this.tabPage_newsFeed.Name = "tabPage_newsFeed";
-            this.tabPage_newsFeed.Size = new System.Drawing.Size(629, 493);
+            this.tabPage_newsFeed.Size = new System.Drawing.Size(628, 493);
             this.tabPage_newsFeed.TabIndex = 7;
             this.tabPage_newsFeed.Text = "News";
             this.tabPage_newsFeed.UseVisualStyleBackColor = true;
@@ -471,7 +471,7 @@ namespace XBSlink
             this.tabPage_info.Location = new System.Drawing.Point(4, 22);
             this.tabPage_info.Name = "tabPage_info";
             this.tabPage_info.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage_info.Size = new System.Drawing.Size(629, 493);
+            this.tabPage_info.Size = new System.Drawing.Size(628, 493);
             this.tabPage_info.TabIndex = 0;
             this.tabPage_info.Text = "Info";
             // 
@@ -614,7 +614,7 @@ namespace XBSlink
             this.tabPage_clouds.Location = new System.Drawing.Point(4, 22);
             this.tabPage_clouds.Margin = new System.Windows.Forms.Padding(1);
             this.tabPage_clouds.Name = "tabPage_clouds";
-            this.tabPage_clouds.Size = new System.Drawing.Size(629, 493);
+            this.tabPage_clouds.Size = new System.Drawing.Size(628, 493);
             this.tabPage_clouds.TabIndex = 5;
             this.tabPage_clouds.Text = "Clouds";
             // 
@@ -776,7 +776,7 @@ namespace XBSlink
             this.tabPage_chat.Controls.Add(this.textBox_chatEntry);
             this.tabPage_chat.Location = new System.Drawing.Point(4, 22);
             this.tabPage_chat.Name = "tabPage_chat";
-            this.tabPage_chat.Size = new System.Drawing.Size(629, 493);
+            this.tabPage_chat.Size = new System.Drawing.Size(628, 493);
             this.tabPage_chat.TabIndex = 4;
             this.tabPage_chat.Text = "Chat";
             // 
@@ -906,7 +906,7 @@ namespace XBSlink
             this.tabPage_messages.Controls.Add(this.button_clearMessages);
             this.tabPage_messages.Location = new System.Drawing.Point(4, 22);
             this.tabPage_messages.Name = "tabPage_messages";
-            this.tabPage_messages.Size = new System.Drawing.Size(629, 493);
+            this.tabPage_messages.Size = new System.Drawing.Size(628, 493);
             this.tabPage_messages.TabIndex = 2;
             this.tabPage_messages.Text = "Messages";
             // 
@@ -1465,7 +1465,7 @@ namespace XBSlink
             this.tabPage_nat.Controls.Add(this.label17);
             this.tabPage_nat.Location = new System.Drawing.Point(4, 22);
             this.tabPage_nat.Name = "tabPage_nat";
-            this.tabPage_nat.Size = new System.Drawing.Size(629, 493);
+            this.tabPage_nat.Size = new System.Drawing.Size(628, 493);
             this.tabPage_nat.TabIndex = 6;
             this.tabPage_nat.Text = "NAT";
             // 
@@ -1755,7 +1755,7 @@ namespace XBSlink
             this.MaximizeBox = false;
             this.MinimumSize = new System.Drawing.Size(390, 220);
             this.Name = "FormMain";
-            this.Text = "XBSlink";
+            this.Text = "XBSlink Hub";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.SizeChanged += new System.EventHandler(this.Form1_SizeChanged);

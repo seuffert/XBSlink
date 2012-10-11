@@ -55,6 +55,10 @@ namespace XBSlink
 
         private Random my_random = new Random();
 
+        public delegate void DeleteNodeHandler(string nickname);
+        public event DeleteNodeHandler DeleteNode;
+
+
         public xbs_node_list()
         {
             last_change_time = DateTime.Now;
@@ -129,6 +133,10 @@ namespace XBSlink
                         xbs_messages.addInfoMessage(" + removed node " + n, xbs_message_sender.NODELIST);
                         deleted_node = n;
                         node_list.Remove(n);
+
+                        if (DeleteNode != null)
+                            DeleteNode(n.nickname);
+
                         if (notify_on_new_node)
                         {
                             System.Media.SoundPlayer sound_player = new System.Media.SoundPlayer();
@@ -170,22 +178,17 @@ namespace XBSlink
 
             try
             {
-                xbs_node[] nodel;
                 lock (node_list)
                 {
-                    nodel = new xbs_node[node_list.Count];
-                    node_list.CopyTo(nodel, node_list.Count);
-                }
-
-                foreach (xbs_node n in nodel)
-                {
-                    if (n.nickname == NickName)
-                        return n;
+                    foreach (var item in node_list)
+                    {
+                        if (item.nickname == NickName)
+                            return item;
+                    }
                 }
             }
             catch (Exception)
             {
-
             }
             return null;
         }
@@ -364,10 +367,15 @@ namespace XBSlink
                 lock (node_list)
                 {
                     foreach (xbs_node node in node_list)
+                    {
                         if (node.get_xbox_count() > 0)
                             foreach (xbs_xbox xbox in node.getXboxArray())
                                 xbs_nat.getInstance().informOfRemovedDevice(xbox.mac);
-                    node_list.Clear();
+
+                        if (DeleteNode != null)
+                            DeleteNode(node.nickname);
+
+                    } node_list.Clear();
                 }
             }
             listHasJustChanged();

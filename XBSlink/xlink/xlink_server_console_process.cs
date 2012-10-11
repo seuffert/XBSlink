@@ -23,8 +23,9 @@ namespace XBSlink.XlinkKai
         public void ProcessReceivedMessage(xlink_msg udp_msg)
         {
             //Añadimos al listado de consolas MODIFICAR PARA QUE SOLO AÑADA CUANDO LOGUEE
-            if (udp_msg.IsKayPacket())
-                _parent.AddConsole(udp_msg);
+            _parent.last_logged_console = udp_msg;
+
+            xbs_messages.addInfoMessage(String.Format("({1}:{2}) R > {0}",udp_msg.data_msg,udp_msg.src_ip.ToString(),udp_msg.src_port.ToString()), xbs_message_sender.X360);
 
             //=============================   PRIMER PAQUETE DISCOVER  =====================================
             if (udp_msg.msg_type == xlink_msg.xbs_xlink_message_type.KAI_CLIENT_DISCOVER)
@@ -60,12 +61,9 @@ namespace XBSlink.XlinkKai
                        xlink_client_messages_helper.KAI_CLIENT_ADD_CONTACT("seuffert"),
                        xlink_client_messages_helper.KAI_CLIENT_ADD_CONTACT("magurin"),
                        xlink_client_messages_helper.KAI_CLIENT_ADD_CONTACT("tuxuser")
-
                   });
 
                 KaySendMessageActualConsole(udp_msg, String.Format("KAI_CLIENT_LOCAL_DEVICE;{0};", _parent.KAI_CLIENT_LOCAL_DEVICE));
-                //KaySendMessageActualConsole(udp_msg, xlink_client_messages_helper.KAI_CLIENT_ATTACH());
-                Console.Write( String.Format("[XBOX] LOGIN KAI_CLIENT_GETSTATE  ({0})", udp_msg.src_ip), xbs_message_sender.X360);
                 _parent.ProcessLogin(udp_msg);
 
             }
@@ -73,10 +71,8 @@ namespace XBSlink.XlinkKai
             {
                 KaySendMessageActualConsole(udp_msg, xlink_client_messages_helper.KAI_CLIENT_DETACH(_parent.KAI_CLIENT_LOCAL_DEVICE));
                 //=============================   LOGOUT =====================================
-
                 _parent.ProcessLogout(udp_msg);
 
-                Console.Write(String.Format(" * XBOX -> CLOSSING APLICACION! -> DETECTED KAI_CLIENT_LOGOUT  {0}!", udp_msg.src_ip), xbs_message_sender.X360);
             }
             else if (udp_msg.msg_type == xlink_msg.xbs_xlink_message_type.KAI_CLIENT_CHATMODE)
             {
@@ -84,11 +80,7 @@ namespace XBSlink.XlinkKai
                 string[] parameters = udp_msg.GetParameters();
                 if (parameters.Length > 1)
                 {
-                    //NOT USED 
                 }
-
-                //ENTERING CHAT MODE
-                Console.Write(String.Format(" * XBOX -> CHAT MODE -> DETECTED KAI_CLIENT_CHATMODE  {0}!", udp_msg.src_ip), xbs_message_sender.X360);
             }
             //================================= JOIN A CHANNEL ==========================
             else if (udp_msg.msg_type == xlink_msg.xbs_xlink_message_type.KAI_CLIENT_VECTOR)
@@ -110,7 +102,7 @@ namespace XBSlink.XlinkKai
                 if (parameters.Length > 1)
                 {
                 }
-                 Console.Write(String.Format(" * XBOX -> CHAT MODE -> DETECTED KAI_CLIENT_CHATMODE  {0}!", udp_msg.src_ip), xbs_message_sender.X360);
+                 //Console.Write(String.Format(" * XBOX -> CHAT MODE -> DETECTED KAI_CLIENT_CHATMODE  {0}!", udp_msg.src_ip), xbs_message_sender.X360);
             }
             else if (udp_msg.msg_type == xlink_msg.xbs_xlink_message_type.KAI_CLIENT_CHAT)
             {
@@ -119,9 +111,7 @@ namespace XBSlink.XlinkKai
                 {
                     var command = parameters[0].Trim();
                     if (command != "")
-                    {
                         _parent.ConsoleProcessChat(udp_msg,command);
-                    }
 
                 }
 
@@ -132,14 +122,7 @@ namespace XBSlink.XlinkKai
                 var CommandMsg = oDecoding.GetString(udp_msg.Data);
                 string[] parameters = udp_msg.GetParameters();
                 if (parameters.Length > 1)
-                {
-                    var command = parameters[0].Trim();
-                    if (command != "")
-                    {
-                        _parent.ConsoleProcessPM(udp_msg,parameters[1], parameters[2]);
-                    }
-                }
-
+                    _parent.ConsoleProcessPM(udp_msg,parameters[0], parameters[1]);
             }
 
         }
@@ -156,7 +139,8 @@ namespace XBSlink.XlinkKai
 
         public void KaySendMessageActualConsole(xlink_msg udp_msg, string message)
         {
-            _parent.SendMessageToQueue(udp_msg, message, xlink_server.TypeSendQueueTo.SendToAllConsoles,false );
+           
+            _parent.SendMessageToQueue(udp_msg, message );
             _parent.ConsoleProcessSendMessage(udp_msg,message);
         }
 

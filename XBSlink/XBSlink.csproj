@@ -113,17 +113,6 @@
     </Compile>
     <Compile Include="Options.cs" />
     <Compile Include="xbs_cloud.cs" />
-    <Compile Include="xlink\msg\xlink_client_send_chat_message.cs" />
-    <Compile Include="xlink\msg\xlink_create_cloud_create_join_message.cs" />
-    <Compile Include="xlink\msg\xlink_get_clouds_message.cs" />
-    <Compile Include="xlink\msg\xlink_server_create_cloud_message.cs" />
-    <Compile Include="xlink\msg\xlink_server_info_message.cs" />
-    <Compile Include="xlink\msg\xlink_server_my_chat_message.cs" />
-    <Compile Include="xlink\msg\xlink_server_my_pm_message.cs" />
-    <Compile Include="xlink\msg\xlink_server_user_chat_message.cs" />
-    <Compile Include="xlink\msg\xlink_server_user_offline_message.cs" />
-    <Compile Include="xlink\msg\xlink_server_user_online_message.cs" />
-    <Compile Include="xlink\msg\xlink_server_user_pm_message.cs" />
     <Compile Include="xlink\xlink_delegates.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="xbs_cloudlist.cs" />
@@ -153,7 +142,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="xlink\xlink_client_messages_helper.cs" />
-    <Compile Include="xlink\msg\xlink_msg.cs" />
+    <Compile Include="xlink\xlink_msg.cs" />
     <Compile Include="xlink\xlink_server.cs" />
     <Compile Include="xlink\xlink_server_console_process.cs" />
     <EmbeddedResource Include="controls\ChatPrivateWindow.resx">

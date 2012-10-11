@@ -1,2 +1,7 @@
 /XBSlink.suo
 /XBSlink.userprefs
+XBSlink/obj
+XBSlink.Android/
+XBSlink/bin
+/*.suo
+/*.userprefs

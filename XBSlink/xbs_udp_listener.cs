@@ -87,14 +87,17 @@ namespace XBSlink
     {
 
 
-        public delegate void AddNodeHandler(xbs_udp_message udp_msg, string nickName, string client_version, string last_ping_delay_ms);
+        public delegate void AddNodeHandler(string nickName, string client_version, string last_ping_delay_ms);
         public event AddNodeHandler AddNode;
 
-        public delegate void DeleteNodeHandler(xbs_udp_message udp_msg, string nickname);
+        public delegate void DeleteNodeHandler(string nickname);
         public event DeleteNodeHandler DeleteNode;
 
-        public delegate void ChatMessageHandler(xbs_udp_message udp_msg, string nickname, string msg);
+        public delegate void ChatMessageHandler(string nickname, string msg);
         public event ChatMessageHandler ChatMessage;
+
+        public delegate void PmMessageHandler(xbs_node_message_msgpm udp_msg);
+        public event PmMessageHandler PmMessage;
 
         public const int standard_port = 31415;
         public int udp_socket_port;
@@ -446,7 +449,7 @@ namespace XBSlink
                     {
 
                         if (DeleteNode != null)
-                            DeleteNode(udp_msg, tmp_node.nickname);
+                            DeleteNode(tmp_node.nickname);
 
                         if (tmp_node != null && xbs_chat.message_when_nodes_join_or_leave)
                             xbs_chat.addSystemMessage(tmp_node.nickname + " left.");
@@ -494,10 +497,23 @@ namespace XBSlink
                         xbs_node_message_chatmsg msg_chat = new xbs_node_message_chatmsg(udp_msg.data);
 
                         if (ChatMessage != null)
-                            ChatMessage(udp_msg, sending_node.nickname, msg_chat.getChatMessage());
+                            ChatMessage(sending_node.nickname, msg_chat.getChatMessage());
 
                         xbs_chat.addChatMessage(sending_node.nickname, msg_chat.getChatMessage());
 
+                    }
+                    break;
+
+                case xbs_node_message_type.MSG_PM:
+                    if (sending_node != null)
+                    {
+                        if (PmMessage != null)
+                        {
+                            xbs_node_message_msgpm msg_chat = new xbs_node_message_msgpm(udp_msg.data);
+                            msg_chat.sender = sending_node;
+                            PmMessage(msg_chat);
+                            //xbs_chat.addChatMessage(sending_node.nickname, msg_chat.getChatMessage());
+                        }
                     }
                     break;
                 case xbs_node_message_type.NICKNAME:
@@ -508,7 +524,7 @@ namespace XBSlink
                         sending_node.nickname_received = true;
                         node_list.listHasJustChanged();
 
-                        AddNode(udp_msg, sending_node.nickname, sending_node.client_version, sending_node.last_ping_delay_ms.ToString());
+                        AddNode(sending_node.nickname, sending_node.client_version, sending_node.last_ping_delay_ms.ToString());
 
                         if ( xbs_chat.message_when_nodes_join_or_leave )
                             xbs_chat.addSystemMessage(sending_node.nickname + " joined.");

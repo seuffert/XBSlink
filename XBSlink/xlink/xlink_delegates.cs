@@ -13,7 +13,7 @@ namespace XBSlink.XlinkKai.Delegates.Consoles
     public delegate void XlinkConsoleLogoutHandler(xlink_msg udp_msg);
     public delegate void XlinkConsoleLoginHandler(xlink_msg udp_msg);
     public delegate void XlinkChatHandler(xlink_msg udp_msg,string message);
-    public delegate void XlinkConsolePMHandler(xlink_msg udp_msg,string UserName, string Message, bool IsReceived);
+    public delegate void XlinkConsolePMHandler(string UserName, string Message, bool IsReceived);
    
 }
 

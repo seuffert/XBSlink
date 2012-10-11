@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C# Express 2010
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XBSlink", "XBSlink\XBSlink.csproj", "{60AED2EE-9511-4FC0-BE50-DC440E4EF254}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpPcap", "SharpPcap\SharpPcap.csproj", "{24262E52-1304-4A25-8F73-A3B06E40592E}"
@@ -8,6 +8,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PacketDotNet", "PacketDotNet\PacketDotNet.csproj", "{55ABBA4C-AAF9-4726-A592-0C92436CEC92}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Nat", "Mono.Nat\Mono.Nat.csproj", "{F5D74163-145F-47BF-83DC-D0E07249C6CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XBSlink.Android", "XBSlink.Android\XBSlink.Android.csproj", "{F10FF62B-280C-4202-AD28-B874BFA35AB7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,6 +45,14 @@ Global
 		{F5D74163-145F-47BF-83DC-D0E07249C6CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F5D74163-145F-47BF-83DC-D0E07249C6CA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F5D74163-145F-47BF-83DC-D0E07249C6CA}.Release|x86.ActiveCfg = Release|Any CPU
+		{F10FF62B-280C-4202-AD28-B874BFA35AB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F10FF62B-280C-4202-AD28-B874BFA35AB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F10FF62B-280C-4202-AD28-B874BFA35AB7}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{F10FF62B-280C-4202-AD28-B874BFA35AB7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F10FF62B-280C-4202-AD28-B874BFA35AB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F10FF62B-280C-4202-AD28-B874BFA35AB7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F10FF62B-280C-4202-AD28-B874BFA35AB7}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{F10FF62B-280C-4202-AD28-B874BFA35AB7}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

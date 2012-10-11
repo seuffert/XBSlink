@@ -17,8 +17,6 @@ namespace XBSlink.XlinkKai
 public class xlink_server //:IServer
 {
 
-   
-
     #region Xlink Events
     
     public event XlinkDebugMessageHandler XlinkDebugMessage;
@@ -31,7 +29,21 @@ public class xlink_server //:IServer
 
     #endregion
 
-    public string KAI_CLIENT_LOCAL_DEVICE = "00242BECE7A0";
+
+    public string _KAI_CLIENT_LOCAL_DEVICE = "00242BECE7A0";
+
+
+    public string KAI_CLIENT_LOCAL_DEVICE { get {
+
+        if (last_logged_console != null)
+            return last_logged_console.src_ip.ToString();
+        else
+            return "00242BECE7A0";
+
+    }
+        set { _KAI_CLIENT_LOCAL_DEVICE = value; }
+    }
+
     public string KAI_CLIENT_LOCAL_NAME = "magurin";
 
 
@@ -47,8 +59,10 @@ public class xlink_server //:IServer
     public int udp_kay_socket_port;
     public EndPoint _local_endpoint;
 
-    List<xlink_msg> xClients;
-    List<xlink_msg> xConsoles;
+    //List<xlink_msg> xClients;
+    //List<xlink_msg> xConsoles;
+
+    public xlink_msg last_logged_console;
 
     List<xlink_msg> sender_msg = new List<xlink_msg>();
 
@@ -66,9 +80,6 @@ public class xlink_server //:IServer
 
     public xlink_server()
     {
-        xClients = new List<xlink_msg>();
-        xConsoles = new List<xlink_msg>();
-
         xlink_process = new xlink_server_console_process(this);
     }
 
@@ -82,46 +93,7 @@ public class xlink_server //:IServer
         return false;
     }
 
-    public void AddClient(xlink_msg client)
-    {
-
-        client.src_port =standard_kay_client_port;
-        if (!IsInArray(client,xClients))
-        {
-            xClients.Add(client);
-            Console.WriteLine("[ENGINE] ADD CLIENT : " + xClients.Count);
-        }
-
-    }
-
-    public void AddConsole(xlink_msg console)
-    {
-        if (!IsInArray(console, xConsoles))
-        {
-            xConsoles.Add(console);
-            Console.WriteLine("[ENGINE] ADD CONSOLE : " + xConsoles.Count);
-        }
-        
-    }
-
-    public void DeleteConsole(xlink_msg client)
-    {
-        foreach (var item in xClients)
-        {
-            if (client.src_ip == item.src_ip)
-                xConsoles.Remove(item);
-        }
-    }
-
-    public void DeleteClient(xlink_msg client)
-    {
-        foreach (var item in xClients)
-        {
-            if (client.src_ip == item.src_ip)
-                xClients.Remove(item);
-        }
-    }
-
+ 
     public void Configure(string local_ip_address)
     {
         ChangeIPAddresPort(local_ip_address, standard_kay_port);
@@ -248,9 +220,6 @@ public class xlink_server //:IServer
 
     public void ConsoleProcessChat(xlink_msg udp_msg,string Message)
     {
-
-        XBS_SendMyChat(udp_msg, Message);
-
         if (XlinkConsoleChat != null)
             XlinkConsoleChat(udp_msg,Message);
     }
@@ -259,7 +228,7 @@ public class xlink_server //:IServer
     {
         //Always send
         if (XlinkConsolePM != null)
-            XlinkConsolePM(udp_msg,Username, Message, true);
+            XlinkConsolePM(Username, Message, true);
     }
 
      public void ProcessLogout(xlink_msg udp_msg)
@@ -335,31 +304,22 @@ public class xlink_server //:IServer
         }
     }
 
-    public enum TypeSendQueueTo
-    {
-        SendToAllConsoles = 2, SendToAllClients = 1, SendToOnlyClient = 0
-    }
-
-    public void SendMessageToQueue(xlink_msg udp_msg, string[] msg, TypeSendQueueTo SendToAll, bool ExceptSendUser)
+    public void SendMessageToQueue(xlink_msg udp_msg, string[] msg)
     {
         foreach (var item in msg)
-            SendMessageToQueue(udp_msg, item, SendToAll, ExceptSendUser);
+            SendMessageToQueue(udp_msg, item);
     }
- 
-    /// <summary>
-    /// If udp_msg is null there are a system msg
-    /// </summary>
-    /// <param name="udp_msg"></param>
-    /// <param name="msg"></param>
-    /// <param name="SendToAll"></param>
-    public void SendMessageToQueue(xlink_msg udp_msg, string msg, TypeSendQueueTo SendToAll, bool ExceptSendUser)
+
+    public void SendMessageToQueue(string[] msg)
     {
-            if (SendToAll == TypeSendQueueTo.SendToAllClients)
-                SendMessageToQueueClientsConnected( (ExceptSendUser) ? udp_msg : null , msg);
-            else if (SendToAll == TypeSendQueueTo.SendToAllConsoles)
-                SendMessageToQueueConsoles((ExceptSendUser) ? udp_msg : null, msg);
-            else
-                SendMessageToQueue(udp_msg, msg);
+        foreach (var item in msg)
+            SendMessageToQueue(null, item);
+    }
+
+
+    public void SendMessageToQueue( string msg)
+    {
+        SendMessageToQueue(null, msg);
     }
     
     /// <summary>
@@ -370,54 +330,22 @@ public class xlink_server //:IServer
     /// <param name="SendToAll"></param>
     public void SendMessageToQueue(xlink_msg udp_msg, string msg)
     {
+    
+        if (udp_msg == null)
+            udp_msg = last_logged_console;
+
         if (udp_msg != null)
         {
+            xbs_messages.addInfoMessage(String.Format("({1}:{2}) S > {0}", msg, udp_msg.src_ip.ToString(), udp_msg.src_port.ToString()), xbs_message_sender.X360);
             xlink_msg temp_msg = new xlink_msg(udp_msg, msg);
             lock (sender_msg)
                 sender_msg.Add(temp_msg);
         }
         else
-            Console.WriteLine("ERROR udp_msg = null >> " + msg);
+            xbs_messages.addInfoMessage(String.Format("NOT CONSOLE LOGGED. IGNORED: {0}",msg), xbs_message_sender.X360);
     }
 
-    private void SendMessageToQueueClientsConnected(xlink_msg except_user, string msg)
-    {
-        if (except_user != null)
-        {
-            foreach (var item in xClients)
-            {
-                if (except_user.src_ip.ToString() != item.src_ip.ToString())
-                    SendMessageToQueue(item, msg);
-            }
-        }
-        else
-        {
-            foreach (var item in xClients)
-            {
-                SendMessageToQueue(item, msg);
-            }
-        }
-      
-    }
-
-    private void SendMessageToQueueConsoles(xlink_msg except_user, string msg)
-    {
-        if (except_user != null)
-        {
-            foreach (var item in xConsoles)
-            {
-                if (except_user.src_ip.ToString() != item.src_ip.ToString())
-                    SendMessageToQueue(item, msg);
-            }
-        }
-        else
-        {
-            foreach (var item in xConsoles)
-                    SendMessageToQueue(item, msg);
-        }
-      
-    }
-
+ 
     void while_sender()
     {
         while (!is_exiting)
@@ -438,7 +366,7 @@ public class xlink_server //:IServer
 
     public void XBS_SendMyChat(xlink_msg udp_msg, string message)
     {
-        SendMessageToQueue(udp_msg, xlink_client_messages_helper.KAI_CLIENT_CHAT("", message), TypeSendQueueTo.SendToAllConsoles, true); //NO ESTÁ CLARO
+        SendMessageToQueue(udp_msg, xlink_client_messages_helper.KAI_CLIENT_CHAT(KAI_CLIENT_LOCAL_NAME , message)); //NO ESTÁ CLARO
     }
 
     /// <summary>
@@ -447,34 +375,34 @@ public class xlink_server //:IServer
     /// <param name="udp_msg"></param>
     /// <param name="user_name"></param>
     /// <param name="Text"></param>
-    public void XBS_SendUserChat(xlink_msg udp_msg, string user_name, string Text)
+    public void XBS_SendUserChat(string user_name, string Text)
     {
-        SendMessageToQueue(udp_msg, xlink_client_messages_helper.KAI_CLIENT_CHAT(user_name, Text), TypeSendQueueTo.SendToAllConsoles, true);
+        SendMessageToQueue(xlink_client_messages_helper.KAI_CLIENT_CHAT(user_name, Text));
     }
 
     public void XBS_SendPM(xlink_msg udp_msg, string user_name, string Text)
     {
-        SendMessageToQueue(udp_msg, xlink_client_messages_helper.KAI_CLIENT_PM(user_name, Text), TypeSendQueueTo.SendToAllConsoles, true);
+        SendMessageToQueue(udp_msg, xlink_client_messages_helper.KAI_CLIENT_PM(user_name, Text));
     }
 
     public void XBS_ChannelCreate(xlink_msg udp_msg, string CloudName, int Players, bool isPrivate, int MaxPlayers)
     {
-        SendMessageToQueue(udp_msg, xlink_client_messages_helper.KAI_CLIENT_USER_SUB_VECTOR(CloudName, Players, isPrivate, MaxPlayers), TypeSendQueueTo.SendToAllConsoles, true);
+        SendMessageToQueue(udp_msg, xlink_client_messages_helper.KAI_CLIENT_USER_SUB_VECTOR(CloudName, Players, isPrivate, MaxPlayers));
     }
 
     public void XBS_Detach(xlink_msg udp_msg)
     {
-        SendMessageToQueue(udp_msg, xlink_client_messages_helper.KAY_GET_DETACH(KAI_CLIENT_LOCAL_DEVICE), TypeSendQueueTo.SendToAllConsoles, true);
+        SendMessageToQueue(udp_msg, xlink_client_messages_helper.KAY_GET_DETACH(KAI_CLIENT_LOCAL_DEVICE));
     }
 
         public void XBS_LeaveUser(xlink_msg udp_msg,string username)
      {
-         SendMessageToQueue(udp_msg, xlink_client_messages_helper.KAY_GET_LEAVE_USER_FROM_VECTOR(username), TypeSendQueueTo.SendToAllConsoles, true);
+         SendMessageToQueue(udp_msg, xlink_client_messages_helper.KAY_GET_LEAVE_USER_FROM_VECTOR(username));
      }
 
         public void XBS_JoinUser(xlink_msg udp_msg,string username, string client_version, string last_ping_delay_ms)
         {
-            SendMessageToQueue(udp_msg, xlink_client_messages_helper.KAY_GET_USER_JOIN_TO_VECTOR(username), TypeSendQueueTo.SendToAllConsoles, true);
+            SendMessageToQueue(udp_msg, xlink_client_messages_helper.KAY_GET_USER_JOIN_TO_VECTOR(username));
         }
 
     #endregion
