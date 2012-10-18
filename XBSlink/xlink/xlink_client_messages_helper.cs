@@ -88,6 +88,11 @@ namespace XBSlink.XlinkKai
             return xlink_msg.getHeaderMessageFromType(xlink_msg.xbs_xlink_message_type.KAI_CLIENT_USER_SUB_VECTOR) + String.Format("{0};{1};XBSLINK;{2};{3};{4};", CloudName, Players, ((isPrivate) ? "1" : "-1"), MaxPlayers, ((isPrivate) ? "PASSWORD PROTECTED" : "Public Arena"));
         }
 
+        public static string KAI_CLIENT_DETACH()
+        {
+            return xlink_msg.getHeaderMessageFromType(xlink_msg.xbs_xlink_message_type.KAI_CLIENT_DETACH);
+        }
+
         public static string KAI_CLIENT_DETACH(string KaiClienLocalDevice)
         {
             return xlink_msg.getHeaderMessageFromType(xlink_msg.xbs_xlink_message_type.KAI_CLIENT_DETACH) + KaiClienLocalDevice + ";";
@@ -122,6 +127,66 @@ namespace XBSlink.XlinkKai
         {
            return xlink_msg.getHeaderMessageFromType(xlink_msg.xbs_xlink_message_type.KAI_CLIENT_JOINS_CHAT) + String.Format("General Chat;{0};", username);
         }
+
+        #endregion
+
+        #region KAYCLIENT
+
+
+        public static string KAI_GET_SERVER_INFO()
+        {
+            return xlink_msg.getHeaderMessageFromType(xlink_msg.xbs_xlink_message_type.KAI_GET_SERVER_INFO);
+        }
+
+        public static string KAI_SERVER_INFO(string server_name, string state, string nickname, string cloud_server_ip, string cloud_server_port, string server_version)
+        {
+            return xlink_msg.getHeaderMessageFromType(xlink_msg.xbs_xlink_message_type.KAI_SERVER_INFO) + server_name + ";" + state + ";" + nickname + ";" + cloud_server_ip + ";" + cloud_server_port + ";" + server_version + ";";
+        }
+
+        public static string KAI_CLIENT_DISCOVER()
+        {
+            return xlink_msg.getHeaderMessageFromType(xlink_msg.xbs_xlink_message_type.KAI_CLIENT_DISCOVER);
+        }
+
+        public static string KAI_CLIENT_TAKEOVER()
+        {
+            return xlink_msg.getHeaderMessageFromType(xlink_msg.xbs_xlink_message_type.KAI_CLIENT_TAKEOVER);
+        }
+
+        public static string KAI_CLIENT_GETSTATE()
+        {
+            return xlink_msg.getHeaderMessageFromType(xlink_msg.xbs_xlink_message_type.KAI_CLIENT_GETSTATE);
+        }
+
+        public static string KAI_CLIENT_LOGOUT()
+        {
+            return xlink_msg.getHeaderMessageFromType(xlink_msg.xbs_xlink_message_type.KAI_CLIENT_LOGOUT);
+        }
+
+        public static string KAI_CLIENT_VECTOR(string cloud, string password)
+        {
+            return xlink_msg.getHeaderMessageFromType(xlink_msg.xbs_xlink_message_type.KAI_CLIENT_VECTOR) + String.Format("{0};{1};", cloud, password);
+        }
+
+        public static string KAI_CLIENT_GET_VECTORS()
+        {
+            return xlink_msg.getHeaderMessageFromType(xlink_msg.xbs_xlink_message_type.KAI_CLIENT_GET_VECTORS);
+        }
+
+        public static string KAI_CLIENT_CHATMODE()
+        {
+            return xlink_msg.getHeaderMessageFromType(xlink_msg.xbs_xlink_message_type.KAI_CLIENT_CHATMODE);
+        }
+
+        public static string KAI_CLIENT_CHAT(string message)
+        {
+            return xlink_msg.getHeaderMessageFromType(xlink_msg.xbs_xlink_message_type.KAI_CLIENT_CHAT) + String.Format("{0};", message);
+        }
+
+        //public static string KAI_CLIENT_PM(string username,string message)
+        //{
+        //    return xlink_msg.getHeaderMessageFromType(xlink_msg.xbs_xlink_message_type.KAI_CLIENT_PM) +String.Format("{0};{1}", username, message);
+        //}
 
         #endregion
 

@@ -130,12 +130,13 @@ namespace XBSlink
                 foreach (xbs_node n in node_list)
                     if (n.Equals(node))
                     {
-                        xbs_messages.addInfoMessage(" + removed node " + n, xbs_message_sender.NODELIST);
-                        deleted_node = n;
-                        node_list.Remove(n);
 
                         if (DeleteNode != null)
                             DeleteNode(n.nickname);
+
+                        xbs_messages.addInfoMessage(" + removed node " + n, xbs_message_sender.NODELIST);
+                        deleted_node = n;
+                        node_list.Remove(n);
 
                         if (notify_on_new_node)
                         {

@@ -53,11 +53,21 @@ namespace XBSlink.XlinkKai
                       "KAI_CLIENT_VECTOR;XBSLINK;;",
                       "KAI_CLIENT_STATUS;XBSLink is Online..;",
                       String.Format("KAI_CLIENT_USER_DATA;{0};", _parent.KAI_CLIENT_LOCAL_NAME),
+
+                       xlink_client_messages_helper.KAI_SERVER_INFO(
+                       _parent.KAI_SERVER_NAME ,
+                       "ONLINE", 
+                       _parent.KAI_CLIENT_LOCAL_NAME,
+                       xbs_settings.settings.REG_CLOUDLIST_SERVER,
+                       _parent.udp_kay_socket_port.ToString(),
+                       _parent.KAI_SERVER_VERSION ),
+
                       "KAI_CLIENT_ARENA_STATUS;1;1;",
                       "KAI_CLIENT_CONNECTED_MESSENGER;",
                       "KAI_CLIENT_CHATMODE;;",
                       "KAI_CLIENT_ADMIN_PRIVILEGES;;",
                       "KAI_CLIENT_MODERATOR_PRIVILEGES;;;",
+
                        xlink_client_messages_helper.KAI_CLIENT_ADD_CONTACT("seuffert"),
                        xlink_client_messages_helper.KAI_CLIENT_ADD_CONTACT("magurin"),
                        xlink_client_messages_helper.KAI_CLIENT_ADD_CONTACT("tuxuser")
@@ -88,7 +98,7 @@ namespace XBSlink.XlinkKai
                 string[] parameters = udp_msg.GetParameters();
                 if (parameters.Length > 1)
                 {
-                    var command = parameters[0].Trim();
+                    var command = parameters[0];
                     if (command != "" && command != "Arena")
                     {
                         _parent.ConsoleProcessJoinCloud(udp_msg,command, parameters[1]);

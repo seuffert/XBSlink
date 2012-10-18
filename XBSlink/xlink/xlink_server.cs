@@ -32,7 +32,6 @@ public class xlink_server //:IServer
 
     public string _KAI_CLIENT_LOCAL_DEVICE = "00242BECE7A0";
 
-
     public string KAI_CLIENT_LOCAL_DEVICE { get {
 
         if (last_logged_console != null)
@@ -45,7 +44,9 @@ public class xlink_server //:IServer
     }
 
     public string KAI_CLIENT_LOCAL_NAME = "magurin";
-
+    public string KAI_SERVER_NAME = "MAGU HOME";
+    public string KAI_SERVER_VERSION = "0.1b";
+    
 
     //public IServerConsoleProcess xLinkMsgProcess { get; set; }
     public xlink_server_console_process xlink_process { get; set; }
@@ -54,8 +55,7 @@ public class xlink_server //:IServer
 
     public const int standard_port = 31415;
     public const int standard_kay_port = 34522;
-    public const int standard_kay_client_port = 34523;
-
+    
     public int udp_kay_socket_port;
     public EndPoint _local_endpoint;
 
@@ -63,6 +63,8 @@ public class xlink_server //:IServer
     //List<xlink_msg> xConsoles;
 
     public xlink_msg last_logged_console;
+
+    public bool IsConsoleLogged { get { return (last_logged_console != null); } }
 
     List<xlink_msg> sender_msg = new List<xlink_msg>();
 

@@ -17,7 +17,8 @@ namespace XBSlink
         NAT                             = 0x06,
         NODE                            = 0x07,
         NODELIST                        = 0x08,
-        X360 = 0x09
+        X360 = 0x09,
+        TRANSLATOR = 0x10
     }
 
     enum xbs_message_type : byte

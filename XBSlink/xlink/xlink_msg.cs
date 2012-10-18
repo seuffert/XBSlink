@@ -38,7 +38,16 @@ namespace XBSlink.XlinkKai
             KAI_CLIENT_ENGINE_IN_USE = 0xF5,
             KAI_CLIENT_ADD_CONTACT = 0xF6,
           
+            KAI_CLIENT_STATUS = 0x11,
+            KAI_CLIENT_SESSION_KEY = 0x12,
+            KAI_CLIENT_USER_DATA = 0x13,
+            KAI_CLIENT_ARENA_STATUS = 0x14,
+            KAI_CLIENT_CONNECTED_MESSENGER = 0x15,
+            KAI_CLIENT_ADMIN_PRIVILEGES = 0x16,
+            KAI_CLIENT_MODERATOR_PRIVILEGES = 0x17,
             
+            KAI_SERVER_INFO = 0xF9,
+            KAI_GET_SERVER_INFO = 0xF8,
             NO_KAY_MSG = 0xC1
         }
 
@@ -219,8 +228,30 @@ namespace XBSlink.XlinkKai
                  else if (elemento.StartsWith("KAI_CLIENT_ADD_CONTACT;"))
                     return xbs_xlink_message_type.KAI_CLIENT_ADD_CONTACT;
 
-             
+                  else if (elemento.StartsWith("KAI_CLIENT_STATUS;"))
+                    return xbs_xlink_message_type.KAI_CLIENT_STATUS;
+                  else if (elemento.StartsWith("KAI_CLIENT_SESSION_KEY;"))
+                    return xbs_xlink_message_type.KAI_CLIENT_SESSION_KEY;
+                  else if (elemento.StartsWith("KAI_CLIENT_USER_DATA;"))
+                    return xbs_xlink_message_type.KAI_CLIENT_USER_DATA;
+                  else if (elemento.StartsWith("KAI_CLIENT_ARENA_STATUS;"))
+                    return xbs_xlink_message_type.KAI_CLIENT_ARENA_STATUS;
+                  else if (elemento.StartsWith("KAI_CLIENT_CONNECTED_MESSENGER;"))
+                    return xbs_xlink_message_type.KAI_CLIENT_CONNECTED_MESSENGER;
+                  else if (elemento.StartsWith("KAI_CLIENT_ADMIN_PRIVILEGES;"))
+                    return xbs_xlink_message_type.KAI_CLIENT_ADMIN_PRIVILEGES;
+                  else if (elemento.StartsWith("KAI_CLIENT_MODERATOR_PRIVILEGES;"))
+                    return xbs_xlink_message_type.KAI_CLIENT_MODERATOR_PRIVILEGES;
 
+                  else if (elemento.StartsWith("KAI_SERVER_INFO;"))
+                    return xbs_xlink_message_type.KAI_SERVER_INFO;
+
+                else if (elemento.StartsWith("KAI_GET_SERVER_INFO;"))
+                    return xbs_xlink_message_type.KAI_GET_SERVER_INFO;
+
+
+                
+                
             }
             catch (Exception)
             {
@@ -235,12 +266,8 @@ namespace XBSlink.XlinkKai
         /// <returns></returns>
         public static string getHeaderMessageFromType(xbs_xlink_message_type tipo)
         {
-
             switch (tipo)
             {
-
-                    
-
                 case xbs_xlink_message_type.KAI_CLIENT_DISCOVER:
                     return "KAI_CLIENT_DISCOVER;";
                 case xbs_xlink_message_type.KAI_CLIENT_ATTACH:
@@ -291,7 +318,29 @@ namespace XBSlink.XlinkKai
                                         case xbs_xlink_message_type.KAI_CLIENT_ADD_CONTACT:
                     return "KAI_CLIENT_ADD_CONTACT;";
 
-            
+                                         case xbs_xlink_message_type.KAI_CLIENT_STATUS:
+                    return "KAI_CLIENT_STATUS;";
+                                         case xbs_xlink_message_type.KAI_CLIENT_SESSION_KEY:
+                    return "KAI_CLIENT_SESSION_KEY;";
+                                         case xbs_xlink_message_type.KAI_CLIENT_USER_DATA:
+                    return "KAI_CLIENT_USER_DATA;";
+                                         case xbs_xlink_message_type.KAI_CLIENT_ARENA_STATUS:
+                    return "KAI_CLIENT_ARENA_STATUS;";
+                                         case xbs_xlink_message_type.KAI_CLIENT_CONNECTED_MESSENGER:
+                    return "KAI_CLIENT_CONNECTED_MESSENGER;";
+                                         case xbs_xlink_message_type.KAI_CLIENT_ADMIN_PRIVILEGES:
+                    return "KAI_CLIENT_ADMIN_PRIVILEGES;";
+                             case xbs_xlink_message_type.KAI_CLIENT_MODERATOR_PRIVILEGES:
+                    return "KAI_CLIENT_MODERATOR_PRIVILEGES;";
+                             case xbs_xlink_message_type.KAI_SERVER_INFO:
+                    return "KAI_SERVER_INFO;";
+                    
+                                case xbs_xlink_message_type.KAI_GET_SERVER_INFO:
+                    return "KAI_GET_SERVER_INFO;";
+                   
+                   
+
+
             }
 
             return "NO_KAY_MSG;";
@@ -323,9 +372,16 @@ namespace XBSlink.XlinkKai
                       msg_type == xbs_xlink_message_type.KAI_CLIENT_ENGINE_HERE ||
                        msg_type == xbs_xlink_message_type.KAI_CLIENT_ENGINE_IN_USE ||
                         msg_type == xbs_xlink_message_type.KAI_CLIENT_ADD_CONTACT ||
-               msg_type == xbs_xlink_message_type.KAI_CLIENT_VECTOR);
-
-
+                        msg_type == xbs_xlink_message_type.KAI_CLIENT_STATUS ||
+                        msg_type == xbs_xlink_message_type.KAI_CLIENT_SESSION_KEY ||
+                        msg_type == xbs_xlink_message_type.KAI_CLIENT_USER_DATA ||
+                        msg_type == xbs_xlink_message_type.KAI_CLIENT_ARENA_STATUS ||
+                        msg_type == xbs_xlink_message_type.KAI_CLIENT_CONNECTED_MESSENGER ||
+                        msg_type == xbs_xlink_message_type.KAI_CLIENT_ADMIN_PRIVILEGES ||
+                        msg_type == xbs_xlink_message_type.KAI_CLIENT_MODERATOR_PRIVILEGES ||
+                        msg_type == xbs_xlink_message_type.KAI_SERVER_INFO ||
+                        msg_type == xbs_xlink_message_type.KAI_GET_SERVER_INFO ||
+                        msg_type == xbs_xlink_message_type.KAI_CLIENT_VECTOR);
         }
 
       

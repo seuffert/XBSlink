@@ -196,23 +196,18 @@ namespace XBSlink
 
         void XlinkServer_XlinkConsoleJoinCloud(xlink_msg udp_msg, string CloudName, string CloudPassword)
         {
-            //WriteHeader(udp_msg, "[XLINK/JOINCLOUD] :" + udp_msg.data_msg);
-            
-            Invoke((MethodInvoker)delegate
-            {
-                textBox_CloudName.Text = CloudName;
-                textBox_CloudPassword.Text = CloudPassword;
-                JoinChannel(CloudName, CloudPassword);
-            });
-          
+            JoinChannel(CloudName, CloudPassword);
         }
 
         void JoinChannel(string CloudName, string CloudPassword)
         {
-            LeaveChannel();
-            var encontrado = cloudlist.findCloud(CloudName);
-            if (encontrado != null)
-                join_cloud(CloudName, encontrado.max_nodes.ToString(), CloudPassword);
+            Invoke((MethodInvoker)delegate
+          {
+              LeaveChannel();
+              var encontrado = cloudlist.findCloud(CloudName);
+              if (encontrado != null)
+                  join_cloud(CloudName, encontrado.max_nodes.ToString(), CloudPassword);
+          });
         }
 
         void XlinkServer_XlinkConsoleLogin(xlink_msg udp_msg)
@@ -247,13 +242,6 @@ namespace XBSlink
         void udp_listener_PmMessage(xbs_node_message_msgpm udp_msg)
         {
             GetSendMessagePM(udp_msg.sender.nickname, udp_msg.message_string, false);
-        }
-
-
-        void udp_listener_DeleteNode(string NickName)
-        {
-            Console.WriteLine("[ENGINE/LEAVEUSER]" + NickName);
-            udp_xlink_server.XBS_LeaveUser(null, NickName);
         }
 
         void udp_listener_AddNode(string NickName, string client_version, string last_ping_delay_ms)
@@ -433,6 +421,8 @@ namespace XBSlink
                 updateNATIPPoolListView();
             }
 
+            comboBox_DefaultTranslationLang.Text = s.REG_DEFAULT_TRANSLATION_LANG;
+
             comboBox_captureDevice.Text = s.REG_CAPTURE_DEVICE_NAME;
             comboBox_localIP.Text = s.REG_LOCAL_IP;
             textBox_local_Port.Text = s.REG_LOCAL_PORT.ToString();
@@ -503,6 +493,9 @@ namespace XBSlink
             s.REG_SHOW_NEWS_FEED = checkBox_showNewsFeed.Checked;
             s.REG_NEWS_FEED_URI = textBox_newsFeedUri.Text;
             s.REG_NEWS_FEED_SWITCH_TO_TAB = checkBox_switchToNewsTab.Checked;
+            s.REG_DEFAULT_TRANSLATION_LANG = comboBox_DefaultTranslationLang.Text;
+
+
             s.Save();
         }
 
@@ -591,7 +584,6 @@ namespace XBSlink
                 if (udp_listener != null)
                 {
                     udp_listener.AddNode -= udp_listener_AddNode;
-                    udp_listener.DeleteNode -= udp_listener_DeleteNode;
                     udp_listener.ChatMessage -= udp_listener_ChatMessage;
                     udp_listener.PmMessage -= udp_listener_PmMessage;
                 }
@@ -599,9 +591,8 @@ namespace XBSlink
                 udp_listener = new xbs_udp_listener(internal_ip, UInt16.Parse(textBox_local_Port.Text), node_list);
                 
                 udp_listener.AddNode += udp_listener_AddNode;
-                udp_listener.DeleteNode += udp_listener_DeleteNode;
                 udp_listener.ChatMessage += udp_listener_ChatMessage;
-                     udp_listener.PmMessage +=udp_listener_PmMessage;
+                udp_listener.PmMessage +=udp_listener_PmMessage;
             }
             catch (Exception e)
             {
@@ -1446,9 +1437,10 @@ namespace XBSlink
                     initCloudListView();
                     foreach (xbs_cloud cloud in clouds)
                     {
-                        //Sending Clouds to consoles
-
+                        
+                        if (udp_xlink_server.IsConsoleLogged)
                         udp_xlink_server.XBS_ChannelCreate(null,cloud.name, cloud.node_count, cloud.isPrivate, cloud.max_nodes);
+                        
                         ListViewItem lv_item = new ListViewItem(cloud.name);
                         lv_item.SubItems.Add(cloud.node_count.ToString());
                         lv_item.SubItems.Add(cloud.max_nodes.ToString());
@@ -1505,18 +1497,22 @@ namespace XBSlink
 
         public bool join_cloud(string CloudList, string CloudName, string MaxNodes, string Password)
         {
-            var ret = cloudlist.JoinOrCreateCloud(CloudList, CloudName, MaxNodes, Password, node_list.local_node.ip_public, node_list.local_node.port_public, node_list.local_node.nickname, xbs_upnp.isPortReachable, xbs_settings.xbslink_version);
-            if (ret)
-            {
-                toolTip2.Show("joined " + textBox_CloudName.Text, button_CloudJoin, 0, -20, 2000);
-                button_CloudLeave.Enabled = true;
-                button_CloudJoin.Enabled = false;
-                textBox_CloudName.Enabled = false;
-                textBox_CloudMaxNodes.Enabled = false;
-                textBox_CloudPassword.Enabled = false;
-                switch_tab = tabPage_info;
-            }
-            return ret;
+           
+          
+                var ret = cloudlist.JoinOrCreateCloud(CloudList, CloudName, MaxNodes, Password, node_list.local_node.ip_public, node_list.local_node.port_public, node_list.local_node.nickname, xbs_upnp.isPortReachable, xbs_settings.xbslink_version);
+                if (ret)
+                {
+                    toolTip2.Show("joined " + textBox_CloudName.Text, button_CloudJoin, 0, -20, 2000);
+                    button_CloudLeave.Enabled = true;
+                    button_CloudJoin.Enabled = false;
+                    textBox_CloudName.Enabled = false;
+                    textBox_CloudMaxNodes.Enabled = false;
+                    textBox_CloudPassword.Enabled = false;
+                    switch_tab = tabPage_info;
+                }
+                return ret;
+        
+            
         }
 
         private bool join_cloud()
@@ -2196,6 +2192,30 @@ namespace XBSlink
             var Selected = listBox_chatUserList.SelectedItem;
             if (Selected != null)
                 AddPrivateChat(listBox_chatUserList.SelectedItem.ToString(), true);
+        }
+
+     
+
+        private void textBox_chatMessages_MouseUp(object sender, MouseEventArgs e)
+        {
+              if (e.Button == System.Windows.Forms.MouseButtons.Left)
+            {
+                if (textBox_chatMessages.SelectedText != "")
+                {
+                    toolTip1.Show(
+                        Translator.TranslatorEngine.TranslateText(textBox_chatMessages.SelectedText, comboBox_DefaultTranslationLang.Text),
+                        textBox_chatMessages);
+                }
+                
+            }
+        }
+
+        private void textBox_chatMessages_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == System.Windows.Forms.MouseButtons.Left)
+            {
+                textBox_chatMessages.SelectedText = "";
+            }
         }
 
     

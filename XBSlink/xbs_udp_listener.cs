@@ -90,8 +90,8 @@ namespace XBSlink
         public delegate void AddNodeHandler(string nickName, string client_version, string last_ping_delay_ms);
         public event AddNodeHandler AddNode;
 
-        public delegate void DeleteNodeHandler(string nickname);
-        public event DeleteNodeHandler DeleteNode;
+        //public delegate void DelNodeHandler(string nickName);
+        //public event DelNodeHandler DelNode;
 
         public delegate void ChatMessageHandler(string nickname, string msg);
         public event ChatMessageHandler ChatMessage;
@@ -448,8 +448,8 @@ namespace XBSlink
                     if (tmp_node != null)
                     {
 
-                        if (DeleteNode != null)
-                            DeleteNode(tmp_node.nickname);
+                        //if (DelNode != null)
+                        //    DelNode(tmp_node.nickname);
 
                         if (tmp_node != null && xbs_chat.message_when_nodes_join_or_leave)
                             xbs_chat.addSystemMessage(tmp_node.nickname + " left.");

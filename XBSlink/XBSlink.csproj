@@ -112,6 +112,9 @@
       <DependentUpon>ExceptionMessage.cs</DependentUpon>
     </Compile>
     <Compile Include="Options.cs" />
+    <Compile Include="translator\parsers\StringParser.cs" />
+    <Compile Include="translator\TranslatorEngine.cs" />
+    <Compile Include="translator\web\WebResourceProvider.cs" />
     <Compile Include="xbs_cloud.cs" />
     <Compile Include="xlink\xlink_delegates.cs" />
     <Compile Include="Settings.cs" />
@@ -239,6 +242,7 @@
     <Content Include="warning_16.png" />
     <Content Include="XBSlink.ico" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
