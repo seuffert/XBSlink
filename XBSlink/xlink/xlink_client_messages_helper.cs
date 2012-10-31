@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace XBSlink.XlinkKai
+namespace XBSlink.Common
 {
   public  class xlink_client_messages_helper
   {
@@ -40,11 +40,18 @@ namespace XBSlink.XlinkKai
 
         public static string[] KAY_GET_USER_JOIN_TO_VECTOR(string username)
         {
-
             return new string[] {
                  KAI_CLIENT_JOINS_VECTOR(username),KAI_CLIENT_JOINS_CHAT(username)
              };
-         
+        }
+
+
+        public static string[] KAY_GET_USER_JOIN_TO_VECTOR(string username, string client_version, string last_ping_delay_ms)
+        {
+            return new string[] {
+                 KAI_CLIENT_JOINS_VECTOR(username,client_version,last_ping_delay_ms),KAI_CLIENT_JOINS_CHAT(username,client_version,last_ping_delay_ms)
+             };
+
         }
 
         public static string[] KAY_GET_LEAVE_USER_FROM_VECTOR(string username)
@@ -118,6 +125,11 @@ namespace XBSlink.XlinkKai
             return xlink_msg.getHeaderMessageFromType(xlink_msg.xbs_xlink_message_type.KAI_CLIENT_ADD_CONTACT) + String.Format("{0};", username);
         }
 
+        public static string KAI_CLIENT_JOINS_VECTOR(string username, string client_version, string last_ping_delay_ms)
+        {
+            return xlink_msg.getHeaderMessageFromType(xlink_msg.xbs_xlink_message_type.KAI_CLIENT_JOINS_VECTOR) + String.Format("{0};{1};{2};", username, client_version, last_ping_delay_ms);
+        }
+
         public static string KAI_CLIENT_JOINS_VECTOR(string username)
         {
             return xlink_msg.getHeaderMessageFromType(xlink_msg.xbs_xlink_message_type.KAI_CLIENT_JOINS_VECTOR) + String.Format("{0};", username);
@@ -127,6 +139,12 @@ namespace XBSlink.XlinkKai
         {
            return xlink_msg.getHeaderMessageFromType(xlink_msg.xbs_xlink_message_type.KAI_CLIENT_JOINS_CHAT) + String.Format("General Chat;{0};", username);
         }
+
+        public static string KAI_CLIENT_JOINS_CHAT(string username, string client_version, string last_ping_delay_ms)
+        {
+            return xlink_msg.getHeaderMessageFromType(xlink_msg.xbs_xlink_message_type.KAI_CLIENT_JOINS_CHAT) + String.Format("General Chat;{0};{1};{2};", username, client_version,last_ping_delay_ms);
+        }
+
 
         #endregion
 

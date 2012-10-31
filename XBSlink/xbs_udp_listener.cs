@@ -27,6 +27,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using PacketDotNet;
+using XBSlink.Common;
 using XBSlink.XlinkKai;
 
 namespace XBSlink

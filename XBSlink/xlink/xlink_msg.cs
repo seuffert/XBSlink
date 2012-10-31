@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Net;
 
-namespace XBSlink.XlinkKai
+namespace XBSlink.Common
 {
    
     public class xlink_msg

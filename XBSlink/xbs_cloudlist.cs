@@ -29,6 +29,7 @@ using System.Windows.Forms;
 using System.Web;
 using System.Threading;
 using System.Security.Cryptography;
+using XBSlink.Common;
 
 namespace XBSlink
 {

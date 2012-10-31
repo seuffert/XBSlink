@@ -38,6 +38,7 @@ using SharpPcap;
 using SharpPcap.LibPcap;
 using SharpPcap.WinPcap;
 using MiscUtil.Conversion;
+using XBSlink.Common;
 using XBSlink.Properties;
 using System.ServiceModel.Syndication;
 using System.Xml;

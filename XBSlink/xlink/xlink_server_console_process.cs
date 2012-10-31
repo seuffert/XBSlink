@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Net;
 using System.Threading;
+using XBSlink.Common;
 
 
 namespace XBSlink.XlinkKai

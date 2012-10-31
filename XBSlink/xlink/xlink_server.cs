@@ -5,6 +5,7 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using XBSlink.Common;
 using XBSlink.XlinkKai.Delegates.Clients;
 using XBSlink.XlinkKai.Delegates.Consoles;
 
@@ -404,7 +405,7 @@ public class xlink_server //:IServer
 
         public void XBS_JoinUser(xlink_msg udp_msg,string username, string client_version, string last_ping_delay_ms)
         {
-            SendMessageToQueue(udp_msg, xlink_client_messages_helper.KAY_GET_USER_JOIN_TO_VECTOR(username));
+            SendMessageToQueue(udp_msg, xlink_client_messages_helper.KAY_GET_USER_JOIN_TO_VECTOR(username, client_version, last_ping_delay_ms));
         }
 
     #endregion
