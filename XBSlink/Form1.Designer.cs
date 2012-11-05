@@ -104,6 +104,8 @@ namespace XBSlink
             this.columnHeader_cloudlistnodecount = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader_cloudlistmaxnodes = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.tabPage_chat = new System.Windows.Forms.TabPage();
+            this.tab_chats = new System.Windows.Forms.TabControl();
+            this.tab_general = new System.Windows.Forms.TabPage();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.textBox_chatMessages = new System.Windows.Forms.TextBox();
             this.listBox_chatUserList = new System.Windows.Forms.ListBox();
@@ -134,6 +136,8 @@ namespace XBSlink
             this.checkBox_chat_notify = new System.Windows.Forms.CheckBox();
             this.checkBox_newNodeSound = new System.Windows.Forms.CheckBox();
             this.groupBox_chatsettings = new System.Windows.Forms.GroupBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.comboBox_DefaultTranslationLang = new System.Windows.Forms.ComboBox();
             this.checkBox_chat_nodeInfoMessagesInChat = new System.Windows.Forms.CheckBox();
             this.checkBox_chatAutoSwitch = new System.Windows.Forms.CheckBox();
             this.tabPageSettings_network = new System.Windows.Forms.TabPage();
@@ -182,6 +186,8 @@ namespace XBSlink
             this.toolTip2 = new System.Windows.Forms.ToolTip(this.components);
             this.contextMenuStrip_systray = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItem_exit = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuStrip_tabs = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.itm_close = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage_newsFeed.SuspendLayout();
@@ -191,6 +197,8 @@ namespace XBSlink
             this.splitContainer2.SuspendLayout();
             this.tabPage_clouds.SuspendLayout();
             this.tabPage_chat.SuspendLayout();
+            this.tab_chats.SuspendLayout();
+            this.tab_general.SuspendLayout();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -212,6 +220,7 @@ namespace XBSlink
             this.groupBox3.SuspendLayout();
             this.tabPage_about.SuspendLayout();
             this.contextMenuStrip_systray.SuspendLayout();
+            this.MenuStrip_tabs.SuspendLayout();
             this.SuspendLayout();
             // 
             // statusStrip
@@ -223,9 +232,9 @@ namespace XBSlink
             this.toolStripStatusLabel_udp_in,
             this.toolStripStatusLabel_udp_out,
             this.toolStripStatusLabel_icon});
-            this.statusStrip.Location = new System.Drawing.Point(0, 588);
+            this.statusStrip.Location = new System.Drawing.Point(0, 454);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(386, 22);
+            this.statusStrip.Size = new System.Drawing.Size(687, 22);
             this.statusStrip.TabIndex = 2;
             this.statusStrip.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.statusStrip1_MouseDoubleClick);
             // 
@@ -274,7 +283,7 @@ namespace XBSlink
             this.toolStripStatusLabel_icon.Image = global::XBSlink.Properties.Resources.ok_16;
             this.toolStripStatusLabel_icon.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.toolStripStatusLabel_icon.Name = "toolStripStatusLabel_icon";
-            this.toolStripStatusLabel_icon.Size = new System.Drawing.Size(54, 17);
+            this.toolStripStatusLabel_icon.Size = new System.Drawing.Size(355, 17);
             this.toolStripStatusLabel_icon.Spring = true;
             this.toolStripStatusLabel_icon.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
@@ -286,7 +295,7 @@ namespace XBSlink
             this.comboBox_captureDevice.FormattingEnabled = true;
             this.comboBox_captureDevice.Location = new System.Drawing.Point(6, 32);
             this.comboBox_captureDevice.Name = "comboBox_captureDevice";
-            this.comboBox_captureDevice.Size = new System.Drawing.Size(326, 21);
+            this.comboBox_captureDevice.Size = new System.Drawing.Size(587, 21);
             this.comboBox_captureDevice.TabIndex = 3;
             this.comboBox_captureDevice.SelectedIndexChanged += new System.EventHandler(this.comboBox_captureDevice_SelectedIndexChanged);
             // 
@@ -329,7 +338,7 @@ namespace XBSlink
             // textBox_remote_port
             // 
             this.textBox_remote_port.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_remote_port.Location = new System.Drawing.Point(337, 39);
+            this.textBox_remote_port.Location = new System.Drawing.Point(638, 39);
             this.textBox_remote_port.MaxLength = 5;
             this.textBox_remote_port.Name = "textBox_remote_port";
             this.textBox_remote_port.Size = new System.Drawing.Size(36, 20);
@@ -427,7 +436,7 @@ namespace XBSlink
             this.tabControl1.Margin = new System.Windows.Forms.Padding(1);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(368, 519);
+            this.tabControl1.Size = new System.Drawing.Size(669, 385);
             this.tabControl1.TabIndex = 17;
             this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.tabControl1_SelectedIndexChanged);
             // 
@@ -436,7 +445,7 @@ namespace XBSlink
             this.tabPage_newsFeed.Controls.Add(this.richTextBox_newsFeed);
             this.tabPage_newsFeed.Location = new System.Drawing.Point(4, 22);
             this.tabPage_newsFeed.Name = "tabPage_newsFeed";
-            this.tabPage_newsFeed.Size = new System.Drawing.Size(360, 493);
+            this.tabPage_newsFeed.Size = new System.Drawing.Size(661, 359);
             this.tabPage_newsFeed.TabIndex = 7;
             this.tabPage_newsFeed.Text = "News";
             this.tabPage_newsFeed.UseVisualStyleBackColor = true;
@@ -448,7 +457,7 @@ namespace XBSlink
             | System.Windows.Forms.AnchorStyles.Right)));
             this.richTextBox_newsFeed.Location = new System.Drawing.Point(0, 0);
             this.richTextBox_newsFeed.Name = "richTextBox_newsFeed";
-            this.richTextBox_newsFeed.Size = new System.Drawing.Size(360, 493);
+            this.richTextBox_newsFeed.Size = new System.Drawing.Size(659, 356);
             this.richTextBox_newsFeed.TabIndex = 0;
             this.richTextBox_newsFeed.Text = "";
             this.richTextBox_newsFeed.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(this.richTextBox_newsFeed_LinkClicked);
@@ -464,7 +473,7 @@ namespace XBSlink
             this.tabPage_info.Location = new System.Drawing.Point(4, 22);
             this.tabPage_info.Name = "tabPage_info";
             this.tabPage_info.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage_info.Size = new System.Drawing.Size(360, 493);
+            this.tabPage_info.Size = new System.Drawing.Size(661, 359);
             this.tabPage_info.TabIndex = 0;
             this.tabPage_info.Text = "Info";
             // 
@@ -472,7 +481,7 @@ namespace XBSlink
             // 
             this.splitContainer2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.splitContainer2.Location = new System.Drawing.Point(0, 364);
+            this.splitContainer2.Location = new System.Drawing.Point(0, 237);
             this.splitContainer2.Name = "splitContainer2";
             // 
             // splitContainer2.Panel1
@@ -482,8 +491,8 @@ namespace XBSlink
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.treeView_nodeinfo);
-            this.splitContainer2.Size = new System.Drawing.Size(360, 129);
-            this.splitContainer2.SplitterDistance = 216;
+            this.splitContainer2.Size = new System.Drawing.Size(656, 116);
+            this.splitContainer2.SplitterDistance = 392;
             this.splitContainer2.TabIndex = 7;
             // 
             // textBox_maininfo
@@ -496,7 +505,7 @@ namespace XBSlink
             this.textBox_maininfo.Name = "textBox_maininfo";
             this.textBox_maininfo.ReadOnly = true;
             this.textBox_maininfo.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox_maininfo.Size = new System.Drawing.Size(213, 129);
+            this.textBox_maininfo.Size = new System.Drawing.Size(389, 116);
             this.textBox_maininfo.TabIndex = 1;
             this.textBox_maininfo.Text = "Engine not started.";
             // 
@@ -507,14 +516,14 @@ namespace XBSlink
             | System.Windows.Forms.AnchorStyles.Right)));
             this.treeView_nodeinfo.Location = new System.Drawing.Point(3, 0);
             this.treeView_nodeinfo.Name = "treeView_nodeinfo";
-            this.treeView_nodeinfo.Size = new System.Drawing.Size(137, 129);
+            this.treeView_nodeinfo.Size = new System.Drawing.Size(257, 116);
             this.treeView_nodeinfo.TabIndex = 5;
             // 
             // label9
             // 
             this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(3, 348);
+            this.label9.Location = new System.Drawing.Point(3, 221);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(84, 13);
             this.label9.TabIndex = 6;
@@ -524,7 +533,7 @@ namespace XBSlink
             // 
             this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(260, 348);
+            this.label8.Location = new System.Drawing.Point(562, 221);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(94, 13);
             this.label8.TabIndex = 5;
@@ -557,7 +566,7 @@ namespace XBSlink
             this.listView_nodes.MultiSelect = false;
             this.listView_nodes.Name = "listView_nodes";
             this.listView_nodes.ShowGroups = false;
-            this.listView_nodes.Size = new System.Drawing.Size(360, 323);
+            this.listView_nodes.Size = new System.Drawing.Size(656, 193);
             this.listView_nodes.TabIndex = 2;
             this.listView_nodes.UseCompatibleStateImageBehavior = false;
             this.listView_nodes.View = System.Windows.Forms.View.Details;
@@ -607,7 +616,7 @@ namespace XBSlink
             this.tabPage_clouds.Location = new System.Drawing.Point(4, 22);
             this.tabPage_clouds.Margin = new System.Windows.Forms.Padding(1);
             this.tabPage_clouds.Name = "tabPage_clouds";
-            this.tabPage_clouds.Size = new System.Drawing.Size(360, 493);
+            this.tabPage_clouds.Size = new System.Drawing.Size(661, 359);
             this.tabPage_clouds.TabIndex = 5;
             this.tabPage_clouds.Text = "Clouds";
             // 
@@ -615,7 +624,7 @@ namespace XBSlink
             // 
             this.button_CloudLeave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button_CloudLeave.Enabled = false;
-            this.button_CloudLeave.Location = new System.Drawing.Point(284, 447);
+            this.button_CloudLeave.Location = new System.Drawing.Point(584, 311);
             this.button_CloudLeave.Name = "button_CloudLeave";
             this.button_CloudLeave.Size = new System.Drawing.Size(75, 21);
             this.button_CloudLeave.TabIndex = 11;
@@ -627,7 +636,7 @@ namespace XBSlink
             // 
             this.button_CloudJoin.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button_CloudJoin.Enabled = false;
-            this.button_CloudJoin.Location = new System.Drawing.Point(284, 469);
+            this.button_CloudJoin.Location = new System.Drawing.Point(584, 333);
             this.button_CloudJoin.Name = "button_CloudJoin";
             this.button_CloudJoin.Size = new System.Drawing.Size(75, 21);
             this.button_CloudJoin.TabIndex = 10;
@@ -639,7 +648,7 @@ namespace XBSlink
             // 
             this.label14.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(185, 451);
+            this.label14.Location = new System.Drawing.Point(488, 316);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(53, 13);
             this.label14.TabIndex = 9;
@@ -649,7 +658,7 @@ namespace XBSlink
             // 
             this.textBox_CloudPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_CloudPassword.Enabled = false;
-            this.textBox_CloudPassword.Location = new System.Drawing.Point(188, 467);
+            this.textBox_CloudPassword.Location = new System.Drawing.Point(491, 332);
             this.textBox_CloudPassword.Name = "textBox_CloudPassword";
             this.textBox_CloudPassword.PasswordChar = '*';
             this.textBox_CloudPassword.Size = new System.Drawing.Size(90, 20);
@@ -659,7 +668,7 @@ namespace XBSlink
             // 
             this.label13.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(146, 451);
+            this.label13.Location = new System.Drawing.Point(449, 316);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(27, 13);
             this.label13.TabIndex = 7;
@@ -669,7 +678,7 @@ namespace XBSlink
             // 
             this.textBox_CloudMaxNodes.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_CloudMaxNodes.Enabled = false;
-            this.textBox_CloudMaxNodes.Location = new System.Drawing.Point(149, 467);
+            this.textBox_CloudMaxNodes.Location = new System.Drawing.Point(452, 332);
             this.textBox_CloudMaxNodes.Name = "textBox_CloudMaxNodes";
             this.textBox_CloudMaxNodes.Size = new System.Drawing.Size(33, 20);
             this.textBox_CloudMaxNodes.TabIndex = 6;
@@ -680,7 +689,7 @@ namespace XBSlink
             // 
             this.label12.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(3, 451);
+            this.label12.Location = new System.Drawing.Point(3, 315);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(63, 13);
             this.label12.TabIndex = 5;
@@ -691,15 +700,15 @@ namespace XBSlink
             this.textBox_CloudName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_CloudName.Enabled = false;
-            this.textBox_CloudName.Location = new System.Drawing.Point(6, 467);
+            this.textBox_CloudName.Location = new System.Drawing.Point(6, 331);
             this.textBox_CloudName.Name = "textBox_CloudName";
-            this.textBox_CloudName.Size = new System.Drawing.Size(137, 20);
+            this.textBox_CloudName.Size = new System.Drawing.Size(440, 20);
             this.textBox_CloudName.TabIndex = 4;
             // 
             // buttonLoadCloudlist
             // 
             this.buttonLoadCloudlist.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonLoadCloudlist.Location = new System.Drawing.Point(270, 0);
+            this.buttonLoadCloudlist.Location = new System.Drawing.Point(584, 2);
             this.buttonLoadCloudlist.Name = "buttonLoadCloudlist";
             this.buttonLoadCloudlist.Size = new System.Drawing.Size(75, 23);
             this.buttonLoadCloudlist.TabIndex = 3;
@@ -713,7 +722,7 @@ namespace XBSlink
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_cloudlist.Location = new System.Drawing.Point(61, 2);
             this.textBox_cloudlist.Name = "textBox_cloudlist";
-            this.textBox_cloudlist.Size = new System.Drawing.Size(203, 20);
+            this.textBox_cloudlist.Size = new System.Drawing.Size(517, 20);
             this.textBox_cloudlist.TabIndex = 2;
             this.textBox_cloudlist.Leave += new System.EventHandler(this.textBox_cloudlist_Leave);
             // 
@@ -740,7 +749,7 @@ namespace XBSlink
             this.listView_clouds.GridLines = true;
             this.listView_clouds.Location = new System.Drawing.Point(0, 28);
             this.listView_clouds.Name = "listView_clouds";
-            this.listView_clouds.Size = new System.Drawing.Size(359, 415);
+            this.listView_clouds.Size = new System.Drawing.Size(659, 277);
             this.listView_clouds.TabIndex = 0;
             this.listView_clouds.UseCompatibleStateImageBehavior = false;
             this.listView_clouds.View = System.Windows.Forms.View.Details;
@@ -764,21 +773,45 @@ namespace XBSlink
             // tabPage_chat
             // 
             this.tabPage_chat.BackColor = System.Drawing.SystemColors.Control;
-            this.tabPage_chat.Controls.Add(this.splitContainer1);
+            this.tabPage_chat.Controls.Add(this.tab_chats);
             this.tabPage_chat.Controls.Add(this.button_clearChat);
             this.tabPage_chat.Controls.Add(this.textBox_chatEntry);
             this.tabPage_chat.Location = new System.Drawing.Point(4, 22);
             this.tabPage_chat.Name = "tabPage_chat";
-            this.tabPage_chat.Size = new System.Drawing.Size(360, 493);
+            this.tabPage_chat.Size = new System.Drawing.Size(661, 359);
             this.tabPage_chat.TabIndex = 4;
             this.tabPage_chat.Text = "Chat";
+            // 
+            // tab_chats
+            // 
+            this.tab_chats.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tab_chats.Controls.Add(this.tab_general);
+            this.tab_chats.Location = new System.Drawing.Point(3, 5);
+            this.tab_chats.Name = "tab_chats";
+            this.tab_chats.SelectedIndex = 0;
+            this.tab_chats.Size = new System.Drawing.Size(656, 324);
+            this.tab_chats.TabIndex = 8;
+            this.tab_chats.MouseUp += new System.Windows.Forms.MouseEventHandler(this.tab_chats_MouseUp);
+            // 
+            // tab_general
+            // 
+            this.tab_general.Controls.Add(this.splitContainer1);
+            this.tab_general.Location = new System.Drawing.Point(4, 22);
+            this.tab_general.Name = "tab_general";
+            this.tab_general.Padding = new System.Windows.Forms.Padding(3);
+            this.tab_general.Size = new System.Drawing.Size(648, 298);
+            this.tab_general.TabIndex = 0;
+            this.tab_general.Text = "General";
+            this.tab_general.UseVisualStyleBackColor = true;
             // 
             // splitContainer1
             // 
             this.splitContainer1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.splitContainer1.Location = new System.Drawing.Point(0, 3);
+            this.splitContainer1.Location = new System.Drawing.Point(3, 3);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -790,8 +823,8 @@ namespace XBSlink
             this.splitContainer1.Panel2.Controls.Add(this.listBox_chatUserList);
             this.splitContainer1.Panel2.Controls.Add(this.label16);
             this.splitContainer1.Panel2.Controls.Add(this.label_num_persons_in_chat);
-            this.splitContainer1.Size = new System.Drawing.Size(360, 465);
-            this.splitContainer1.SplitterDistance = 258;
+            this.splitContainer1.Size = new System.Drawing.Size(642, 292);
+            this.splitContainer1.SplitterDistance = 458;
             this.splitContainer1.SplitterWidth = 2;
             this.splitContainer1.TabIndex = 7;
             // 
@@ -802,13 +835,15 @@ namespace XBSlink
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_chatMessages.BackColor = System.Drawing.Color.WhiteSmoke;
             this.textBox_chatMessages.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textBox_chatMessages.Location = new System.Drawing.Point(3, 0);
+            this.textBox_chatMessages.Location = new System.Drawing.Point(5, 3);
             this.textBox_chatMessages.Multiline = true;
             this.textBox_chatMessages.Name = "textBox_chatMessages";
             this.textBox_chatMessages.ReadOnly = true;
             this.textBox_chatMessages.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox_chatMessages.Size = new System.Drawing.Size(252, 462);
+            this.textBox_chatMessages.Size = new System.Drawing.Size(448, 286);
             this.textBox_chatMessages.TabIndex = 3;
+            this.textBox_chatMessages.MouseDown += new System.Windows.Forms.MouseEventHandler(this.textBox_chatMessages_MouseDown);
+            this.textBox_chatMessages.MouseUp += new System.Windows.Forms.MouseEventHandler(this.textBox_chatMessages_MouseUp);
             // 
             // listBox_chatUserList
             // 
@@ -817,10 +852,11 @@ namespace XBSlink
             | System.Windows.Forms.AnchorStyles.Right)));
             this.listBox_chatUserList.FormattingEnabled = true;
             this.listBox_chatUserList.IntegralHeight = false;
-            this.listBox_chatUserList.Location = new System.Drawing.Point(3, 17);
+            this.listBox_chatUserList.Location = new System.Drawing.Point(0, 17);
             this.listBox_chatUserList.Name = "listBox_chatUserList";
-            this.listBox_chatUserList.Size = new System.Drawing.Size(97, 445);
+            this.listBox_chatUserList.Size = new System.Drawing.Size(179, 272);
             this.listBox_chatUserList.TabIndex = 6;
+            this.listBox_chatUserList.DoubleClick += new System.EventHandler(this.listBox_chatUserList_DoubleClick);
             // 
             // label16
             // 
@@ -845,7 +881,7 @@ namespace XBSlink
             // button_clearChat
             // 
             this.button_clearChat.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_clearChat.Location = new System.Drawing.Point(320, 469);
+            this.button_clearChat.Location = new System.Drawing.Point(620, 335);
             this.button_clearChat.Name = "button_clearChat";
             this.button_clearChat.Size = new System.Drawing.Size(39, 21);
             this.button_clearChat.TabIndex = 2;
@@ -857,11 +893,11 @@ namespace XBSlink
             // 
             this.textBox_chatEntry.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_chatEntry.Location = new System.Drawing.Point(0, 470);
+            this.textBox_chatEntry.Location = new System.Drawing.Point(3, 335);
             this.textBox_chatEntry.MaxLength = 1400;
             this.textBox_chatEntry.Name = "textBox_chatEntry";
             this.textBox_chatEntry.ReadOnly = true;
-            this.textBox_chatEntry.Size = new System.Drawing.Size(317, 20);
+            this.textBox_chatEntry.Size = new System.Drawing.Size(615, 20);
             this.textBox_chatEntry.TabIndex = 1;
             this.textBox_chatEntry.Text = "The chat is enabled after the engine is started.";
             this.textBox_chatEntry.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox_chatEntry_KeyPress);
@@ -874,7 +910,7 @@ namespace XBSlink
             this.tabPage_messages.Controls.Add(this.button_clearMessages);
             this.tabPage_messages.Location = new System.Drawing.Point(4, 22);
             this.tabPage_messages.Name = "tabPage_messages";
-            this.tabPage_messages.Size = new System.Drawing.Size(360, 493);
+            this.tabPage_messages.Size = new System.Drawing.Size(661, 359);
             this.tabPage_messages.TabIndex = 2;
             this.tabPage_messages.Text = "Messages";
             // 
@@ -900,7 +936,7 @@ namespace XBSlink
             this.listBox_messages.Location = new System.Drawing.Point(0, 36);
             this.listBox_messages.Name = "listBox_messages";
             this.listBox_messages.ScrollAlwaysVisible = true;
-            this.listBox_messages.Size = new System.Drawing.Size(360, 457);
+            this.listBox_messages.Size = new System.Drawing.Size(659, 320);
             this.listBox_messages.TabIndex = 1;
             // 
             // button_clearMessages
@@ -923,7 +959,7 @@ namespace XBSlink
             this.tabPage_settings.Location = new System.Drawing.Point(4, 22);
             this.tabPage_settings.Name = "tabPage_settings";
             this.tabPage_settings.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage_settings.Size = new System.Drawing.Size(360, 493);
+            this.tabPage_settings.Size = new System.Drawing.Size(661, 359);
             this.tabPage_settings.TabIndex = 1;
             this.tabPage_settings.Text = "Settings";
             // 
@@ -938,11 +974,12 @@ namespace XBSlink
             this.tabControl_settings.Location = new System.Drawing.Point(0, 6);
             this.tabControl_settings.Name = "tabControl_settings";
             this.tabControl_settings.SelectedIndex = 0;
-            this.tabControl_settings.Size = new System.Drawing.Size(360, 452);
+            this.tabControl_settings.Size = new System.Drawing.Size(655, 318);
             this.tabControl_settings.TabIndex = 38;
             // 
             // tabPageSettings_general
             // 
+            this.tabPageSettings_general.AutoScroll = true;
             this.tabPageSettings_general.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tabPageSettings_general.Controls.Add(this.groupBox_newsFeed);
             this.tabPageSettings_general.Controls.Add(this.groupBox_usersettings);
@@ -952,7 +989,7 @@ namespace XBSlink
             this.tabPageSettings_general.Location = new System.Drawing.Point(4, 25);
             this.tabPageSettings_general.Name = "tabPageSettings_general";
             this.tabPageSettings_general.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageSettings_general.Size = new System.Drawing.Size(352, 423);
+            this.tabPageSettings_general.Size = new System.Drawing.Size(647, 289);
             this.tabPageSettings_general.TabIndex = 1;
             this.tabPageSettings_general.Text = "General";
             this.tabPageSettings_general.UseVisualStyleBackColor = true;
@@ -963,9 +1000,9 @@ namespace XBSlink
             this.groupBox_newsFeed.Controls.Add(this.label7);
             this.groupBox_newsFeed.Controls.Add(this.checkBox_showNewsFeed);
             this.groupBox_newsFeed.Controls.Add(this.textBox_newsFeedUri);
-            this.groupBox_newsFeed.Location = new System.Drawing.Point(6, 311);
+            this.groupBox_newsFeed.Location = new System.Drawing.Point(6, 357);
             this.groupBox_newsFeed.Name = "groupBox_newsFeed";
-            this.groupBox_newsFeed.Size = new System.Drawing.Size(326, 106);
+            this.groupBox_newsFeed.Size = new System.Drawing.Size(363, 106);
             this.groupBox_newsFeed.TabIndex = 37;
             this.groupBox_newsFeed.TabStop = false;
             this.groupBox_newsFeed.Text = "news feed";
@@ -1023,7 +1060,7 @@ namespace XBSlink
             this.groupBox_usersettings.Controls.Add(this.textBox_chatNickname);
             this.groupBox_usersettings.Location = new System.Drawing.Point(6, 6);
             this.groupBox_usersettings.Name = "groupBox_usersettings";
-            this.groupBox_usersettings.Size = new System.Drawing.Size(338, 60);
+            this.groupBox_usersettings.Size = new System.Drawing.Size(599, 60);
             this.groupBox_usersettings.TabIndex = 36;
             this.groupBox_usersettings.TabStop = false;
             this.groupBox_usersettings.Text = "user";
@@ -1043,7 +1080,7 @@ namespace XBSlink
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_chatNickname.Location = new System.Drawing.Point(6, 32);
             this.textBox_chatNickname.Name = "textBox_chatNickname";
-            this.textBox_chatNickname.Size = new System.Drawing.Size(326, 20);
+            this.textBox_chatNickname.Size = new System.Drawing.Size(587, 20);
             this.textBox_chatNickname.TabIndex = 0;
             this.toolTip1.SetToolTip(this.textBox_chatNickname, "the nickname will appear in the chat as well as in the node list");
             this.textBox_chatNickname.Leave += new System.EventHandler(this.textBox_chatNickname_Leave);
@@ -1055,9 +1092,9 @@ namespace XBSlink
             this.groupBox_updates.Controls.Add(this.checkBox_preventSystemStandby);
             this.groupBox_updates.Controls.Add(this.checkBox_minimize2systray);
             this.groupBox_updates.Controls.Add(this.checkBox_checkForUpdates);
-            this.groupBox_updates.Location = new System.Drawing.Point(6, 216);
+            this.groupBox_updates.Location = new System.Drawing.Point(6, 262);
             this.groupBox_updates.Name = "groupBox_updates";
-            this.groupBox_updates.Size = new System.Drawing.Size(338, 89);
+            this.groupBox_updates.Size = new System.Drawing.Size(599, 89);
             this.groupBox_updates.TabIndex = 35;
             this.groupBox_updates.TabStop = false;
             this.groupBox_updates.Text = "system";
@@ -1106,9 +1143,9 @@ namespace XBSlink
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox5.Controls.Add(this.checkBox_chat_notify);
             this.groupBox5.Controls.Add(this.checkBox_newNodeSound);
-            this.groupBox5.Location = new System.Drawing.Point(6, 143);
+            this.groupBox5.Location = new System.Drawing.Point(6, 189);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(338, 67);
+            this.groupBox5.Size = new System.Drawing.Size(599, 67);
             this.groupBox5.TabIndex = 34;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "sound";
@@ -1143,14 +1180,86 @@ namespace XBSlink
             // 
             this.groupBox_chatsettings.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox_chatsettings.Controls.Add(this.label10);
+            this.groupBox_chatsettings.Controls.Add(this.comboBox_DefaultTranslationLang);
             this.groupBox_chatsettings.Controls.Add(this.checkBox_chat_nodeInfoMessagesInChat);
             this.groupBox_chatsettings.Controls.Add(this.checkBox_chatAutoSwitch);
             this.groupBox_chatsettings.Location = new System.Drawing.Point(6, 72);
             this.groupBox_chatsettings.Name = "groupBox_chatsettings";
-            this.groupBox_chatsettings.Size = new System.Drawing.Size(338, 65);
+            this.groupBox_chatsettings.Size = new System.Drawing.Size(599, 111);
             this.groupBox_chatsettings.TabIndex = 30;
             this.groupBox_chatsettings.TabStop = false;
             this.groupBox_chatsettings.Text = "chat settings";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(9, 66);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(139, 13);
+            this.label10.TabIndex = 34;
+            this.label10.Text = "Default translation language";
+            // 
+            // comboBox_DefaultTranslationLang
+            // 
+            this.comboBox_DefaultTranslationLang.FormattingEnabled = true;
+            this.comboBox_DefaultTranslationLang.Items.AddRange(new object[] {
+            "Afrikaans",
+            "Albanian",
+            "Arabic",
+            "Belarusian",
+            "Bulgarian",
+            "Catalan",
+            "Chinese",
+            "Croatian",
+            "Czech",
+            "Danish",
+            "Dutch",
+            "English",
+            "Estonian",
+            "Filipino",
+            "Finnish",
+            "French",
+            "Galician",
+            "German",
+            "Greek",
+            "Haitian Creole",
+            "Hebrew",
+            "Hindi",
+            "Hungarian",
+            "Icelandic",
+            "Indonesian",
+            "Irish",
+            "Italian",
+            "Japanese",
+            "Korean",
+            "Latvian",
+            "Lithuanian",
+            "Macedonian",
+            "Malay",
+            "Maltese",
+            "Norwegian",
+            "Persian",
+            "Polish",
+            "Portuguese",
+            "Romanian",
+            "Russian",
+            "Serbian",
+            "Slovak",
+            "Slovenian",
+            "Spanish",
+            "Swahili",
+            "Swedish",
+            "Thai",
+            "Turkish",
+            "Ukrainian",
+            "Vietnamese",
+            "Welsh",
+            "Yiddish"});
+            this.comboBox_DefaultTranslationLang.Location = new System.Drawing.Point(9, 82);
+            this.comboBox_DefaultTranslationLang.Name = "comboBox_DefaultTranslationLang";
+            this.comboBox_DefaultTranslationLang.Size = new System.Drawing.Size(157, 21);
+            this.comboBox_DefaultTranslationLang.TabIndex = 33;
             // 
             // checkBox_chat_nodeInfoMessagesInChat
             // 
@@ -1182,6 +1291,7 @@ namespace XBSlink
             // 
             // tabPageSettings_network
             // 
+            this.tabPageSettings_network.AutoScroll = true;
             this.tabPageSettings_network.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tabPageSettings_network.Controls.Add(this.groupBox1);
             this.tabPageSettings_network.Controls.Add(this.groupBox_portoptions);
@@ -1190,7 +1300,7 @@ namespace XBSlink
             this.tabPageSettings_network.Location = new System.Drawing.Point(4, 25);
             this.tabPageSettings_network.Name = "tabPageSettings_network";
             this.tabPageSettings_network.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageSettings_network.Size = new System.Drawing.Size(352, 423);
+            this.tabPageSettings_network.Size = new System.Drawing.Size(647, 289);
             this.tabPageSettings_network.TabIndex = 0;
             this.tabPageSettings_network.Text = "Network";
             this.tabPageSettings_network.UseVisualStyleBackColor = true;
@@ -1203,7 +1313,7 @@ namespace XBSlink
             this.groupBox1.Controls.Add(this.comboBox_captureDevice);
             this.groupBox1.Location = new System.Drawing.Point(6, 6);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(338, 61);
+            this.groupBox1.Size = new System.Drawing.Size(599, 61);
             this.groupBox1.TabIndex = 40;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "packet sniffer";
@@ -1221,7 +1331,7 @@ namespace XBSlink
             this.groupBox_portoptions.Controls.Add(this.textBox_local_Port);
             this.groupBox_portoptions.Location = new System.Drawing.Point(6, 73);
             this.groupBox_portoptions.Name = "groupBox_portoptions";
-            this.groupBox_portoptions.Size = new System.Drawing.Size(338, 107);
+            this.groupBox_portoptions.Size = new System.Drawing.Size(599, 107);
             this.groupBox_portoptions.TabIndex = 39;
             this.groupBox_portoptions.TabStop = false;
             this.groupBox_portoptions.Text = "internet connection";
@@ -1257,7 +1367,7 @@ namespace XBSlink
             this.groupBox_packetfilter.Controls.Add(this.checkBox_excludeGatewayIPs);
             this.groupBox_packetfilter.Location = new System.Drawing.Point(6, 186);
             this.groupBox_packetfilter.Name = "groupBox_packetfilter";
-            this.groupBox_packetfilter.Size = new System.Drawing.Size(338, 91);
+            this.groupBox_packetfilter.Size = new System.Drawing.Size(599, 91);
             this.groupBox_packetfilter.TabIndex = 38;
             this.groupBox_packetfilter.TabStop = false;
             this.groupBox_packetfilter.Text = "packet filter";
@@ -1317,7 +1427,7 @@ namespace XBSlink
             this.groupBox_MAClist.Controls.Add(this.listBox_MAC_list);
             this.groupBox_MAClist.Location = new System.Drawing.Point(6, 283);
             this.groupBox_MAClist.Name = "groupBox_MAClist";
-            this.groupBox_MAClist.Size = new System.Drawing.Size(338, 130);
+            this.groupBox_MAClist.Size = new System.Drawing.Size(599, 130);
             this.groupBox_MAClist.TabIndex = 21;
             this.groupBox_MAClist.TabStop = false;
             this.groupBox_MAClist.Text = "\"always forward\" MAC list";
@@ -1396,7 +1506,7 @@ namespace XBSlink
             // button_reset_settings
             // 
             this.button_reset_settings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_reset_settings.Location = new System.Drawing.Point(117, 464);
+            this.button_reset_settings.Location = new System.Drawing.Point(117, 330);
             this.button_reset_settings.Name = "button_reset_settings";
             this.button_reset_settings.Size = new System.Drawing.Size(55, 23);
             this.button_reset_settings.TabIndex = 34;
@@ -1407,7 +1517,7 @@ namespace XBSlink
             // button_save_settings
             // 
             this.button_save_settings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_save_settings.Location = new System.Drawing.Point(6, 464);
+            this.button_save_settings.Location = new System.Drawing.Point(6, 330);
             this.button_save_settings.Name = "button_save_settings";
             this.button_save_settings.Size = new System.Drawing.Size(105, 23);
             this.button_save_settings.TabIndex = 23;
@@ -1431,7 +1541,7 @@ namespace XBSlink
             this.tabPage_nat.Controls.Add(this.label17);
             this.tabPage_nat.Location = new System.Drawing.Point(4, 22);
             this.tabPage_nat.Name = "tabPage_nat";
-            this.tabPage_nat.Size = new System.Drawing.Size(360, 493);
+            this.tabPage_nat.Size = new System.Drawing.Size(661, 359);
             this.tabPage_nat.TabIndex = 6;
             this.tabPage_nat.Text = "NAT";
             // 
@@ -1439,7 +1549,7 @@ namespace XBSlink
             // 
             this.label18.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(27, 469);
+            this.label18.Location = new System.Drawing.Point(27, 335);
             this.label18.Name = "label18";
             this.label18.Size = new System.Drawing.Size(68, 13);
             this.label18.TabIndex = 14;
@@ -1453,7 +1563,7 @@ namespace XBSlink
             "255.255.255.0",
             "255.255.0.0",
             "255.0.0.0"});
-            this.comboBox_nat_netmask.Location = new System.Drawing.Point(101, 466);
+            this.comboBox_nat_netmask.Location = new System.Drawing.Point(101, 332);
             this.comboBox_nat_netmask.Name = "comboBox_nat_netmask";
             this.comboBox_nat_netmask.Size = new System.Drawing.Size(94, 21);
             this.comboBox_nat_netmask.TabIndex = 13;
@@ -1462,7 +1572,7 @@ namespace XBSlink
             // button_nat_ippool_del
             // 
             this.button_nat_ippool_del.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_nat_ippool_del.Location = new System.Drawing.Point(246, 440);
+            this.button_nat_ippool_del.Location = new System.Drawing.Point(246, 306);
             this.button_nat_ippool_del.Name = "button_nat_ippool_del";
             this.button_nat_ippool_del.Size = new System.Drawing.Size(99, 20);
             this.button_nat_ippool_del.TabIndex = 12;
@@ -1473,7 +1583,7 @@ namespace XBSlink
             // button_nat_add_iprange
             // 
             this.button_nat_add_iprange.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_nat_add_iprange.Location = new System.Drawing.Point(201, 440);
+            this.button_nat_add_iprange.Location = new System.Drawing.Point(201, 306);
             this.button_nat_add_iprange.Name = "button_nat_add_iprange";
             this.button_nat_add_iprange.Size = new System.Drawing.Size(39, 20);
             this.button_nat_add_iprange.TabIndex = 11;
@@ -1485,7 +1595,7 @@ namespace XBSlink
             // 
             this.textBox_nat_iprange_to.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.textBox_nat_iprange_to.ForeColor = System.Drawing.Color.LightGray;
-            this.textBox_nat_iprange_to.Location = new System.Drawing.Point(101, 440);
+            this.textBox_nat_iprange_to.Location = new System.Drawing.Point(101, 306);
             this.textBox_nat_iprange_to.Name = "textBox_nat_iprange_to";
             this.textBox_nat_iprange_to.Size = new System.Drawing.Size(94, 20);
             this.textBox_nat_iprange_to.TabIndex = 10;
@@ -1498,7 +1608,7 @@ namespace XBSlink
             // 
             this.textBox_nat_iprange_from.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.textBox_nat_iprange_from.ForeColor = System.Drawing.Color.LightGray;
-            this.textBox_nat_iprange_from.Location = new System.Drawing.Point(6, 440);
+            this.textBox_nat_iprange_from.Location = new System.Drawing.Point(6, 306);
             this.textBox_nat_iprange_from.Name = "textBox_nat_iprange_from";
             this.textBox_nat_iprange_from.Size = new System.Drawing.Size(94, 20);
             this.textBox_nat_iprange_from.TabIndex = 9;
@@ -1511,7 +1621,7 @@ namespace XBSlink
             // 
             this.label20.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(3, 424);
+            this.label20.Location = new System.Drawing.Point(3, 290);
             this.label20.Name = "label20";
             this.label20.Size = new System.Drawing.Size(107, 13);
             this.label20.TabIndex = 8;
@@ -1539,7 +1649,7 @@ namespace XBSlink
             this.listView_nat_IPpool.GridLines = true;
             this.listView_nat_IPpool.Location = new System.Drawing.Point(0, 134);
             this.listView_nat_IPpool.Name = "listView_nat_IPpool";
-            this.listView_nat_IPpool.Size = new System.Drawing.Size(360, 287);
+            this.listView_nat_IPpool.Size = new System.Drawing.Size(659, 153);
             this.listView_nat_IPpool.TabIndex = 3;
             this.listView_nat_IPpool.UseCompatibleStateImageBehavior = false;
             this.listView_nat_IPpool.View = System.Windows.Forms.View.Details;
@@ -1574,7 +1684,7 @@ namespace XBSlink
             this.groupBox3.Controls.Add(this.checkBox_nat_enable);
             this.groupBox3.Location = new System.Drawing.Point(6, 27);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(354, 88);
+            this.groupBox3.Size = new System.Drawing.Size(372, 88);
             this.groupBox3.TabIndex = 2;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "NAT settings";
@@ -1630,7 +1740,7 @@ namespace XBSlink
             this.tabPage_about.Controls.Add(this.richTextBox_about);
             this.tabPage_about.Location = new System.Drawing.Point(4, 22);
             this.tabPage_about.Name = "tabPage_about";
-            this.tabPage_about.Size = new System.Drawing.Size(360, 493);
+            this.tabPage_about.Size = new System.Drawing.Size(661, 359);
             this.tabPage_about.TabIndex = 3;
             this.tabPage_about.Text = "About";
             // 
@@ -1643,7 +1753,7 @@ namespace XBSlink
             this.richTextBox_about.Location = new System.Drawing.Point(0, 3);
             this.richTextBox_about.Name = "richTextBox_about";
             this.richTextBox_about.ReadOnly = true;
-            this.richTextBox_about.Size = new System.Drawing.Size(360, 490);
+            this.richTextBox_about.Size = new System.Drawing.Size(658, 458);
             this.richTextBox_about.TabIndex = 0;
             this.richTextBox_about.Text = "";
             this.richTextBox_about.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(this.richTextBox_about_LinkClicked);
@@ -1659,7 +1769,7 @@ namespace XBSlink
             this.comboBox_RemoteHost.FormattingEnabled = true;
             this.comboBox_RemoteHost.Location = new System.Drawing.Point(86, 39);
             this.comboBox_RemoteHost.Name = "comboBox_RemoteHost";
-            this.comboBox_RemoteHost.Size = new System.Drawing.Size(245, 21);
+            this.comboBox_RemoteHost.Size = new System.Drawing.Size(546, 21);
             this.comboBox_RemoteHost.TabIndex = 18;
             this.comboBox_RemoteHost.Text = "otherhost.dyndns.org";
             // 
@@ -1689,11 +1799,26 @@ namespace XBSlink
             this.toolStripMenuItem_exit.Text = "Exit XBSlink";
             this.toolStripMenuItem_exit.Click += new System.EventHandler(this.toolStripMenuItem_exit_Click);
             // 
+            // MenuStrip_tabs
+            // 
+            this.MenuStrip_tabs.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.itm_close});
+            this.MenuStrip_tabs.Name = "cibtextMenuStrip_tabs";
+            this.MenuStrip_tabs.Size = new System.Drawing.Size(104, 26);
+            this.MenuStrip_tabs.Text = "Close";
+            // 
+            // itm_close
+            // 
+            this.itm_close.Name = "itm_close";
+            this.itm_close.Size = new System.Drawing.Size(103, 22);
+            this.itm_close.Text = "Close";
+            this.itm_close.Click += new System.EventHandler(this.itm_close_Click);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(386, 610);
+            this.ClientSize = new System.Drawing.Size(687, 476);
             this.Controls.Add(this.comboBox_RemoteHost);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.button_announce);
@@ -1706,7 +1831,7 @@ namespace XBSlink
             this.MaximizeBox = false;
             this.MinimumSize = new System.Drawing.Size(390, 220);
             this.Name = "FormMain";
-            this.Text = "XBSlink";
+            this.Text = "XBSlink Hub";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.SizeChanged += new System.EventHandler(this.Form1_SizeChanged);
@@ -1724,6 +1849,8 @@ namespace XBSlink
             this.tabPage_clouds.PerformLayout();
             this.tabPage_chat.ResumeLayout(false);
             this.tabPage_chat.PerformLayout();
+            this.tab_chats.ResumeLayout(false);
+            this.tab_general.ResumeLayout(false);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
@@ -1758,6 +1885,7 @@ namespace XBSlink
             this.groupBox3.PerformLayout();
             this.tabPage_about.ResumeLayout(false);
             this.contextMenuStrip_systray.ResumeLayout(false);
+            this.MenuStrip_tabs.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1896,6 +2024,12 @@ namespace XBSlink
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.SplitContainer splitContainer2;
         private System.Windows.Forms.TreeView treeView_nodeinfo;
+        private System.Windows.Forms.TabControl tab_chats;
+        private System.Windows.Forms.TabPage tab_general;
+        private System.Windows.Forms.ContextMenuStrip MenuStrip_tabs;
+        private System.Windows.Forms.ToolStripMenuItem itm_close;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.ComboBox comboBox_DefaultTranslationLang;
     }
 }
 
