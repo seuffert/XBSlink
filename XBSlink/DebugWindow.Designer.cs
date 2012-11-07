@@ -53,6 +53,7 @@ namespace XBSlink
             this.button_clear = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.listBox_messages = new XBSlink.DebugWindowListBox();
+            this.chk_tail = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // button_clear
@@ -71,9 +72,9 @@ namespace XBSlink
             // 
             // listBox_messages
             // 
-            this.listBox_messages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.listBox_messages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.listBox_messages.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
             this.listBox_messages.FormattingEnabled = true;
             this.listBox_messages.HorizontalScrollbar = true;
@@ -85,11 +86,22 @@ namespace XBSlink
             this.listBox_messages.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.listBox_messages_DrawItem);
             this.listBox_messages.MeasureItem += new System.Windows.Forms.MeasureItemEventHandler(this.listBox_messages_MeasureItem);
             // 
+            // chk_tail
+            // 
+            this.chk_tail.AutoSize = true;
+            this.chk_tail.Location = new System.Drawing.Point(93, 16);
+            this.chk_tail.Name = "chk_tail";
+            this.chk_tail.Size = new System.Drawing.Size(75, 17);
+            this.chk_tail.TabIndex = 5;
+            this.chk_tail.Text = "Follow last";
+            this.chk_tail.UseVisualStyleBackColor = true;
+            // 
             // DebugWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(640, 480);
+            this.Controls.Add(this.chk_tail);
             this.Controls.Add(this.listBox_messages);
             this.Controls.Add(this.button_clear);
             this.Name = "DebugWindow";
@@ -98,6 +110,7 @@ namespace XBSlink
             this.Load += new System.EventHandler(this.DebugWindows_Load);
             this.SizeChanged += new System.EventHandler(this.DebugWindow_SizeChanged);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -106,5 +119,6 @@ namespace XBSlink
         private System.Windows.Forms.Button button_clear;
         private System.Windows.Forms.Timer timer1;
         public DebugWindowListBox listBox_messages;
+        private System.Windows.Forms.CheckBox chk_tail;
     }
 }

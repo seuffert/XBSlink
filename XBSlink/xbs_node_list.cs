@@ -55,6 +55,10 @@ namespace XBSlink
 
         private Random my_random = new Random();
 
+        public delegate void DeleteNodeHandler(string nickname);
+        public event DeleteNodeHandler DeleteNode;
+
+
         public xbs_node_list()
         {
             last_change_time = DateTime.Now;
@@ -126,9 +130,14 @@ namespace XBSlink
                 foreach (xbs_node n in node_list)
                     if (n.Equals(node))
                     {
+
+                        if (DeleteNode != null)
+                            DeleteNode(n.nickname);
+
                         xbs_messages.addInfoMessage(" + removed node " + n, xbs_message_sender.NODELIST);
                         deleted_node = n;
                         node_list.Remove(n);
+
                         if (notify_on_new_node)
                         {
                             System.Media.SoundPlayer sound_player = new System.Media.SoundPlayer();
@@ -159,6 +168,32 @@ namespace XBSlink
                 delNode(node);
             return node;
         }
+
+        /// <summary>
+        /// TODO: CHAT NEW METHOD
+        /// </summary>
+        /// <param name="NickName"></param>
+        /// <returns></returns>
+        public xbs_node findNode(string NickName)
+        {
+
+            try
+            {
+                lock (node_list)
+                {
+                    foreach (var item in node_list)
+                    {
+                        if (item.nickname == NickName)
+                            return item;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+            }
+            return null;
+        }
+
 
         public xbs_node findNode(IPAddress ip, int port)
         {
@@ -333,10 +368,15 @@ namespace XBSlink
                 lock (node_list)
                 {
                     foreach (xbs_node node in node_list)
+                    {
                         if (node.get_xbox_count() > 0)
                             foreach (xbs_xbox xbox in node.getXboxArray())
                                 xbs_nat.getInstance().informOfRemovedDevice(xbox.mac);
-                    node_list.Clear();
+
+                        if (DeleteNode != null)
+                            DeleteNode(node.nickname);
+
+                    } node_list.Clear();
                 }
             }
             listHasJustChanged();
