@@ -121,7 +121,7 @@ namespace PacketDotNet
             get
             {
                 // IPv6 has no checksum so only the TCP checksum needs evaluation
-                if (parentPacket.GetType() == typeof(IPv6Packet))
+                if (ParentPacket.GetType() == typeof(IPv6Packet))
                     return ValidUDPChecksum;
                 // For IPv4 both the IP layer and the TCP layer contain checksums
                 else
@@ -200,9 +200,19 @@ namespace PacketDotNet
             header = new ByteArraySegment(bas);
             header.Length = UdpFields.HeaderLength;
 
-            // store the payload bytes
             payloadPacketOrData = new PacketOrByteArraySegment();
-            payloadPacketOrData.TheByteArraySegment = header.EncapsulatedBytes();
+
+            // is this packet going to port 7 or 9? if so it might be a WakeOnLan packet
+            const int wakeOnLanPort0 = 7;
+            const int wakeOnLanPort1 = 9;
+            if(DestinationPort.Equals(wakeOnLanPort0) || DestinationPort.Equals (wakeOnLanPort1))
+            {
+                payloadPacketOrData.ThePacket = new WakeOnLanPacket(header.EncapsulatedBytes());
+            } else
+            {
+                // store the payload bytes
+                payloadPacketOrData.TheByteArraySegment = header.EncapsulatedBytes();
+            }
         }
 
         /// <summary>
@@ -299,6 +309,7 @@ namespace PacketDotNet
         /// <returns>
         /// A <see cref="UdpPacket"/>
         /// </returns>
+        [Obsolete("Use Packet.Extract() instead")]
         public static UdpPacket GetEncapsulated(Packet p)
         {
             if(p is InternetLinkLayerPacket)

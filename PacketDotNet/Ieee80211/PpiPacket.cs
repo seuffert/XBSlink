@@ -326,11 +326,12 @@ namespace PacketDotNet
             /// <returns>
             /// A <see cref="MacFrame"/>
             /// </returns>
+            [Obsolete("Use Packet.Extract() instead")]
             public static MacFrame GetEncapsulated (Packet p)
             {
                 if (p is PpiPacket)
                 {
-                    var payload = p.payloadPacketOrData.ThePacket;
+                    var payload = p.PayloadPacket;
                     return (MacFrame)payload;
                 }
                 return null;

@@ -233,6 +233,12 @@ namespace PacketDotNet
             case EthernetPacketType.PointToPointProtocolOverEthernetSessionStage:
                 payloadPacketOrData.ThePacket = new PPPoEPacket(payload);
                 break;
+            case EthernetPacketType.WakeOnLan:
+                payloadPacketOrData.ThePacket = new WakeOnLanPacket(payload);
+                break;
+            case EthernetPacketType.VLanTaggedFrame:
+                payloadPacketOrData.ThePacket = new Ieee8021QPacket(payload);
+                break;
             default: // consider the sub-packet to be a byte array
                 payloadPacketOrData.TheByteArraySegment = payload;
                 break;
@@ -251,6 +257,7 @@ namespace PacketDotNet
         /// <returns>
         /// A <see cref="EthernetPacket"/>
         /// </returns>
+        [Obsolete("Use Packet.Extract() instead")]
         public static EthernetPacket GetEncapsulated(Packet p)
         {
             log.Debug("");

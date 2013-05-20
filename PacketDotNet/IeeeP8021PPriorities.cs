@@ -15,32 +15,49 @@ You should have received a copy of the GNU Lesser General Public License
 along with PacketDotNet.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*
- * Copyright 2010 Chris Morgan <chmorgan@gmail.com>
+ *  Copyright 2013 Chris Morgan <chmorgan@gmail.com>
  */
-
 using System;
 
 namespace PacketDotNet
 {
     /// <summary>
-    /// Differentiates between a packet class payload, a byte[] payload
-    /// or no payload
+    /// Ieee p8021 P priorities.
+    /// http://en.wikipedia.org/wiki/IEEE_802.1p
     /// </summary>
-    public enum PayloadType
+    public enum IeeeP8021PPriorities : byte
     {
         /// <summary>
-        /// Constant packet.
+        /// Background
         /// </summary>
-        Packet,
-
+        Background_0 = 1,
         /// <summary>
-        /// Constant bytes.
+        /// Best effort
         /// </summary>
-        Bytes,
-
+        BestEffort_1 = 0,
         /// <summary>
-        /// Constant none.
+        /// Excellent effort
         /// </summary>
-        None
+        ExcellentEffort_2 = 2,
+        /// <summary>
+        /// Critical application
+        /// </summary>
+        CriticalApplications_3 = 3,
+        /// <summary>
+        /// Video, &lt; 100ms latency and jitter
+        /// </summary>
+        Video_4 = 4,
+        /// <summary>
+        /// Voice, &lt; 10ms latency and jitter
+        /// </summary>
+        Voice_5 = 5,
+        /// <summary>
+        /// Internetwork control
+        /// </summary>
+        InternetworkControl_6 = 6,
+        /// <summary>
+        /// Network control
+        /// </summary>
+        NetworkControl_7 = 7
     }
 }

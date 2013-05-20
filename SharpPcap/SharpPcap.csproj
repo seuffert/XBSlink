@@ -217,7 +217,7 @@
   </ProjectExtensions>
   <ItemGroup>
     <ProjectReference Include="..\PacketDotNet\PacketDotNet.csproj">
-      <Project>{55ABBA4C-AAF9-4726-A592-0C92436CEC92}</Project>
+      <Project>{55abba4c-aaf9-4726-a592-0c92436cec92}</Project>
       <Name>PacketDotNet</Name>
     </ProjectReference>
   </ItemGroup>
