@@ -38,13 +38,11 @@ using SharpPcap;
 using SharpPcap.LibPcap;
 using SharpPcap.WinPcap;
 using MiscUtil.Conversion;
-using XBSlink.Common;
 using XBSlink.Properties;
 using System.ServiceModel.Syndication;
 using System.Xml;
 using System.Linq;
 using System.Xml.Linq;
-using XBSlink.XlinkKai;
 
 
 [assembly: RegistryPermissionAttribute(SecurityAction.RequestMinimum,
@@ -104,9 +102,6 @@ namespace XBSlink
 
         private TabPage tab_newsfeed = null;
 
-
-        public static XlinkKai.xlink_server udp_xlink_server= null;
-
         public FormMain()
         {
 #if DEBUG
@@ -141,9 +136,8 @@ namespace XBSlink
         {
             // globally turn off Proxy auto detection
             WebRequest.DefaultWebProxy = null;
-          
+
             node_list = new xbs_node_list();
-            node_list.DeleteNode += new xbs_node_list.DeleteNodeHandler(node_list_DeleteNode);
             cloudlist = new xbs_cloudlist();
             upnp = new xbs_upnp();
             NAT = new xbs_nat();
@@ -157,7 +151,6 @@ namespace XBSlink
             textBox_local_Port.Text = xbs_udp_listener.standard_port.ToString();
             textBox_remote_port.Text = xbs_udp_listener.standard_port.ToString();
 
-            initializateXlinkKaiUdpServer();
             initializeLocalIPList();
             initializeTrayIcon();
             initWithRegistryValues();
@@ -169,135 +162,6 @@ namespace XBSlink
             if (checkBox_showNewsFeed.Checked)
                 loadNewsFeed(textBox_newsFeedUri.Text);
         }
-
-        void node_list_DeleteNode(string nickname)
-        {
-            udp_xlink_server.XBS_LeaveUser(null, nickname);   
-        }
-
-        public void initializateXlinkKaiUdpServer()
-        {
-            System.Console.WriteLine("Starting XlinkKai Udp server..");
-            udp_xlink_server = new XlinkKai.xlink_server();
-
-            udp_xlink_server.Configure((comboBox_localIP.Text != "") ? comboBox_localIP.Text : "0" );
-
-            udp_xlink_server.XlinkConsoleChat += XlinkServer_XlinkConsoleChat;
-            udp_xlink_server.XlinkConsoleLogin += XlinkServer_XlinkConsoleLogin;
-            udp_xlink_server.XlinkConsolePM += GetSendMessagePM;
-            udp_xlink_server.XlinkConsoleJoinCloud += XlinkServer_XlinkConsoleJoinCloud;
-            udp_xlink_server.XlinkDebugMessage += XlinkServer_XlinkDebugMessage;
-            //udp_xlink_server.XlinkConsoleSendMessage += XlinkServer_XlinkConsoleSendMessage;
-            udp_xlink_server.XlinkConsoleLogout += XlinkServer_XlinkConsoleLogout;
-
-            udp_xlink_server.Start();
-        }
-
-        #region XlinkKaiEvents
-
-        void XlinkServer_XlinkConsoleJoinCloud(xlink_msg udp_msg, string CloudName, string CloudPassword)
-        {
-            JoinChannel(CloudName, CloudPassword);
-        }
-
-        void JoinChannel(string CloudName, string CloudPassword)
-        {
-            Invoke((MethodInvoker)delegate
-          {
-              LeaveChannel();
-              var encontrado = cloudlist.findCloud(CloudName);
-              if (encontrado != null)
-                  join_cloud(CloudName, encontrado.max_nodes.ToString(), CloudPassword);
-          });
-        }
-
-        void XlinkServer_XlinkConsoleLogin(xlink_msg udp_msg)
-        {
-            WriteHeader(udp_msg, "[XLINK/LOGIN] : " + udp_msg.data_msg);
-
-            Invoke((MethodInvoker)delegate
-            {
-                if (engine_started)
-                    engine_stop();
-
-                engine_start();
-            });
-        }
-
-        void XlinkServer_XlinkConsoleChat(xlink_msg udp_msg, string message)
-        {
-            //WriteHeader(udp_msg, "[XLINK/CHAT] : " + message);
-            //udp_xlink_server.XBS_SendMyChat(udp_msg, message);
-
-            udp_xlink_server.XBS_SendMyChat(udp_msg, message);
-            xbs_chat.sendChatMessage(message);
-            xbs_chat.addLocalMessage(message);
-
-        }
-
-        void udp_listener_ChatMessage(string nickname, string message)
-        {
-            udp_xlink_server.XBS_SendUserChat(nickname, message);
-        }
-
-        void udp_listener_PmMessage(xbs_node_message_msgpm udp_msg)
-        {
-            GetSendMessagePM(udp_msg.sender.nickname, udp_msg.message_string, false);
-        }
-
-        void udp_listener_AddNode(string NickName, string client_version, string last_ping_delay_ms)
-        {
-            Console.WriteLine("[ENGINE/ADDUSER] : " + NickName + " VERSION: " + client_version + " PING: " + last_ping_delay_ms);
-            udp_xlink_server.XBS_JoinUser(null, NickName, client_version, last_ping_delay_ms);
-        }
-
-        void LeaveChannel()
-        {
-            if (!button_CloudJoin.Enabled)
-            {
-                treeView_nodeinfo.Nodes.Clear();
-                bool ret = cloudlist.LeaveCloud();
-                if (ret)
-                {
-                    toolTip2.Show("left " + textBox_CloudName.Text, button_CloudLeave, 0, -20, 2000);
-                    button_CloudLeave.Enabled = false;
-                    button_CloudJoin.Enabled = true;
-                    textBox_CloudName.Enabled = true;
-                    textBox_CloudMaxNodes.Enabled = true;
-                    textBox_CloudPassword.Enabled = true;
-                    sniffer.clearKnownMACsFromRemoteNodes();
-                    sniffer.setPdevFilter();
-                    purgeDeletedNodesInMainInfo();
-                }
-            }
-        }
-
-        void WriteHeader(xlink_msg udp_msg, string tittle)
-        {
-            Console.WriteLine("(" + udp_msg.src_ip.ToString() + ":" + udp_msg.src_port.ToString() + ") : " + tittle);
-        }
-
-        void XlinkServer_XlinkConsoleLogout(xlink_msg udp_msg)
-        {
-            Invoke((MethodInvoker)delegate
-            {
-                engine_stop();
-            });
-        }
-
-        void SendMessageToAllNodes(string Message)
-        {
-            node_list.sendChatMessageToAllNodes(Message);
-        }
-
-        void XlinkServer_XlinkDebugMessage(xlink_msg udp_msg, string message_debug, xbs_message_sender sender)
-        {
-
-        }
-
-
-        #endregion
-
 
         private void ShowVersionInfoMessages()
         {
@@ -422,8 +286,6 @@ namespace XBSlink
                 updateNATIPPoolListView();
             }
 
-            comboBox_DefaultTranslationLang.Text = s.REG_DEFAULT_TRANSLATION_LANG;
-
             comboBox_captureDevice.Text = s.REG_CAPTURE_DEVICE_NAME;
             comboBox_localIP.Text = s.REG_LOCAL_IP;
             textBox_local_Port.Text = s.REG_LOCAL_PORT.ToString();
@@ -494,9 +356,6 @@ namespace XBSlink
             s.REG_SHOW_NEWS_FEED = checkBox_showNewsFeed.Checked;
             s.REG_NEWS_FEED_URI = textBox_newsFeedUri.Text;
             s.REG_NEWS_FEED_SWITCH_TO_TAB = checkBox_switchToNewsTab.Checked;
-            s.REG_DEFAULT_TRANSLATION_LANG = comboBox_DefaultTranslationLang.Text;
-
-
             s.Save();
         }
 
@@ -553,13 +412,6 @@ namespace XBSlink
         {
             if (ExceptionMessage.ABORTING)
                 return;
-
-            //Refreshing Clouds
-            loadCloudList();
-
-            //ChangeNickName
-            udp_xlink_server.KAI_CLIENT_LOCAL_NAME = textBox_chatNickname.Text;
-
             ICaptureDevice pdev;
             if (pcap_devices.Count == 0)
             {
@@ -582,18 +434,7 @@ namespace XBSlink
 
             try
             {
-                if (udp_listener != null)
-                {
-                    udp_listener.AddNode -= udp_listener_AddNode;
-                    udp_listener.ChatMessage -= udp_listener_ChatMessage;
-                    udp_listener.PmMessage -= udp_listener_PmMessage;
-                }
-
                 udp_listener = new xbs_udp_listener(internal_ip, UInt16.Parse(textBox_local_Port.Text), node_list);
-                
-                udp_listener.AddNode += udp_listener_AddNode;
-                udp_listener.ChatMessage += udp_listener_ChatMessage;
-                udp_listener.PmMessage +=udp_listener_PmMessage;
             }
             catch (Exception e)
             {
@@ -684,8 +525,6 @@ namespace XBSlink
             button_start_engine.Text = "Stop Engine";
         }
 
-     
-
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             engine_stop();
@@ -713,11 +552,9 @@ namespace XBSlink
         private void engine_stop()
         {
             button_announce.Enabled = false;
-
             if (cloudlist!=null)
                 if (cloudlist.part_of_cloud)
                     cloudlist.LeaveCloud();
-
             timer1.Stop();
             xbs_settings.settings.Save();
             if (sniffer != null)
@@ -1371,24 +1208,11 @@ namespace XBSlink
                 e.Handled = true;
                 if (textBox_chatEntry.Text.Length > 0)
                 {
-                    //TODO: CHECK CHAT WINDOW
-                    var selected = tab_chats.SelectedTab;
-
-                    if (selected == null || selected.Name == "tab_general")
-                        SendChatMessage(textBox_chatEntry.Text);
-                    else
-                        GetSendMessagePM(selected.Name, textBox_chatEntry.Text, true);
-                   
+                    xbs_chat.sendChatMessage(textBox_chatEntry.Text);
+                    xbs_chat.addLocalMessage(textBox_chatEntry.Text);
                 }
                 textBox_chatEntry.Clear();
             }
-        }
-
-        void SendChatMessage(string Message)
-        {
-            udp_xlink_server.XBS_SendMyChat(null, Message);
-            xbs_chat.sendChatMessage(Message);
-            xbs_chat.addLocalMessage(Message);
         }
 
         private void checkBox_chatAutoSwitch_CheckedChanged(object sender, EventArgs e)
@@ -1427,9 +1251,9 @@ namespace XBSlink
             return true;
         }
 
-        public void loadCloudList()
+        private void buttonLoadCloudlist_Click(object sender, EventArgs e)
         {
-            bool ret = cloudlist.loadCloudlistFromURL(textBox_cloudlist.Text);
+            bool ret = cloudlist.loadCloudlistFromURL( textBox_cloudlist.Text );
             if (ret)
             {
                 xbs_cloud[] clouds = cloudlist.getCloudlistArray();
@@ -1438,10 +1262,6 @@ namespace XBSlink
                     initCloudListView();
                     foreach (xbs_cloud cloud in clouds)
                     {
-                        
-                        if (udp_xlink_server.IsConsoleLogged)
-                        udp_xlink_server.XBS_ChannelCreate(null,cloud.name, cloud.node_count, cloud.isPrivate, cloud.max_nodes);
-                        
                         ListViewItem lv_item = new ListViewItem(cloud.name);
                         lv_item.SubItems.Add(cloud.node_count.ToString());
                         lv_item.SubItems.Add(cloud.max_nodes.ToString());
@@ -1456,11 +1276,6 @@ namespace XBSlink
 
                 xbs_settings.settings.REG_CLOUDLIST_SERVER = textBox_cloudlist.Text;
             }
-        }
-
-        private void buttonLoadCloudlist_Click(object sender, EventArgs e)
-        {
-            loadCloudList();
         }
 
         private void initCloudListView()
@@ -1488,37 +1303,36 @@ namespace XBSlink
 
         private void button_CloudLeave_Click(object sender, EventArgs e)
         {
-            LeaveChannel();
+            treeView_nodeinfo.Nodes.Clear();
+            bool ret = cloudlist.LeaveCloud();
+            if (ret)
+            {
+                toolTip2.Show("left " + textBox_CloudName.Text, button_CloudLeave, 0, -20, 2000);
+                button_CloudLeave.Enabled = false;
+                button_CloudJoin.Enabled = true;
+                textBox_CloudName.Enabled = true;
+                textBox_CloudMaxNodes.Enabled = true;
+                textBox_CloudPassword.Enabled = true;
+                sniffer.clearKnownMACsFromRemoteNodes();
+                sniffer.setPdevFilter();
+                purgeDeletedNodesInMainInfo();
+            }
         }
 
-        public bool join_cloud(string CloudName, string MaxNodes, string Password)
+        private void join_cloud()
         {
-           return  join_cloud(textBox_cloudlist.Text, CloudName, MaxNodes, Password);
-        }
+            bool ret = cloudlist.JoinOrCreateCloud(textBox_cloudlist.Text, textBox_CloudName.Text, textBox_CloudMaxNodes.Text, textBox_CloudPassword.Text, node_list.local_node.ip_public, node_list.local_node.port_public, node_list.local_node.nickname, xbs_upnp.isPortReachable, xbs_settings.xbslink_version);
+            if (ret)
+            {
+                toolTip2.Show("joined " + textBox_CloudName.Text, button_CloudJoin, 0, -20, 2000);
+                button_CloudLeave.Enabled = true;
+                button_CloudJoin.Enabled = false;
+                textBox_CloudName.Enabled = false;
+                textBox_CloudMaxNodes.Enabled = false;
+                textBox_CloudPassword.Enabled = false;
 
-        public bool join_cloud(string CloudList, string CloudName, string MaxNodes, string Password)
-        {
-           
-          
-                var ret = cloudlist.JoinOrCreateCloud(CloudList, CloudName, MaxNodes, Password, node_list.local_node.ip_public, node_list.local_node.port_public, node_list.local_node.nickname, xbs_upnp.isPortReachable, xbs_settings.xbslink_version);
-                if (ret)
-                {
-                    toolTip2.Show("joined " + textBox_CloudName.Text, button_CloudJoin, 0, -20, 2000);
-                    button_CloudLeave.Enabled = true;
-                    button_CloudJoin.Enabled = false;
-                    textBox_CloudName.Enabled = false;
-                    textBox_CloudMaxNodes.Enabled = false;
-                    textBox_CloudPassword.Enabled = false;
-                    switch_tab = tabPage_info;
-                }
-                return ret;
-        
-            
-        }
-
-        private bool join_cloud()
-        {
-          return join_cloud(textBox_CloudName.Text, textBox_CloudMaxNodes.Text, textBox_CloudPassword.Text);
+                switch_tab = tabPage_info;
+            }
         }
 
         private void listView_clouds_SelectedIndexChanged(object sender, EventArgs e)
@@ -1906,7 +1720,6 @@ namespace XBSlink
 
         private void listView_clouds_DoubleClick(object sender, EventArgs e)
         {
-
             if (engine_started && cloudlist.part_of_cloud==false)
                 if (listView_clouds.SelectedItems.Count>0)
                     join_cloud();
@@ -2080,146 +1893,5 @@ namespace XBSlink
             }
             treeView_nodeinfo.ExpandAll();
         }
-
-        private void listBox_chatUserList_MouseDoubleClick(object sender, MouseEventArgs e)
-        {
-            var Selected = listBox_chatUserList.SelectedItem;
-            if (Selected != null)
-                AddPrivateChat(listBox_chatUserList.SelectedItem.ToString(), true);
-        }
-
-        /// <summary>
-        /// REGION CHAT =================================
-        /// </summary>
-        /// <param name="user"></param>
-        /// <returns></returns>
-        #region Chat Actions
-
-        TabPageChat IsChatUser(string user)
-        {
-            for (int i = 0; i < tab_chats.TabPages.Count; i++)
-            {
-                if (tab_chats.TabPages[i].Text == user)
-                {
-                    return (TabPageChat)tab_chats.TabPages[i];
-                }
-            }
-            return null;
-        }
-
-        TabPageChat GetNewChat(string UserName)
-        {
-            TabPageChat elemento = new TabPageChat();
-            elemento.CreateChatUser(UserName);
-            tab_chats.TabPages.Add(elemento);
-            return elemento;
-        }
-
-        void ReceibeMessagePM(xbs_node_message_msgpm udp_msg, bool IsSended)
-        {
-            GetSendMessagePM(udp_msg.sender.nickname, udp_msg.message_string, false);
-        }
-
-        //public delegate void sendMessagePMCallback(string UserName, string message, bool IsSended);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="UserName"></param>
-        /// <param name="message"></param>
-        void GetSendMessagePM(string UserName, string message, bool IsSended)
-        {
-                
-                this.Invoke((MethodInvoker) delegate{
-                
-                xbs_node elemento = xbs_node_list.getInstance().findNode(UserName);
-
-                if (elemento != null)
-                {
-                    var new_chat = AddPrivateChat(UserName, true);
-                    tabControl1.SelectedTab = tabPage_chat;
-
-                    xbs_node_message_msgpm ee = new xbs_node_message_msgpm(elemento, message);
-                    new_chat.AddMessage(ee, IsSended);
-
-                    if (IsSended)
-                        elemento.sendMessagePM(message);
-                    else
-                        udp_xlink_server.XBS_SendPM(null, UserName, message);
-
-                }
-                else
-                    AddPrivateChat(UserName, true).UserNotInChannelSystemMessage();
-                    
-                });
-          
-        }
-
-        public TabPageChat AddPrivateChat(string User, bool is_selected_tab)
-        {
-
-            var pos = IsChatUser(User);
-            if (pos == null)
-            {
-                pos = GetNewChat(User);
-                //Si es un chat nuevo sonido
-                xbs_chat.playPMMessage();
-            }
-            if (is_selected_tab)
-                tab_chats.SelectedTab = pos;
-            return pos;
-        }
-
-        #endregion
-
-        private void tab_chats_MouseUp(object sender, MouseEventArgs e)
-        {
-            var Selected = tab_chats.SelectedTab;
-
-            if (Selected != null && Selected.Name != "tab_general" && e.Button == System.Windows.Forms.MouseButtons.Right)
-                MenuStrip_tabs.Show(tab_chats, e.X, e.Y);
-        }
-
-        private void itm_close_Click(object sender, EventArgs e)
-        {
-                var Selected = tab_chats.SelectedTab;
-                if (Selected != null && Selected.Name != "tab_general")
-                    tab_chats.TabPages.Remove(Selected);
-
-        }
-
-        private void listBox_chatUserList_DoubleClick(object sender, EventArgs e)
-        {
-            var Selected = listBox_chatUserList.SelectedItem;
-            if (Selected != null)
-                AddPrivateChat(listBox_chatUserList.SelectedItem.ToString(), true);
-        }
-
-     
-
-        private void textBox_chatMessages_MouseUp(object sender, MouseEventArgs e)
-        {
-              if (e.Button == System.Windows.Forms.MouseButtons.Left)
-            {
-                if (textBox_chatMessages.SelectedText != "")
-                {
-                    toolTip1.Show(
-                        Translator.TranslatorEngine.TranslateText(textBox_chatMessages.SelectedText, comboBox_DefaultTranslationLang.Text),
-                        textBox_chatMessages);
-                }
-                
-            }
-        }
-
-        private void textBox_chatMessages_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.Button == System.Windows.Forms.MouseButtons.Left)
-            {
-                textBox_chatMessages.SelectedText = "";
-            }
-        }
-
-    
-
     }
 }

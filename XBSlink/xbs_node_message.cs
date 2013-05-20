@@ -29,7 +29,7 @@ using System.Text;
 
 namespace XBSlink
 {
-    public enum xbs_node_message_type : byte
+    enum xbs_node_message_type : byte
     {
         ANNOUNCE = 0x00,
         GETNODELIST = 0x01,
@@ -47,11 +47,10 @@ namespace XBSlink
         KNOWNNODE = 0x0D,
         TO_CLOUDHELPER_HELPWITHNODE = 0x0E,
         FROM_CLOUDHELPER_CONTACTNODE = 0x0F,
-        SERVERHELLO = 0xFF,
-        MSG_PM = 0x11
+        SERVERHELLO = 0xFF
     }
 
-    public class xbs_node_message
+    class xbs_node_message
     {
         public xbs_node receiver;
         public xbs_node_message_type type;
@@ -103,7 +102,7 @@ namespace XBSlink
 
     }
 
-    public class xbs_node_message_string : xbs_node_message
+    class xbs_node_message_string : xbs_node_message
     {
         public String message_string = "";
 
@@ -136,7 +135,7 @@ namespace XBSlink
         }
     }
 
-    public class xbs_node_message_options : xbs_node_message_string
+    class xbs_node_message_options : xbs_node_message_string
     {
         private Dictionary<String, String> options = new Dictionary<string, string>();
         private const char OPTIONS_DELIMITER_CHAR = '\u0000';
@@ -216,7 +215,7 @@ namespace XBSlink
         }
     }
 
-    public class xbs_node_message_data : xbs_node_message
+    class xbs_node_message_data : xbs_node_message
     {
         public xbs_node_message_type ttype = xbs_node_message_type.DATA;
 
@@ -234,7 +233,7 @@ namespace XBSlink
         }
     }
 
-    public class xbs_node_message_announce : xbs_node_message_options
+    class xbs_node_message_announce : xbs_node_message_options
     {
         public xbs_node_message_type ttype = xbs_node_message_type.ANNOUNCE;
         public const String OPTION_CLOUDNAME = "CLOUD";
@@ -263,7 +262,7 @@ namespace XBSlink
         }
     }
 
-    public class xbs_node_message_addnode : xbs_node_message
+    class xbs_node_message_addnode : xbs_node_message
     {
         public IPAddress ip;
         public UInt16 port;
@@ -293,7 +292,7 @@ namespace XBSlink
         }
     }
 
-    public class xbs_node_message_delnode : xbs_node_message_addnode
+    class xbs_node_message_delnode : xbs_node_message_addnode
     {
         public new xbs_node_message_type ttype = xbs_node_message_type.DELNODE;
 
@@ -310,7 +309,7 @@ namespace XBSlink
         }
     }
 
-    public class xbs_node_message_ping : xbs_node_message
+    class xbs_node_message_ping : xbs_node_message
     {
         public xbs_node_message_type ttype = xbs_node_message_type.PING;
 
@@ -330,7 +329,7 @@ namespace XBSlink
         }
     }
 
-    public class xbs_node_message_pong : xbs_node_message
+    class xbs_node_message_pong : xbs_node_message
     {
         public xbs_node_message_type ttype = xbs_node_message_type.PONG;
 
@@ -357,7 +356,7 @@ namespace XBSlink
         }
     }
 
-    public class xbs_node_message_getclientversion : xbs_node_message
+    class xbs_node_message_getclientversion : xbs_node_message
     {
         public xbs_node_message_type ttype = xbs_node_message_type.GETCLIENTVERSION;
 
@@ -374,7 +373,7 @@ namespace XBSlink
         }
     }
 
-    public class xbs_node_message_clientversion : xbs_node_message
+    class xbs_node_message_clientversion : xbs_node_message
     {
         public xbs_node_message_type ttype = xbs_node_message_type.CLIENTVERSION;
         public String version_string = "0.0.0.0";
@@ -416,7 +415,7 @@ namespace XBSlink
         }
     }
 
-    public class xbs_node_message_chatmsg : xbs_node_message_string
+    class xbs_node_message_chatmsg : xbs_node_message_string
     {
         public xbs_node_message_type ttype = xbs_node_message_type.CHATMSG;
 
@@ -442,7 +441,7 @@ namespace XBSlink
         }
     }
 
-    public class xbs_node_message_nickname : xbs_node_message_string
+    class xbs_node_message_nickname: xbs_node_message_string
     {
         public xbs_node_message_type ttype = xbs_node_message_type.NICKNAME;
 
@@ -469,7 +468,7 @@ namespace XBSlink
         }
     }
 
-    public class xbs_node_message_getnickname : xbs_node_message
+    class xbs_node_message_getnickname : xbs_node_message
     {
         public xbs_node_message_type ttype = xbs_node_message_type.GETNICKNAME;
 
@@ -486,7 +485,7 @@ namespace XBSlink
         }
     }
 
-    public class xbs_node_message_knownnode : xbs_node_message_addnode
+    class xbs_node_message_knownnode : xbs_node_message_addnode
     {
         public new xbs_node_message_type ttype = xbs_node_message_type.KNOWNNODE;
 
@@ -503,7 +502,7 @@ namespace XBSlink
         }
     }
 
-    public class xbs_node_message_toCloudHelper_HelpWithNode : xbs_node_message_addnode
+    class xbs_node_message_toCloudHelper_HelpWithNode : xbs_node_message_addnode
     {
         public new xbs_node_message_type ttype = xbs_node_message_type.TO_CLOUDHELPER_HELPWITHNODE;
 
@@ -520,7 +519,7 @@ namespace XBSlink
         }
     }
 
-    public class xbs_node_message_fromCloudHelper_ContactNode : xbs_node_message_addnode
+    class xbs_node_message_fromCloudHelper_ContactNode : xbs_node_message_addnode
     {
         public new xbs_node_message_type ttype = xbs_node_message_type.FROM_CLOUDHELPER_CONTACTNODE;
 
@@ -536,37 +535,6 @@ namespace XBSlink
             type = ttype;
         }
     }
-
-
-   public class xbs_node_message_msgpm : xbs_node_message_string
-    {
-        public xbs_node_message_type ttype = xbs_node_message_type.MSG_PM;
-
-        public xbs_node sender;
-
-        public xbs_node_message_msgpm(IPAddress ip, int port, String chat_message)
-            : this(new xbs_node(ip, port), chat_message)
-        {
-        }
-
-        public xbs_node_message_msgpm(xbs_node node, String chat_message)
-            : base(node, chat_message)
-        {
-            type = ttype;
-        }
-
-        public xbs_node_message_msgpm(byte[] packet_data)
-            : base(packet_data)
-        {
-            type = ttype;
-        }
-
-        public String getChatMessage()
-        {
-            return this.message_string;
-        }
-    }
-
 
 }
 

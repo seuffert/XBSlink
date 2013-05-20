@@ -30,7 +30,6 @@ namespace XBSlink
         private const String _STANDARD_NICKNAME = "Anonymous";
         public static String STANDARD_NICKNAME { get { return _STANDARD_NICKNAME + (new Random().Next(1000, 9999)).ToString(); } }
         public const String INCOMING_MESSAGE_SOUNG = "sounds/incoming_chat_msg.wav";
-        public const String INCOMING_PM_SOUNG = "sounds/pm_msg.wav";
         public static bool notify_on_incoming_message = true;
         public volatile static bool message_when_nodes_join_or_leave = false;
 
@@ -41,23 +40,6 @@ namespace XBSlink
             {
                 System.Media.SoundPlayer sound_player = new System.Media.SoundPlayer();
                 sound_player.SoundLocation = xbs_chat.INCOMING_MESSAGE_SOUNG;
-                try
-                {
-                    sound_player.Play();
-                }
-                catch (Exception)
-                {
-                }
-            }
-        }
-
-        public static void playPMMessage()
-        {
-
-            if (xbs_chat.notify_on_incoming_message)
-            {
-                System.Media.SoundPlayer sound_player = new System.Media.SoundPlayer();
-                sound_player.SoundLocation = xbs_chat.INCOMING_PM_SOUNG;
                 try
                 {
                     sound_player.Play();

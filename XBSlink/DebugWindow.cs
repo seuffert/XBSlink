@@ -55,12 +55,8 @@ namespace XBSlink
             for (int i = 0; i < messages.Length; i++)
                 background_color_list.Add(getBackColor(messages[i]));
             listBox_messages.Items.AddRange(messages);
-
-            if (chk_tail.Checked)
-            {
-                int top_index = listBox_messages.Items.Count - (int)(listBox_messages.Height / listBox_messages.ItemHeight) + 2;
-                listBox_messages.TopIndex = (top_index > 0 && top_index < listBox_messages.Items.Count) ? top_index : 0;
-            }
+            int top_index = listBox_messages.Items.Count - (int)(listBox_messages.Height / listBox_messages.ItemHeight) + 2;
+            listBox_messages.TopIndex = (top_index>0 && top_index<listBox_messages.Items.Count) ? top_index : 0;
         }
 
         private void button_clear_Click(object sender, EventArgs e)
