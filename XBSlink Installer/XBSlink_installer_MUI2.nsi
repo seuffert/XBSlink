@@ -109,18 +109,18 @@ SectionEnd
 ;--------------------------------
 Section "WinPCap Capture Library" WinPCap
   SetOutPath $TEMP
-  File "WinPcap_4_1_2.exe"
+  File "WinPcap_4_1_3.exe"
   ReadRegStr $WINPCAP_NAME HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayName"
   IfErrors lbl_winpcap_do_install
   ReadRegStr $WINPCAP_VERSION HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayVersion"
   StrCmp $WINPCAP_VERSION "" lbl_winpcap_do_install ; WinPcap is really old(?) or installed improperly.
-	${VersionCompare} $WINPCAP_VERSION "4.1.0.2001" $1 ; WinPcap 4.1.2
+	${VersionCompare} $WINPCAP_VERSION "4.1.0.2980" $1 ; WinPcap 4.1.3
 	StrCmp $1 "1" lbl_winpcap_do_install
 	goto lbl_winpcap_dont_install 
 lbl_winpcap_do_install:    
-  ExecWait '"$TEMP\WinPcap_4_1_2.exe"'
+  ExecWait '"$TEMP\WinPcap_4_1_3.exe"'
 lbl_winpcap_dont_install:  
-  Delete "$TEMP\WinPcap_4_1_2.exe"
+  Delete "$TEMP\WinPcap_4_1_3.exe"
 SectionEnd
 ;--------------------------------
 ;Uninstaller Section
