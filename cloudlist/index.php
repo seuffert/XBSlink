@@ -65,10 +65,10 @@ define('CMD_SENDHELLO',	'SENDHELLO');
 define('DB_FILENAME',	'XBSlink_clouds.sqlite3');
 define('TABLE_CLOUDS', 	'clouds');
 define('TABLE_NODES', 	'nodes');
-define('DB_SERVER', 	'server1.secudb.de');
-define('DB_NAME', 		'oli_xbslink_cloudlist');
-define('DB_USERNAME', 	'xbslink');
-define('DB_PASSWORD', 	'cJqQXfQ4auNy44AY');
+define('DB_SERVER', 	'INSERT_SERVER_NAME');
+define('DB_NAME', 		'INSERT_DB_NAME');
+define('DB_USERNAME', 	'INSERT_USERNAME');
+define('DB_PASSWORD', 	'INSERT_PASSWORD');
 
 // misc settings
 define('MIN_CLOUDNAME_LENGTH', 2);
