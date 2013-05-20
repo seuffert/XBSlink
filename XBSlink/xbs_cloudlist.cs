@@ -29,6 +29,7 @@ using System.Windows.Forms;
 using System.Web;
 using System.Threading;
 using System.Security.Cryptography;
+using XBSlink.Common;
 
 namespace XBSlink
 {
@@ -64,21 +65,7 @@ namespace XBSlink
         public const String CLIENTVERSION   = "clientversion";
     }
 
-    class xbs_cloud
-    {
-        public String name;
-        public int node_count;
-        public int max_nodes;
-        public bool isPrivate = false;
 
-        public xbs_cloud(String name, int node_count, int max_nodes, bool isPrivate)
-        {
-            this.name = name;
-            this.node_count = node_count;
-            this.max_nodes = max_nodes;
-            this.isPrivate = isPrivate;
-        }
-    }
 
     class xbs_cloudlist
     {
@@ -97,6 +84,19 @@ namespace XBSlink
 
         public xbs_cloudlist()
         {
+        }
+
+
+        public xbs_cloud findCloud(string name)
+        {
+
+            foreach (var item in getCloudlistArray())
+            {
+                if (item.name == name)
+                    return item;
+            }
+
+            return null;
         }
 
         public bool loadCloudlistFromURL(String url)
@@ -251,6 +251,11 @@ namespace XBSlink
                 MessageBox.Show(wex.Message);
                 return false;
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                    return false;
+            }
             if (result.StartsWith(xbs_cloudlist_returncode.RETURN_CODE_ERROR))
             {
                 MessageBox.Show(result);
@@ -404,6 +409,7 @@ namespace XBSlink
 
         public xbs_cloud[] getCloudlistArray()
         {
+
             xbs_cloud[] clouds;
             lock (cloudlist)
                 clouds = cloudlist.ToArray();

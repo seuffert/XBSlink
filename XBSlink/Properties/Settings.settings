@@ -95,5 +95,8 @@
     <Setting Name="REG_NEWS_FEED_SWITCH_TO_TAB" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="REG_DEFAULT_TRANSLATION_LANG" Type="System.String" Scope="User">
+      <Value Profile="(Default)">English</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

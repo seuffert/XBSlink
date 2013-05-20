@@ -11,6 +11,7 @@ using SharpPcap.LibPcap;
 using SharpPcap.WinPcap;
 using NDesk.Options;
 using System.Runtime.InteropServices;
+using XBSlink.Common;
 using XBSlink.Properties;
 
 namespace XBSlink

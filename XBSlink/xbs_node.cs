@@ -36,7 +36,7 @@ namespace XBSlink
         TCP = 0x01
     }
 
-    class xbs_xbox
+    public class xbs_xbox
     {
         // MAC address identifying this device
         public PhysicalAddress mac;
@@ -75,7 +75,7 @@ namespace XBSlink
         }
     }
 
-    class xbs_node_statistics
+    public class xbs_node_statistics
     {
         public UInt64 packet_count_in = 0;
         public UInt64 packet_count_out = 0;
@@ -112,7 +112,7 @@ namespace XBSlink
 #endif
     }
 
-    class xbs_node
+    public class xbs_node
     {
         public IPAddress ip_public;
         public int port_public;
@@ -179,6 +179,13 @@ namespace XBSlink
                 this.ip_public = ip_announced;
                 this.port_public = port_announced;
             }
+        }
+
+
+        public void sendMessagePM(String chat_message)
+        {
+            xbs_node_message_msgpm msg = new xbs_node_message_msgpm(this, chat_message);
+            sendNodeMessage(msg);
         }
 
         public override string ToString()

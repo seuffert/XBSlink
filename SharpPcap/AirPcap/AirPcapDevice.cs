@@ -190,6 +190,34 @@ namespace SharpPcap.AirPcap
         }
 
         /// <summary>
+        /// Adapter frequency
+        /// </summary>
+        public uint Frequency
+        {
+            get
+            {
+                ThrowIfNotOpen();
+                AirPcapUnmanagedStructures.AirpcapChannelInfo channelInfo;
+                if (!AirPcapSafeNativeMethods.AirpcapGetDeviceChannelEx(AirPcapDeviceHandle, out channelInfo))
+                {
+                    throw new System.InvalidOperationException("Failed to retrieve frequency");
+                }
+                return channelInfo.Frequency;
+            }
+
+            set
+            {
+                ThrowIfNotOpen();
+                AirPcapUnmanagedStructures.AirpcapChannelInfo channelInfo = new AirPcapUnmanagedStructures.AirpcapChannelInfo();
+                channelInfo.Frequency = value;
+                if (!AirPcapSafeNativeMethods.AirpcapSetDeviceChannelEx(AirPcapDeviceHandle, channelInfo))
+                {
+                    throw new System.InvalidOperationException("Failed to set frequency");
+                }
+            }
+        }
+
+        /// <summary>
         /// Channel information
         /// </summary>
         public AirPcapChannelInfo ChannelInfo
@@ -664,7 +692,7 @@ namespace SharpPcap.AirPcap
                         packetDotNetLinkLayer = PacketDotNet.LinkLayers.Ieee80211_Radio;
                         break;
                     case AirPcapLinkTypes._802_11:
-                        packetDotNetLinkLayer = PacketDotNet.LinkLayers.Ieee802;
+                        packetDotNetLinkLayer = PacketDotNet.LinkLayers.Ieee80211;
                         break;
                     case AirPcapLinkTypes._802_11_PLUS_PPI:
                         packetDotNetLinkLayer = PacketDotNet.LinkLayers.PerPacketInformation;
